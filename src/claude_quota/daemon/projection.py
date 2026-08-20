@@ -15,6 +15,11 @@ import time
 # The regression window. Twenty minutes, per the spec.
 BURN_WINDOW_SECONDS = 20 * 60
 MIN_SAMPLES = 4
+# Refuse to publish a verdict until the samples actually span enough wall-clock,
+# and until the slope is meaningful next to its own noise. A point estimate on a
+# noisy signal is a lie with a decimal place.
+MIN_SPAN_SECONDS = 10 * 60
+MAX_REL_STDERR = 0.6
 
 
 def _series(conn: sqlite3.Connection, since: int) -> list[tuple[int, float]]:
@@ -89,7 +94,13 @@ def project(conn: sqlite3.Connection, now: int | None = None) -> dict:
     }
 
     if len(points) < MIN_SAMPLES:
-        base["suppressed_reason"] = "not enough signal"
+        base["suppressed_reason"] = "collecting data"
+        return base
+    span = points[-1][0] - points[0][0]
+    if span < MIN_SPAN_SECONDS:
+        base["suppressed_reason"] = (
+            f"collecting data ({span // 60}m of {MIN_SPAN_SECONDS // 60}m)"
+        )
         return base
     if _compaction_in_window(conn, since):
         base["suppressed_reason"] = "compaction spike, projection paused"
@@ -97,11 +108,17 @@ def project(conn: sqlite3.Connection, now: int | None = None) -> dict:
 
     slope_per_s, stderr_per_s = _ols(points)
     burn_per_hour = slope_per_s * 3600.0
+    stderr_per_hour = stderr_per_s * 3600.0
     base["burn_rate_pct_per_hour"] = burn_per_hour
-    base["burn_rate_stderr"] = stderr_per_s * 3600.0
+    base["burn_rate_stderr"] = stderr_per_hour
 
     if burn_per_hour <= 0 or current_pct is None:
-        base["suppressed_reason"] = "not enough signal"
+        base["suppressed_reason"] = "flat or falling, no projection"
+        return base
+    # The slope must stand clear of its own standard error, else the "verdict"
+    # is noise wearing a decimal point.
+    if stderr_per_hour / burn_per_hour > MAX_REL_STDERR:
+        base["suppressed_reason"] = "not enough signal (too noisy)"
         return base
 
     def cutoff_for(rate_per_hour: float) -> float | None:

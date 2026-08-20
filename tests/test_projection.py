@@ -31,7 +31,7 @@ def test_too_few_samples_suppressed(conn):
     conn.commit()
     p = projection.project(conn, now=now)
     assert not p["available"]
-    assert p["suppressed_reason"] == "not enough signal"
+    assert "collecting" in p["suppressed_reason"]
 
 
 def test_compaction_pauses_projection(conn):

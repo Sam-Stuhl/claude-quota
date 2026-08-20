@@ -91,7 +91,10 @@ def compute(conn: sqlite3.Connection, now: int | None = None) -> dict:
     now = now or int(time.time())
     limits = latest_limits(conn)
     is_degraded, reason = degraded(conn, now)
-    rates = calibration.get_rates(conn)
+    # Trust fitted per-model rates only once calibration is actually good;
+    # before that, a half-converged NNLS fit produces misleading shares, so
+    # fall back to attributing straight by cost (the flat 1.0 prior).
+    rates = calibration.get_rates(conn) if calibration.is_calibrated(conn) else {}
 
     reset = limits.get("five_h_reset")
     window_start, _ = window_bounds(reset, now)
