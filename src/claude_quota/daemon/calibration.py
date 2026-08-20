@@ -124,7 +124,9 @@ def refit(conn: sqlite3.Connection, now: int | None = None) -> dict:
     pred = A @ coef
     ss_res = float(np.sum((b - pred) ** 2))
     ss_tot = float(np.sum((b - np.mean(b)) ** 2))
-    r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else None
+    # R2 is only meaningful when the target actually varies. With near-constant
+    # deltas ss_tot -> 0 and the ratio explodes, so treat that as "no fit yet".
+    r2 = 1.0 - ss_res / ss_tot if ss_tot > 1e-6 else None
     n = int(A.shape[0])
 
     for m, c in zip(models, coef, strict=True):
@@ -153,12 +155,14 @@ def rate_for(rates: dict[str, float], model: str) -> float:
 
 
 def is_calibrated(conn: sqlite3.Connection) -> bool:
-    """True once at least one model clears both trust thresholds."""
+    """True once a single model row clears both trust thresholds.
+
+    The thresholds must be met by the *same* row (one fit), not by a max taken
+    across different rows: a stale high sample count on one model must not make
+    a garbage fit on another look trustworthy.
+    """
     row = conn.execute(
-        "SELECT MAX(n_samples) AS n, MAX(r2) AS r2 FROM calibration"
+        "SELECT 1 FROM calibration WHERE n_samples >= ? AND r2 >= ? AND r2 <= 1.0 LIMIT 1",
+        (config.CALIBRATION_MIN_SAMPLES, config.CALIBRATION_MIN_R2),
     ).fetchone()
-    if not row or row["n"] is None:
-        return False
-    n = row["n"] or 0
-    r2 = row["r2"] or 0.0
-    return n >= config.CALIBRATION_MIN_SAMPLES and r2 >= config.CALIBRATION_MIN_R2
+    return row is not None
