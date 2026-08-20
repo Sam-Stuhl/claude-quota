@@ -66,6 +66,14 @@ def ensure_runtime_dir() -> Path:
     return d
 
 
+def static_mode() -> bool:
+    """When set, skip the periodic calibration/maintenance loops.
+
+    Useful for a demo instance serving seeded data that should not drift.
+    """
+    return os.environ.get("CLAUDE_QUOTA_STATIC", "").lower() in ("1", "true", "yes")
+
+
 def otlp_enabled() -> bool:
     """Whether the daemon should boot the OTLP receivers.
 

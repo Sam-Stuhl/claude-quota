@@ -79,10 +79,11 @@ async def lifespan(app: FastAPI):
 
     tasks = [
         asyncio.create_task(ingest.processor(state)),
-        asyncio.create_task(_calibration_loop(state)),
-        asyncio.create_task(_maintenance_loop(state)),
         asyncio.create_task(_heartbeat_loop(state)),
     ]
+    if not config.static_mode():
+        tasks.append(asyncio.create_task(_calibration_loop(state)))
+        tasks.append(asyncio.create_task(_maintenance_loop(state)))
 
     grpc_server = None
     http_server = None
