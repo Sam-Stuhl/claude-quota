@@ -83,11 +83,11 @@ def _import_file(conn: sqlite3.Connection, path: Path) -> int:
             conn.execute(
                 """INSERT INTO usage_bucket
                    (ts, session_id, model, query_source, agent_name, skill_name,
-                    mcp_server, cost_usd, tok_input, tok_output, tok_cache_r,
-                    tok_cache_w, active_ms)
-                   VALUES (?,?,?,'','','','',?,?,?,?,?,0)
+                    mcp_server, plugin_name, effort, cost_usd, tok_input,
+                    tok_output, tok_cache_r, tok_cache_w, active_ms)
+                   VALUES (?,?,?,'','','','','','',?,?,?,?,?,0)
                    ON CONFLICT(ts, session_id, model, query_source, agent_name,
-                               skill_name, mcp_server)
+                               skill_name, mcp_server, plugin_name, effort)
                    DO UPDATE SET
                      cost_usd    = cost_usd + excluded.cost_usd,
                      tok_input   = tok_input + excluded.tok_input,

@@ -18,7 +18,8 @@ def test_shares_and_unattributed_sum_to_measured(conn):
     for sid, cost in (("atlas", 20.0), ("bank", 10.0)):
         conn.execute(
             "INSERT INTO usage_bucket (ts, session_id, model, query_source, agent_name, "
-            "skill_name, mcp_server, cost_usd) VALUES (?, ?, 'm', '', '', '', '', ?)",
+            "skill_name, mcp_server, plugin_name, effort, cost_usd) "
+            "VALUES (?, ?, 'm', '', '', '', '', '', '', ?)",
             (now - 60, sid, cost),
         )
     # Measured 5h is 40%: 30% explained by local cost, 10% unattributed.
@@ -44,7 +45,8 @@ def test_labels_from_project_dir(conn):
     db.upsert_session(conn, "s", now, project_dir="/home/x/atlas", git_worktree="wt")
     conn.execute(
         "INSERT INTO usage_bucket (ts, session_id, model, query_source, agent_name, "
-        "skill_name, mcp_server, cost_usd) VALUES (?, 's', 'm', '', '', '', '', 1.0)",
+        "skill_name, mcp_server, plugin_name, effort, cost_usd) "
+        "VALUES (?, 's', 'm', '', '', '', '', '', '', 1.0)",
         (now - 10,),
     )
     conn.commit()
@@ -63,7 +65,8 @@ def test_window_close_out(conn):
     )
     conn.execute(
         "INSERT INTO usage_bucket (ts, session_id, model, query_source, agent_name, "
-        "skill_name, mcp_server, cost_usd) VALUES (?, 's', 'm', '', '', '', '', 5.0)",
+        "skill_name, mcp_server, plugin_name, effort, cost_usd) "
+        "VALUES (?, 's', 'm', '', '', '', '', '', '', 5.0)",
         (start + 10, ),
     )
     conn.commit()

@@ -89,12 +89,23 @@ def _bucket_key(session_id: str, attrs: dict) -> tuple:
     agent_name = _first(attrs, "agent.name", "agent_name") or ""
     skill_name = _first(attrs, "skill.name", "skill_name") or ""
     mcp_server = _first(attrs, "mcp_server.name", "mcp_server", "mcp.server.name") or ""
-    return (session_id, model, query_source, agent_name, skill_name, mcp_server)
+    plugin_name = _first(attrs, "plugin.name", "plugin_name") or ""
+    effort = _first(attrs, "effort") or ""
+    return (session_id, model, query_source, agent_name, skill_name, mcp_server,
+            plugin_name, effort)
 
 
 def _session_id(attrs: dict) -> str | None:
     sid = _first(attrs, "session.id", "session_id")
     return str(sid) if sid else None
+
+
+def _device(resource_attrs: dict) -> str | None:
+    d = _first(
+        resource_attrs, "device.name", "device", "host.name",
+        "service.instance.id", "host.arch",
+    )
+    return str(d) if d else None
 
 
 def handle_metrics_request(
@@ -118,9 +129,11 @@ def handle_metrics_request(
         }
     )
     seen_sessions: dict[str, dict] = {}
+    session_device: dict[str, str] = {}
     n_points = 0
 
     for rm in req.resource_metrics:
+        device = _device(_attrs(rm.resource.attributes))
         for sm in rm.scope_metrics:
             for metric in sm.metrics:
                 which = metric.WhichOneof("data")
@@ -135,6 +148,8 @@ def handle_metrics_request(
                     attrs = _attrs(dp.attributes)
                     sid = _session_id(attrs)
                     value = _number(dp)
+                    if sid and device and sid not in session_device:
+                        session_device[sid] = device
                     if metric.name == SESSION_METRIC:
                         start_type = _first(attrs, "start_type", "start.type")
                         # agents_view is a UI process, not a conversation.
@@ -164,38 +179,32 @@ def handle_metrics_request(
 
     for sid, meta in seen_sessions.items():
         db.upsert_session(
-            conn, sid, now, entrypoint="otel", start_type=meta.get("start_type")
+            conn, sid, now, device=session_device.get(sid), entrypoint="otel",
+            start_type=meta.get("start_type"),
         )
 
     if acc:
         rows = []
-        for (bts, sid, model, qs, agent, skill, mcp), v in acc.items():
-            db.upsert_session(conn, sid, now, entrypoint="otel")
+        upserted: set[str] = set()
+        for (bts, sid, model, qs, agent, skill, mcp, plugin, effort), v in acc.items():
+            if sid not in upserted:
+                db.upsert_session(conn, sid, now, device=session_device.get(sid), entrypoint="otel")
+                upserted.add(sid)
             rows.append(
                 (
-                    bts,
-                    sid,
-                    model,
-                    qs,
-                    agent,
-                    skill,
-                    mcp,
-                    v["cost_usd"],
-                    int(v["tok_input"]),
-                    int(v["tok_output"]),
-                    int(v["tok_cache_r"]),
-                    int(v["tok_cache_w"]),
-                    int(v["active_ms"]),
+                    bts, sid, model, qs, agent, skill, mcp, plugin, effort,
+                    v["cost_usd"], int(v["tok_input"]), int(v["tok_output"]),
+                    int(v["tok_cache_r"]), int(v["tok_cache_w"]), int(v["active_ms"]),
                 )
             )
         conn.executemany(
             """INSERT INTO usage_bucket
                (ts, session_id, model, query_source, agent_name, skill_name,
-                mcp_server, cost_usd, tok_input, tok_output, tok_cache_r,
-                tok_cache_w, active_ms)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                mcp_server, plugin_name, effort, cost_usd, tok_input, tok_output,
+                tok_cache_r, tok_cache_w, active_ms)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                ON CONFLICT(ts, session_id, model, query_source, agent_name,
-                           skill_name, mcp_server)
+                           skill_name, mcp_server, plugin_name, effort)
                DO UPDATE SET
                  cost_usd    = cost_usd + excluded.cost_usd,
                  tok_input   = tok_input + excluded.tok_input,

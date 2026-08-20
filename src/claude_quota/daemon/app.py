@@ -10,7 +10,6 @@ down by ``doctor``.
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -128,11 +127,12 @@ def create_app() -> FastAPI:
     @app.post("/ingest/statusline")
     async def ingest_statusline(request: Request):
         # Return before doing any work: this is on the critical path of a
-        # status line render. Parse cheaply, queue, respond 204.
+        # status line render. Queue the raw body (+device) and respond 204;
+        # parsing happens in the background processor.
         raw = await request.body()
+        device = request.query_params.get("device") or request.headers.get("x-device")
         try:
-            payload = json.loads(raw)
-            request.app.state.qstate.ingest_queue.put_nowait(payload)
+            request.app.state.qstate.ingest_queue.put_nowait((raw, device))
         except Exception:
             pass
         return Response(status_code=204)

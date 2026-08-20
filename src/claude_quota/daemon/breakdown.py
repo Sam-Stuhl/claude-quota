@@ -12,6 +12,8 @@ _COLUMN = {
     "agent": "agent_name",
     "mcp": "mcp_server",
     "skill": "skill_name",
+    "plugin": "plugin_name",
+    "effort": "effort",
 }
 
 FIVE_HOURS = 5 * 3600
@@ -36,16 +38,27 @@ def build(
     now: int | None = None,
 ) -> dict:
     now = now or int(time.time())
-    col = _COLUMN.get(by, "model")
     start = _window_start(conn, window, now)
-    rows = conn.execute(
-        f"""SELECT {col} AS key, SUM(cost_usd) AS cost,
-                   SUM(tok_input) AS ti, SUM(tok_output) AS to_,
-                   SUM(tok_cache_r) AS tcr, SUM(tok_cache_w) AS tcw
-            FROM usage_bucket WHERE ts >= ?
-            GROUP BY {col} ORDER BY cost DESC""",
-        (start,),
-    ).fetchall()
+    if by == "device":
+        # Device lives on the session row, so join it in.
+        rows = conn.execute(
+            """SELECT COALESCE(s.device, '(unknown)') AS key, SUM(b.cost_usd) AS cost,
+                      SUM(b.tok_input) AS ti, SUM(b.tok_output) AS to_,
+                      SUM(b.tok_cache_r) AS tcr, SUM(b.tok_cache_w) AS tcw
+               FROM usage_bucket b LEFT JOIN session s ON s.session_id = b.session_id
+               WHERE b.ts >= ? GROUP BY key ORDER BY cost DESC""",
+            (start,),
+        ).fetchall()
+    else:
+        col = _COLUMN.get(by, "model")
+        rows = conn.execute(
+            f"""SELECT {col} AS key, SUM(cost_usd) AS cost,
+                       SUM(tok_input) AS ti, SUM(tok_output) AS to_,
+                       SUM(tok_cache_r) AS tcr, SUM(tok_cache_w) AS tcw
+                FROM usage_bucket WHERE ts >= ?
+                GROUP BY {col} ORDER BY cost DESC""",
+            (start,),
+        ).fetchall()
     items = []
     for r in rows:
         key = r["key"] or "(none)"

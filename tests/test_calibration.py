@@ -14,7 +14,8 @@ def _sample(conn, ts, pct, reset=RESET):
 def _cost(conn, ts, model, cost):
     conn.execute(
         "INSERT INTO usage_bucket (ts, session_id, model, query_source, agent_name, "
-        "skill_name, mcp_server, cost_usd) VALUES (?, 's', ?, '', '', '', '', ?)",
+        "skill_name, mcp_server, plugin_name, effort, cost_usd) "
+        "VALUES (?, 's', ?, '', '', '', '', '', '', ?)",
         (ts, model, cost),
     )
 

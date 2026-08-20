@@ -2,12 +2,16 @@
 
 The HTTP handler must return before doing any work (it sits on the critical
 path of a status line render), so it only pushes the raw payload onto a queue.
-This module also owns the pure parser and the queue processor that writes to
-SQLite.
+This module owns the pure parser and the queue processor that writes to SQLite.
+
+Beyond the quota percentages we capture the rest of the render state Claude
+Code hands us (cost, context window, lines, model) and archive the full raw
+payload so nothing is lost as the schema evolves.
 """
 
 from __future__ import annotations
 
+import json
 import sqlite3
 import time
 from dataclasses import dataclass
@@ -27,6 +31,13 @@ class ParsedSample:
     seven_d_reset: int | None
     cc_version: str | None
     had_limits: bool
+    device: str | None = None
+    model_id: str | None = None
+    cost_usd_total: float | None = None
+    context_pct: float | None = None
+    lines_added: int | None = None
+    lines_removed: int | None = None
+    exceeds_200k: int | None = None
     # Session metadata, if present, so we can register the session too.
     cwd: str | None = None
     project_dir: str | None = None
@@ -52,7 +63,6 @@ def parse_reset(value: Any) -> int | None:
         if s.isdigit():
             return int(s)
         try:
-            # Handle a trailing Z (UTC) which fromisoformat rejects pre-3.11.
             iso = s.replace("Z", "+00:00")
             return int(datetime.fromisoformat(iso).timestamp())
         except ValueError:
@@ -70,7 +80,18 @@ def _limit(rate_limits: dict, key: str) -> tuple[float | None, int | None]:
     return pct, reset
 
 
-def parse_statusline(payload: dict, now: int | None = None) -> ParsedSample | None:
+def _num(v: Any) -> float | None:
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def _intish(v: Any) -> int | None:
+    n = _num(v)
+    return int(n) if n is not None else None
+
+
+def parse_statusline(
+    payload: dict, now: int | None = None, device: str | None = None
+) -> ParsedSample | None:
     """Normalize a statusline JSON blob into a ParsedSample.
 
     rate_limits is optional on every ingest (absent for API-key auth, before
@@ -83,19 +104,21 @@ def parse_statusline(payload: dict, now: int | None = None) -> ParsedSample | No
         return None
 
     workspace = payload.get("workspace") or {}
+    model = payload.get("model") or {}
+    cost = payload.get("cost") or {}
+    ctx = payload.get("context_window") or {}
 
     rate_limits = payload.get("rate_limits")
     had_limits = isinstance(rate_limits, dict) and bool(rate_limits)
     if had_limits:
         five_pct, five_reset = _limit(rate_limits, "five_hour")
         seven_pct, seven_reset = _limit(rate_limits, "seven_day")
-        # If the block exists but carries no usable percentage, treat it as
-        # absent for degraded-mode accounting.
         if five_pct is None and seven_pct is None:
             had_limits = False
     else:
         five_pct = five_reset = seven_pct = seven_reset = None
 
+    exceeds = payload.get("exceeds_200k_tokens")
     return ParsedSample(
         ts=now,
         session_id=session_id,
@@ -105,20 +128,30 @@ def parse_statusline(payload: dict, now: int | None = None) -> ParsedSample | No
         seven_d_reset=seven_reset,
         cc_version=payload.get("version"),
         had_limits=had_limits,
+        device=device,
+        model_id=model.get("id"),
+        cost_usd_total=_num(cost.get("total_cost_usd")),
+        context_pct=_num(ctx.get("used_percentage")),
+        lines_added=_intish(cost.get("total_lines_added")),
+        lines_removed=_intish(cost.get("total_lines_removed")),
+        exceeds_200k=(1 if exceeds else 0) if exceeds is not None else None,
         cwd=payload.get("cwd") or workspace.get("current_dir"),
         project_dir=workspace.get("project_dir"),
         git_worktree=workspace.get("git_worktree"),
     )
 
 
-def store_sample(conn: sqlite3.Connection, s: ParsedSample) -> None:
-    """Persist a parsed sample and register/refresh its session."""
+def store_sample(
+    conn: sqlite3.Connection, s: ParsedSample, raw: str | None = None
+) -> None:
+    """Persist a parsed sample, register its session, and archive the raw JSON."""
     from .. import db
 
     db.upsert_session(
         conn,
         s.session_id,
         s.ts,
+        device=s.device,
         cwd=s.cwd,
         project_dir=s.project_dir,
         git_worktree=s.git_worktree,
@@ -126,31 +159,35 @@ def store_sample(conn: sqlite3.Connection, s: ParsedSample) -> None:
     )
     conn.execute(
         """INSERT INTO quota_sample
-           (ts, session_id, five_h_pct, five_h_reset, seven_d_pct, seven_d_reset,
-            cc_version, had_limits)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+           (ts, session_id, device, five_h_pct, five_h_reset, seven_d_pct,
+            seven_d_reset, cc_version, had_limits, model_id, cost_usd_total,
+            context_pct, lines_added, lines_removed, exceeds_200k)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
-            s.ts,
-            s.session_id,
-            s.five_h_pct,
-            s.five_h_reset,
-            s.seven_d_pct,
-            s.seven_d_reset,
-            s.cc_version,
-            1 if s.had_limits else 0,
+            s.ts, s.session_id, s.device, s.five_h_pct, s.five_h_reset,
+            s.seven_d_pct, s.seven_d_reset, s.cc_version, 1 if s.had_limits else 0,
+            s.model_id, s.cost_usd_total, s.context_pct, s.lines_added,
+            s.lines_removed, s.exceeds_200k,
         ),
     )
+    if raw is not None:
+        conn.execute(
+            "INSERT INTO raw_statusline (ts, session_id, device, payload) VALUES (?,?,?,?)",
+            (s.ts, s.session_id, s.device, raw),
+        )
     conn.commit()
 
 
 async def processor(state: AppState) -> None:
     """Drain the ingest queue, parse, store, and notify SSE subscribers."""
     while True:
-        payload = await state.ingest_queue.get()
+        raw, device = await state.ingest_queue.get()
         try:
-            sample = parse_statusline(payload)
+            text = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else str(raw)
+            payload = json.loads(text)
+            sample = parse_statusline(payload, device=device)
             if sample is not None:
-                store_sample(state.conn, sample)
+                store_sample(state.conn, sample, raw=text)
                 await state.notify_change()
         except Exception:
             # A malformed ingest must never take the processor down.

@@ -1,24 +1,43 @@
 PRAGMA journal_mode=WAL;
 
--- One row per statusline ingest. The quota ground-truth stream.
+-- One row per statusline ingest. The quota ground-truth stream, plus the rich
+-- per-render session state Claude Code hands us (cost, context, lines, model).
 CREATE TABLE IF NOT EXISTS quota_sample (
   id            INTEGER PRIMARY KEY,
   ts            INTEGER NOT NULL,           -- unix seconds
   session_id    TEXT NOT NULL,
+  device        TEXT,                       -- which machine reported this
   five_h_pct    REAL,                       -- NULL when rate_limits absent
   five_h_reset  INTEGER,
   seven_d_pct   REAL,
   seven_d_reset INTEGER,
   cc_version    TEXT,
-  had_limits    INTEGER NOT NULL            -- 0/1, for degraded-mode detection
+  had_limits    INTEGER NOT NULL,           -- 0/1, for degraded-mode detection
+  model_id      TEXT,                       -- model.id at render time
+  cost_usd_total REAL,                      -- cost.total_cost_usd (CC's own tally)
+  context_pct   REAL,                       -- context_window.used_percentage
+  lines_added   INTEGER,
+  lines_removed INTEGER,
+  exceeds_200k  INTEGER                      -- 0/1
 );
 CREATE INDEX IF NOT EXISTS idx_quota_ts ON quota_sample(ts);
+
+-- Full raw statusline payloads, kept for reprocessing as the schema evolves.
+CREATE TABLE IF NOT EXISTS raw_statusline (
+  id         INTEGER PRIMARY KEY,
+  ts         INTEGER NOT NULL,
+  session_id TEXT,
+  device     TEXT,
+  payload    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_raw_ts ON raw_statusline(ts);
 
 -- Sessions seen, from either source.
 CREATE TABLE IF NOT EXISTS session (
   session_id    TEXT PRIMARY KEY,
   first_seen    INTEGER NOT NULL,
   last_seen     INTEGER NOT NULL,
+  device        TEXT,
   cwd           TEXT,
   project_dir   TEXT,
   git_worktree  TEXT,
@@ -36,13 +55,16 @@ CREATE TABLE IF NOT EXISTS usage_bucket (
   agent_name    TEXT,
   skill_name    TEXT,
   mcp_server    TEXT,
+  plugin_name   TEXT,
+  effort        TEXT,
   cost_usd      REAL NOT NULL DEFAULT 0,
   tok_input     INTEGER NOT NULL DEFAULT 0,
   tok_output    INTEGER NOT NULL DEFAULT 0,
   tok_cache_r   INTEGER NOT NULL DEFAULT 0,
   tok_cache_w   INTEGER NOT NULL DEFAULT 0,
   active_ms     INTEGER NOT NULL DEFAULT 0,
-  PRIMARY KEY (ts, session_id, model, query_source, agent_name, skill_name, mcp_server)
+  PRIMARY KEY (ts, session_id, model, query_source, agent_name, skill_name,
+               mcp_server, plugin_name, effort)
 ) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS idx_bucket_ts ON usage_bucket(ts);
 

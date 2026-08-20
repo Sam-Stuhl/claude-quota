@@ -77,8 +77,13 @@ def otlp_enabled() -> bool:
     )
 
 
-# Retention: quota_sample and usage_bucket roll off at this age on daemon start.
-RETENTION_DAYS = 90
+# Retention: high-volume tables roll off at this age on daemon start. Override
+# to collect more (or less) history. window_history is always kept forever.
+RETENTION_DAYS = int(os.environ.get("CLAUDE_QUOTA_RETENTION_DAYS", "90"))
+# The raw statusline archive can grow fast; it rolls off separately.
+RAW_RETENTION_DAYS = int(
+    os.environ.get("CLAUDE_QUOTA_RAW_RETENTION_DAYS", str(RETENTION_DAYS))
+)
 
 # A session is "idle" after this long with no activity, and drops off the live
 # list after the longer window (its usage still counts toward the window total).
