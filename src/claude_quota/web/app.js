@@ -5,7 +5,6 @@
 // attribution on top. The UI is designed to be informative from the status
 // line alone and to teach how to turn attribution on when it is missing.
 
-const SVGNS = "http://www.w3.org/2000/svg";
 const PALETTE = 12;
 const $ = (id) => document.getElementById(id);
 
@@ -33,12 +32,6 @@ function fmtTokens(n) {
 }
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-}
-
-function el(tag, attrs) {
-  const n = document.createElementNS(SVGNS, tag);
-  for (const k in attrs) n.setAttribute(k, attrs[k]);
-  return n;
 }
 
 // ---- Feed status row -------------------------------------------------------
@@ -107,77 +100,62 @@ function renderHero(summary) {
       : (proj.suppressed_reason || "gathering history…");
   }
 
-  drawSpark(summary);
+  renderRunway(summary);
   renderStats(summary);
 }
 
-function drawSpark(summary) {
-  const svg = $("spark");
-  while (svg.firstChild) svg.removeChild(svg.firstChild);
-  const series = summary.series || [];
-  const five = summary.five_hour;
-  const proj = summary.projection || {};
-  const start = summary.window_start;
-  const reset = five.resets_at;
-  const now = summary.now;
-  const end = reset && reset > start ? reset : now;
+// Runway: the remaining window as a timeline from now to reset, with the
+// projected cap marked against it. Answers "how much of the window can I
+// actually use, and does the cap arrive before the reset?"
+function renderRunway(summary) {
+  const track = $("rw-track"), labels = $("rw-labels"), axis = $("rw-axis"), note = $("rw-note");
+  const five = summary.five_hour, proj = summary.projection || {};
+  const now = summary.now, reset = five.resets_at;
+  track.innerHTML = ""; labels.innerHTML = ""; axis.innerHTML = ""; note.textContent = "";
 
-  if (series.length < 2 || !start) {
-    $("chart-empty").hidden = false;
-    $("ax-start").textContent = start ? fmtTime(start) : "";
-    $("ax-reset").textContent = reset ? fmtTime(reset) : "";
-    positionNow(start, end, now);
+  if (!reset || reset <= now) {
+    track.innerHTML = '<div class="rw-seg fresh" style="width:100%"></div>';
+    axis.innerHTML = '<span class="now">now</span>';
+    labels.innerHTML = '<span class="fresh" style="left:50%">waiting for reset time…</span>';
     return;
   }
-  $("chart-empty").hidden = true;
 
-  const W = 1000, H = 100, PAD = 6;
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  const x = (t) => clamp((t - start) / (end - start), 0, 1) * W;
-  const y = (p) => PAD + (1 - clamp(p, 0, 100) / 100) * (H - 2 * PAD);
+  // The track always spans the actual remaining window: now -> reset.
+  const span = reset - now;
+  const at = (t) => clamp((t - now) / span, 0, 1) * 100;
+  const cutoff = proj.available && proj.cutoff_at ? proj.cutoff_at : null;
+  const isShort = cutoff && cutoff < reset;
 
-  // Cap line (100%) and reset marker.
-  svg.appendChild(el("line", { x1: 0, y1: y(100), x2: W, y2: y(100),
-    stroke: "var(--line-2)", "stroke-width": 1, "stroke-dasharray": "3 4", "vector-effect": "non-scaling-stroke" }));
-  if (reset && reset > start) {
-    svg.appendChild(el("line", { x1: x(reset), y1: 0, x2: x(reset), y2: H,
-      stroke: "var(--accent)", "stroke-width": 1.5, "stroke-dasharray": "2 3", "vector-effect": "non-scaling-stroke" }));
+  const seg = (w, cls) => { const d = document.createElement("div"); d.className = "rw-seg " + cls; d.style.width = w + "%"; track.appendChild(d); };
+  const line = (t, cls) => { const d = document.createElement("div"); d.className = "rw-line " + cls; d.style.left = at(t) + "%"; track.appendChild(d); };
+  const place = (node, p) => {
+    if (p >= 99) { node.style.right = "0"; node.style.left = "auto"; node.style.transform = "none"; }
+    else if (p <= 1) { node.style.left = "0"; node.style.transform = "none"; }
+    else { node.style.left = p + "%"; }
+  };
+  const mark = (t, cls, text) => { const s = document.createElement("span"); s.className = cls; s.textContent = text; place(s, at(t)); axis.appendChild(s); };
+  const label = (centerP, cls, text) => { const s = document.createElement("span"); s.className = cls; s.textContent = text; place(s, centerP); labels.appendChild(s); };
+
+  const nowMark = document.createElement("span");
+  nowMark.className = "now"; nowMark.textContent = "now"; axis.appendChild(nowMark);
+  mark(reset, "reset", `reset ${fmtTime(reset)}`);
+  line(reset, "reset");
+
+  if (isShort) {
+    const x = at(cutoff);
+    seg(x, "usable");
+    seg(100 - x, "capped");
+    line(cutoff, "cap");
+    mark(cutoff, "cap", `cap ${fmtTime(cutoff)}`);
+    label(x / 2, "usable", `${fmtDur(cutoff - now)} usable`);
+    label((x + 100) / 2, "capped", `${fmtDur(reset - cutoff)} capped`);
+  } else {
+    // CLEAR (or still projecting): the whole remaining window is usable.
+    seg(100, "usable");
+    label(50, "usable", `full window usable · ${fmtDur(reset - now)}`);
+    if (cutoff) note.textContent = `on this pace you'd cap ${fmtTime(cutoff)} — after the reset`;
+    else note.textContent = proj.suppressed_reason ? `cutoff: ${proj.suppressed_reason}` : "";
   }
-
-  // Actual line + soft area fill.
-  const pts = series.map(([t, p]) => `${x(t).toFixed(1)},${y(p).toFixed(1)}`);
-  const last = series[series.length - 1];
-  svg.appendChild(el("polygon", {
-    points: `${x(series[0][0]).toFixed(1)},${H} ${pts.join(" ")} ${x(last[0]).toFixed(1)},${H}`,
-    fill: "var(--accent)", "fill-opacity": 0.10,
-  }));
-  svg.appendChild(el("polyline", {
-    points: pts.join(" "), fill: "none", stroke: "var(--accent)",
-    "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", "vector-effect": "non-scaling-stroke",
-  }));
-
-  // Projected continuation to the cap, coloured by verdict.
-  if (proj.available && proj.cutoff_at) {
-    const col = proj.verdict === "SHORT" ? "var(--short)" : "var(--clear)";
-    svg.appendChild(el("line", {
-      x1: x(last[0]), y1: y(last[1]), x2: x(proj.cutoff_at), y2: y(100),
-      stroke: col, "stroke-width": 1.5, "stroke-dasharray": "4 4", "vector-effect": "non-scaling-stroke",
-    }));
-    svg.appendChild(el("circle", { cx: x(proj.cutoff_at), cy: y(100), r: 3.2, fill: col }));
-  }
-  // Now dot on the actual line.
-  svg.appendChild(el("circle", { cx: x(last[0]), cy: y(last[1]), r: 3, fill: "var(--accent)" }));
-
-  $("ax-start").textContent = fmtTime(start);
-  $("ax-reset").textContent = reset ? fmtTime(reset) : fmtTime(now);
-  positionNow(start, end, now);
-}
-
-function positionNow(start, end, now) {
-  const axNow = $("ax-now");
-  if (!start || !end || end <= start) { axNow.style.display = "none"; return; }
-  axNow.style.display = "";
-  axNow.style.left = `${clamp((now - start) / (end - start), 0, 1) * 100}%`;
 }
 
 function renderStats(summary) {
@@ -226,8 +204,8 @@ function renderAttribution(summary, sessionsData) {
         <td class="attr-name"><span class="swatch" style="background:${color(s.color_idx)}"></span>${esc(s.label)}${s.idle ? '<span class="badge">idle</span>' : ""}</td>
         <td class="attr-share">${s.share_of_sessions_pct.toFixed(0)}%</td>
         <td class="attr-num">$${s.cost_usd.toFixed(2)}</td>
-        <td class="attr-num dim">$${s.burn_usd_per_hour.toFixed(2)}/hr</td>
-        <td class="attr-num dim">${fmtTokens(s.tokens)}</td></tr>`);
+        <td class="attr-num dim opt">$${s.burn_usd_per_hour.toFixed(2)}/hr</td>
+        <td class="attr-num dim opt">${fmtTokens(s.tokens)}</td></tr>`);
     }
     if (sessionsData.unattributed_pct > 0) {
       t.push(`<tr class="attr-row" data-sid="__u__">
@@ -274,18 +252,28 @@ function renderSeven(summary) {
   $("seven-reset").textContent = s.resets_at ? `resets ${fmtDayTime(s.resets_at)}` : "";
 }
 
+function shortModel(name) {
+  return String(name).replace(/^claude-/, "");
+}
+
 function renderModels(data) {
-  const items = (data.items || []).filter((i) => i.cost_usd > 0);
+  const items = (data.items || []).filter((i) => i.cost_usd > 0).sort((a, b) => b.cost_usd - a.cost_usd);
   const panel = $("models-panel");
   if (!items.length) { panel.hidden = true; return; }
   panel.hidden = false;
-  const max = Math.max(...items.map((i) => i.cost_usd));
-  $("models-body").innerHTML = items.slice(0, 6).map((i) => `
-    <div class="mrow">
-      <span class="mname">${esc(i.key)}</span>
-      <span class="mcost">$${i.cost_usd.toFixed(2)}</span>
-      <span class="track"><i style="width:${(100 * i.cost_usd / max).toFixed(0)}%"></i></span>
-    </div>`).join("");
+  const total = items.reduce((a, i) => a + i.cost_usd, 0) || 1;
+  // A single bar split by spend, biggest first — no per-model limits exist, so
+  // this just shows where the spend went.
+  const bar = items.map((i, idx) =>
+    `<i style="width:${(100 * i.cost_usd / total).toFixed(1)}%;background:${color(idx)}" title="${esc(shortModel(i.key))} · $${i.cost_usd.toFixed(2)}"></i>`).join("");
+  const legend = items.map((i, idx) =>
+    `<div class="mleg">
+       <span class="swatch" style="background:${color(idx)}"></span>
+       <span class="mname">${esc(shortModel(i.key))}</span>
+       <span class="mpct">${Math.round(100 * i.cost_usd / total)}%</span>
+       <span class="mcost">$${i.cost_usd.toFixed(2)}</span>
+     </div>`).join("");
+  $("models-body").innerHTML = `<div class="attr-bar model-bar">${bar}</div><div class="mlegend">${legend}</div>`;
 }
 
 function renderHistory(data) {

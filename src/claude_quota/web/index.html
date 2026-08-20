@@ -35,14 +35,13 @@
         </div>
       </div>
 
-      <div class="chart">
-        <svg id="spark" class="spark" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true"></svg>
-        <div class="chart-empty" id="chart-empty" hidden>collecting history…</div>
-        <div class="axis">
-          <span id="ax-start"></span>
-          <span id="ax-now" class="ax-now">now</span>
-          <span id="ax-reset"></span>
-        </div>
+      <!-- Runway: the remaining window as a timeline, with the projected cap
+           marked against the reset. Green = usable, red = time lost to the cap. -->
+      <div class="runway">
+        <div class="runway-labels" id="rw-labels"></div>
+        <div class="runway-track" id="rw-track"></div>
+        <div class="runway-axis" id="rw-axis"></div>
+        <div class="runway-note" id="rw-note"></div>
       </div>
 
       <div class="stats">
