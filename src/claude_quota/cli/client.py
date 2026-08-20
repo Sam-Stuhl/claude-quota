@@ -11,10 +11,15 @@ class DaemonError(RuntimeError):
     """Raised when the daemon is unreachable or returns an error."""
 
 
+def _headers() -> dict:
+    tok = config.client_token()
+    return {"Authorization": f"Bearer {tok}"} if tok else {}
+
+
 def _get(path: str, params: dict | None = None, timeout: float = 3.0) -> dict:
-    url = f"{config.DAEMON_BASE_URL}{path}"
+    url = f"{config.client_base_url()}{path}"
     try:
-        resp = httpx.get(url, params=params, timeout=timeout)
+        resp = httpx.get(url, params=params, headers=_headers(), timeout=timeout)
         resp.raise_for_status()
         return resp.json()
     except httpx.HTTPError as e:
@@ -23,7 +28,9 @@ def _get(path: str, params: dict | None = None, timeout: float = 3.0) -> dict:
 
 def is_up(timeout: float = 1.0) -> bool:
     try:
-        httpx.get(f"{config.DAEMON_BASE_URL}/api/health", timeout=timeout).raise_for_status()
+        httpx.get(
+            f"{config.client_base_url()}/api/health", headers=_headers(), timeout=timeout
+        ).raise_for_status()
         return True
     except httpx.HTTPError:
         return False

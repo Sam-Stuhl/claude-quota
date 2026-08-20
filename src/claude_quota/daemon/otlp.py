@@ -262,11 +262,18 @@ def handle_logs_request(conn: sqlite3.Connection, req, now: int | None = None) -
     return len(rows)
 
 
+def _grpc_authed(context) -> bool:
+    md = dict(context.invocation_metadata() or ())
+    return config.token_ok(md.get("authorization"))
+
+
 class MetricsServicer(metrics_service_pb2_grpc.MetricsServiceServicer):
     def __init__(self, state: AppState) -> None:
         self.state = state
 
     async def Export(self, request, context):  # noqa: N802 (gRPC method name)
+        if not _grpc_authed(context):
+            await context.abort(grpc.StatusCode.UNAUTHENTICATED, "invalid token")
         points = handle_metrics_request(self.state.conn, request)
         self.state.otlp.note_metrics(points)
         await self.state.notify_change()
@@ -278,6 +285,8 @@ class LogsServicer(logs_service_pb2_grpc.LogsServiceServicer):
         self.state = state
 
     async def Export(self, request, context):  # noqa: N802
+        if not _grpc_authed(context):
+            await context.abort(grpc.StatusCode.UNAUTHENTICATED, "invalid token")
         n = handle_logs_request(self.state.conn, request)
         self.state.otlp.note_logs(n)
         return logs_service_pb2.ExportLogsServiceResponse()
@@ -304,6 +313,8 @@ def build_http_app(state: AppState):
     from starlette.routing import Route
 
     async def metrics(request: Request) -> Response:
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
         body = await request.body()
         req = metrics_service_pb2.ExportMetricsServiceRequest()
         req.ParseFromString(body)
@@ -316,6 +327,8 @@ def build_http_app(state: AppState):
         )
 
     async def logs(request: Request) -> Response:
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
         body = await request.body()
         req = logs_service_pb2.ExportLogsServiceRequest()
         req.ParseFromString(body)

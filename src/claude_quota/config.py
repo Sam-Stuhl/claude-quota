@@ -8,6 +8,8 @@ can point them elsewhere.
 
 from __future__ import annotations
 
+import hmac
+import json
 import os
 from pathlib import Path
 
@@ -100,3 +102,58 @@ CALIBRATION_MIN_R2 = 0.7
 
 # Bucketing granularity for accumulated OTel usage.
 BUCKET_SECONDS = 10
+
+
+# --- Client/server config, for the optional remote/multi-device mode ---------
+#
+# `claude-quota install` writes a small config file so the CLI knows which
+# server to talk to and which token to present. The server reads its own auth
+# secret from the environment (clean for containers) or the same config file.
+
+def config_file() -> Path:
+    return runtime_dir() / "config.json"
+
+
+def load_config() -> dict:
+    p = config_file()
+    if p.exists():
+        try:
+            return json.loads(p.read_text() or "{}")
+        except json.JSONDecodeError:
+            return {}
+    return {}
+
+
+def save_config(data: dict) -> None:
+    ensure_runtime_dir()
+    config_file().write_text(json.dumps(data, indent=2) + "\n")
+
+
+def client_base_url() -> str:
+    """Where the CLI should send its API requests (remote server or local)."""
+    return os.environ.get("CLAUDE_QUOTA_URL") or load_config().get("server") or DAEMON_BASE_URL
+
+
+def client_token() -> str | None:
+    return os.environ.get("CLAUDE_QUOTA_TOKEN") or load_config().get("token")
+
+
+def server_token() -> str | None:
+    """The auth secret this daemon requires on ingest, if any (None = open)."""
+    return os.environ.get("CLAUDE_QUOTA_TOKEN") or load_config().get("token")
+
+
+def token_ok(provided: str | None) -> bool:
+    """Constant-time check of a presented token/Authorization value.
+
+    Returns True when no server token is configured (open, local/LAN default).
+    Accepts either a raw token or an "Authorization: Bearer <token>" value.
+    """
+    expected = server_token()
+    if not expected:
+        return True
+    if not provided:
+        return False
+    if provided.startswith("Bearer "):
+        provided = provided[len("Bearer ") :]
+    return hmac.compare_digest(provided, expected)

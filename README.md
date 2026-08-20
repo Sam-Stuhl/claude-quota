@@ -109,6 +109,39 @@ claude-quota daemon [start|stop|status|logs]
     atlas 34% . banking-dash 21% . planner 5% . bsi-intake 2% . other 0%
 ```
 
+## Remote / multi-device (optional)
+
+By default everything runs on `localhost`, on one machine. If you want a single
+dashboard spanning several machines, run the daemon centrally and point each
+device's Claude Code at it. This is an option, not the default.
+
+**On the server** (e.g. a container via your own PaaS): set a shared secret and
+persist the database.
+
+```bash
+docker build -t claude-quota .
+docker run -d -e CLAUDE_QUOTA_TOKEN=<secret> -v claude-quota-data:/data \
+  -p 7788:7788 -p 4318:4318 claude-quota
+```
+
+Put it behind your reverse proxy (Traefik, Cloudflare) at, say,
+`https://claude-quota.example.com`. The token protects the machine ingest
+endpoints (`/ingest/statusline` and `/v1/*`); protect the human-facing dashboard
+(`/`, `/api/*`, `/events`) with your proxy's own access control.
+
+**On each device** that runs Claude Code:
+
+```bash
+uv run claude-quota install --server https://claude-quota.example.com \
+  --token <secret> --device <name>
+```
+
+Clients don't run a local daemon: the wrapper posts the status line to the
+server, and telemetry exports there over OTLP/HTTP. Each device is tagged so the
+dashboard can separate them. A nice side effect: with all your machines
+reporting, more of your account-wide usage becomes locally attributed, so the
+grey `unattributed` slice shrinks.
+
 ## Status by area
 
 All six milestones from the [spec](SPEC.md) are implemented:

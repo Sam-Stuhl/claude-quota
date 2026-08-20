@@ -32,8 +32,8 @@ def _require_daemon() -> None:
     if not client.is_up():
         con.print(
             "[red]daemon not reachable[/red] on "
-            f"{client.config.DAEMON_BASE_URL}. Start it with "
-            "`claude-quota daemon start`.",
+            f"{client.config.client_base_url()}. Start it with "
+            "`claude-quota daemon start` (or check --server/--token).",
         )
         raise typer.Exit(1)
 
@@ -148,15 +148,22 @@ def watch(
 
 @app.command()
 def install(
+    server: str = typer.Option(
+        None, "--server", help="Remote server URL (e.g. https://claude-quota.example.com). Omit for local."
+    ),
+    token: str = typer.Option(None, "--token", help="Shared secret for a remote server."),
+    device: str = typer.Option(None, "--device", help="Device name (default: hostname)."),
     json: bool = typer.Option(False, "--json"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Show actions, change nothing."),
 ) -> None:
     """Write the statusline wrapper and patch settings.json (idempotent)."""
-    result = install_mod.install(dry_run=dry_run)
+    result = install_mod.install(server=server, token=token, device=device, dry_run=dry_run)
     if json:
         _emit_json(result)
         return
-    con.print("[bold]claude-quota install[/bold]" + (" (dry run)" if dry_run else ""))
+    con.print(
+        f"[bold]claude-quota install[/bold] ({result['mode']})" + (" (dry run)" if dry_run else "")
+    )
     for a in result["actions"]:
         con.print(f"  • {a}")
     con.print(f"[dim]{result['note']}[/dim]")

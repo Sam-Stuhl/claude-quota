@@ -129,6 +129,8 @@ def create_app() -> FastAPI:
         # Return before doing any work: this is on the critical path of a
         # status line render. Queue the raw body (+device) and respond 204;
         # parsing happens in the background processor.
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
         raw = await request.body()
         device = request.query_params.get("device") or request.headers.get("x-device")
         try:

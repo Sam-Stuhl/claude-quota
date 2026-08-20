@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 
 from .. import config
-from . import client, install, process
+from . import client, process
 
 
 def _settings_check() -> dict:
@@ -36,13 +36,15 @@ def _settings_check() -> dict:
     sl = settings.get("statusLine") or {}
     sl_ok = isinstance(sl, dict) and str(wrapper) in str(sl.get("command", ""))
     env = settings.get("env") or {}
-    env_ok = all(env.get(k) == v for k, v in install.OTEL_ENV.items())
+    env_ok = env.get("CLAUDE_CODE_ENABLE_TELEMETRY") == "1" and bool(
+        env.get("OTEL_EXPORTER_OTLP_ENDPOINT")
+    )
     ok = sl_ok and env_ok
     missing = []
     if not sl_ok:
         missing.append("statusLine not pointed at the wrapper")
     if not env_ok:
-        missing.append("OTel env keys missing or wrong")
+        missing.append("telemetry env missing")
     return {
         "name": "settings.json",
         "ok": ok,
