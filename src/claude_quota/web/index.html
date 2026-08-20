@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>claude-quota</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <span class="mark"></span>
+        <span>claude-quota</span>
+      </div>
+      <div class="conn" id="conn">
+        <span class="dot" id="dot"></span>
+        <span id="conn-text">connecting…</span>
+      </div>
+    </header>
+
+    <section class="card primary" id="five-card">
+      <div class="card-head">
+        <h2>5-hour window</h2>
+        <div class="verdict" id="verdict"></div>
+      </div>
+
+      <div class="bignum">
+        <span id="five-pct">—</span><span class="unit">%</span>
+        <span class="est-badge" id="five-est" hidden>estimated from local telemetry</span>
+      </div>
+
+      <!-- The rail: consumption (session-coloured segments + grey unattributed),
+           capped at 100%, with a time axis beneath comparing the projected
+           cutoff against the actual reset. -->
+      <div class="rail" id="rail">
+        <div class="rail-track" id="rail-track"></div>
+        <div class="rail-cap-line"></div>
+        <div class="rail-reset-mark" id="reset-mark" hidden></div>
+      </div>
+      <div class="timeaxis" id="timeaxis">
+        <span class="t-start" id="t-start"></span>
+        <span class="t-now" id="t-now"></span>
+        <span class="t-cutoff" id="t-cutoff"></span>
+        <span class="t-reset" id="t-reset"></span>
+      </div>
+      <div class="projline" id="projline"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>7-day window</h2></div>
+      <div class="bignum small"><span id="seven-pct">—</span><span class="unit">%</span></div>
+      <div class="rail slim">
+        <div class="rail-track" id="seven-track"></div>
+      </div>
+      <div class="subtle" id="seven-reset"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Sessions</h2>
+        <span class="subtle" id="calib"></span>
+      </div>
+      <div class="sessions" id="sessions"></div>
+    </section>
+
+    <footer class="foot">
+      <span id="foot-updated">—</span>
+      <span id="foot-window"></span>
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
