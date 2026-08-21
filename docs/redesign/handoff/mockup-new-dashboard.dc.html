@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" />
+<style>
+body { margin:0; background:#dfe2e7; }
+a { color:#3b5bdb; text-decoration:none; }
+a:hover { color:#2c47b8; }
+</style>
+</helmet>
+
+<section style="display:flex; flex-direction:column; gap:52px; padding:44px; font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+
+<div id="1a" style="display:flex; flex-direction:column; gap:10px;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:#fff; background:#191d24; border-radius:4px; padding:3px 7px;">1a</span>
+    <span style="font-size:13px; font-weight:600; color:#191d24;">Desktop — SHORT · dark · full report</span>
+    <span style="font-size:12px; color:#5d6672;">caps 28m before the window resets</span>
+  </div>
+
+  <div style="width:1440px; --bg:#0b0d11; --panel:#101318; --panel2:#161a21; --ink:#e8ecf1; --ink2:#9aa3b0; --ink3:#646d7a; --line:#1e232c; --line2:#2a313c; --accent:#7c8cff; --accentsoft:#1a2036; --short:#ff6b5f; --shortsoft:#31191c; --clear:#3ecf82; --clearsoft:#12301f; --warn:#e0a83a; --warnsoft:#2e2411; --grey:#4e5763; --greysoft:#191d24; --s1:#f0873c; --s2:#2dd4bf; --s3:#a78bfa; --s6:#e879cf; --s9:#f4728f; background:var(--line); border:1px solid var(--line2); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; gap:1px; color:var(--ink); font-size:13px; line-height:1.4;">
+
+    <div style="background:var(--panel); display:flex; align-items:center; justify-content:space-between; gap:16px; padding:11px 16px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="width:13px; height:13px; border-radius:3px; background:var(--accent);"></span>
+        <span style="font-weight:600; font-size:13.5px; letter-spacing:-.01em;">claude-quota</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3); background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:2px 7px;">window 14:38 → 19:38 · 5h</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:5px; font-size:11px;">
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>status line</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>telemetry</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>calibrated r²&nbsp;.86</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink); background:var(--panel2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px; font-family:'JetBrains Mono',monospace;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>live</span>
+      </div>
+    </div>
+
+    <div style="background:var(--panel); display:flex; align-items:center; gap:14px; padding:8px 16px; font-size:11.5px;">
+      <div style="display:flex; align-items:center; gap:7px;">
+        <span style="color:var(--ink3); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;">scope</span>
+        <div style="display:flex; background:var(--panel2); border:1px solid var(--line2); border-radius:5px; overflow:hidden;">
+          <span style="padding:3px 10px; background:var(--accent); color:#0b0d11; font-weight:600;">this window</span>
+          <span style="padding:3px 10px; color:var(--ink2); border-left:1px solid var(--line2);">5h</span>
+          <span style="padding:3px 10px; color:var(--ink2); border-left:1px solid var(--line2);">7d</span>
+          <span style="padding:3px 10px; color:var(--ink2); border-left:1px solid var(--line2);">14d</span>
+        </div>
+      </div>
+      <div style="width:1px; height:18px; background:var(--line2);"></div>
+      <div style="display:flex; align-items:center; gap:7px;">
+        <span style="color:var(--ink3); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;">device</span>
+        <div style="display:flex; gap:4px;">
+          <span style="padding:3px 9px; border:1px solid var(--line2); border-radius:5px; color:var(--ink2);">all</span>
+          <span style="padding:3px 9px; border:1px solid var(--accent); background:var(--accentsoft); border-radius:5px; color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:11px;">mac-mini</span>
+          <span style="padding:3px 9px; border:1px solid var(--line2); border-radius:5px; color:var(--ink2); font-family:'JetBrains Mono',monospace; font-size:11px;">studio</span>
+          <span style="padding:3px 9px; border:1px solid var(--line2); border-radius:5px; color:var(--ink2); font-family:'JetBrains Mono',monospace; font-size:11px;">macbook-pro</span>
+        </div>
+      </div>
+      <div style="width:1px; height:18px; background:var(--line2);"></div>
+      <div style="display:flex; align-items:center; gap:7px;">
+        <span style="color:var(--ink3); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;">model</span>
+        <div style="display:flex; gap:4px; font-family:'JetBrains Mono',monospace; font-size:11px;">
+          <span style="padding:3px 9px; border:1px solid var(--line2); border-radius:5px; color:var(--ink2);">opus-5</span>
+          <span style="padding:3px 9px; border:1px solid var(--line2); border-radius:5px; color:var(--ink2);">sonnet-5</span>
+          <span style="padding:3px 9px; border:1px solid var(--line2); border-radius:5px; color:var(--ink2);">haiku-4-5</span>
+        </div>
+      </div>
+      <div style="width:1px; height:18px; background:var(--line2);"></div>
+      <span style="color:var(--ink3);">agent <span style="color:var(--ink2);">any ▾</span></span>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+        <span style="display:inline-flex; align-items:center; gap:6px; background:var(--accentsoft); border:1px solid var(--accent); color:var(--ink); border-radius:5px; padding:3px 8px;">device = mac-mini <span style="color:var(--ink3);">✕</span></span>
+        <span style="color:var(--ink3); text-decoration:underline; text-underline-offset:2px;">clear all</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:7px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">verdict</span>
+        <span style="display:inline-flex; align-self:flex-start; align-items:center; gap:7px; background:var(--short); color:#12070a; font-weight:700; font-size:12px; letter-spacing:.04em; border-radius:4px; padding:3px 9px;">SHORT</span>
+        <span style="font-size:11.5px; color:var(--ink2);">caps <b style="font-family:'JetBrains Mono',monospace; color:var(--short);">28m</b> before reset</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">projected cutoff</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--short);">19:10</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">18:55 – 19:32 <span style="font-family:'Space Grotesk',sans-serif;">±1σ</span></span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">window reset</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink);">19:38</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">in 2h 23m</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">burn rate</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink);">14.7<span style="font-size:14px; color:var(--ink3); margin-left:3px;">%/hr</span></span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">± 1.9 · fit over last 40m</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">quota used</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink2);">71.9<span style="font-size:14px; color:var(--ink3);">%</span></span>
+        <span style="font-size:11px; color:var(--ink3);">exact · status line · <span style="font-family:'JetBrains Mono',monospace;">28.1</span> pts left</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1.62fr 1fr; gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:12px; font-weight:600;">Projection to 100%</span>
+            <div style="display:flex; background:var(--panel2); border:1px solid var(--line2); border-radius:5px; overflow:hidden; font-size:11px;">
+              <span style="padding:2px 9px; background:var(--line2); color:var(--ink); font-weight:600;">burn line</span>
+              <span style="padding:2px 9px; color:var(--ink3);">by session</span>
+            </div>
+          </div>
+          <span style="font-size:11px; color:var(--ink3);">shaded cone = ±1σ on burn rate</span>
+        </div>
+
+        <svg viewBox="0 0 700 220" style="width:100%; height:214px; display:block; overflow:visible;">
+          <rect x="590.4" y="12" width="99.6" height="174" fill="var(--shortsoft)"></rect>
+          <line x1="46" y1="27.8" x2="690" y2="27.8" stroke="var(--line2)" stroke-width="1"></line>
+          <line x1="46" y1="106.9" x2="690" y2="106.9" stroke="var(--line)" stroke-width="1"></line>
+          <line x1="46" y1="186" x2="690" y2="186" stroke="var(--line2)" stroke-width="1"></line>
+          <text x="40" y="31" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">100%</text>
+          <text x="40" y="110" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">50%</text>
+          <text x="40" y="189" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">0%</text>
+          <polygon points="186.8,72.2 544.3,27.8 649.5,27.8" fill="var(--short)" opacity="0.16"></polygon>
+          <polyline points="46,87.8 53,87.5 60.1,86 67.1,85.7 74.2,85.1 81.2,83.5 88.2,82.9 95.3,82.4 102.3,81.6 109.3,80.9 116.4,79.7 123.4,79.4 130.5,78.6 137.5,77.3 144.5,76.5 151.6,75.7 158.6,75.4 165.6,74.3 172.7,73.7 179.7,72.6 186.8,72.2" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"></polyline>
+          <polyline points="186.8,72.2 590.4,27.8 690,27.8" fill="none" stroke="var(--short)" stroke-width="2" stroke-dasharray="5 4"></polyline>
+          <circle cx="186.8" cy="72.2" r="3.5" fill="var(--ink)"></circle>
+          <line x1="186.8" y1="12" x2="186.8" y2="186" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="3 3"></line>
+          <line x1="590.4" y1="12" x2="590.4" y2="186" stroke="var(--short)" stroke-width="1.5"></line>
+          <line x1="690" y1="12" x2="690" y2="186" stroke="var(--accent)" stroke-width="1.5"></line>
+          <text x="192" y="20" fill="var(--ink2)" font-family="JetBrains Mono, monospace" font-size="10">now 17:15 · 71.9%</text>
+          <text x="585" y="20" text-anchor="end" fill="var(--short)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">cutoff 19:10</text>
+          <text x="685" y="205" text-anchor="end" fill="var(--accent)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">reset 19:38</text>
+          <text x="46" y="205" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">16:35</text>
+          <text x="345" y="205" text-anchor="middle" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">18:00</text>
+        </svg>
+
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:5px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3);">
+            <span>runway · now → reset</span>
+            <span style="font-family:'JetBrains Mono',monospace; letter-spacing:0; text-transform:none;">2h 23m remaining</span>
+          </div>
+          <div style="display:flex; height:26px; border-radius:4px; overflow:hidden; background:var(--panel2);">
+            <div style="width:80.4%; background:var(--clearsoft); border-left:2px solid var(--clear); display:flex; align-items:center; padding-left:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--clear);">1h 55m usable</div>
+            <div style="width:19.6%; background:var(--shortsoft); border-left:2px solid var(--short); display:flex; align-items:center; padding-left:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--short);">28m capped</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--panel); padding:12px 16px 14px; display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px;">
+          <span style="font-size:12px; font-weight:600;">Composition of the 100</span>
+          <div style="display:flex; background:var(--panel2); border:1px solid var(--line2); border-radius:5px; overflow:hidden; font-size:11px;">
+            <span style="padding:2px 9px; background:var(--line2); color:var(--ink); font-weight:600;">ring</span>
+            <span style="padding:2px 9px; color:var(--ink3);">bars</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <svg viewBox="0 0 130 130" style="width:130px; height:130px; flex:none;">
+            <g transform="rotate(-90 65 65)">
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--greysoft)" stroke-width="17"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s6)" stroke-width="17" stroke-dasharray="44.3 282.4" stroke-dashoffset="0" opacity="{{ opPlanner }}"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s1)" stroke-width="17" stroke-dasharray="37.1 289.6" stroke-dashoffset="-44.3" opacity="{{ opBd1 }}"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s3)" stroke-width="17" stroke-dasharray="24.9 301.8" stroke-dashoffset="-81.4" opacity="{{ opConsole }}"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s9)" stroke-width="17" stroke-dasharray="19.2 307.5" stroke-dashoffset="-106.3" opacity="{{ opCq }}"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s2)" stroke-width="17" stroke-dasharray="12.3 314.4" stroke-dashoffset="-125.5" opacity="{{ opBd2 }}"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--grey)" stroke-width="17" stroke-dasharray="97.1 229.6" stroke-dashoffset="-137.8" opacity="{{ opUnattr }}"></circle>
+            </g>
+            <text x="65" y="63" text-anchor="middle" fill="var(--ink)" font-family="JetBrains Mono, monospace" font-size="20" font-weight="600">71.9</text>
+            <text x="65" y="77" text-anchor="middle" fill="var(--ink3)" font-family="Space Grotesk, sans-serif" font-size="9.5" letter-spacing="0.06em">USED</text>
+          </svg>
+          <div style="flex:1; display:flex; flex-direction:column; gap:5px; font-size:11.5px;">
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; opacity:{{ opPlanner }};"><span style="width:9px; height:9px; border-radius:2px; background:var(--s6);"></span><span>planner</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">13.6</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; opacity:{{ opBd1 }};"><span style="width:9px; height:9px; border-radius:2px; background:var(--s1);"></span><span>banking-dash·7d62</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">11.4</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; opacity:{{ opConsole }};"><span style="width:9px; height:9px; border-radius:2px; background:var(--s3);"></span><span>console</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">7.6</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; opacity:{{ opCq }};"><span style="width:9px; height:9px; border-radius:2px; background:var(--s9);"></span><span>claude-quota</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">5.9</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; opacity:{{ opBd2 }};"><span style="width:9px; height:9px; border-radius:2px; background:var(--s2);"></span><span>banking-dash·4771</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">3.8</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; opacity:{{ opUnattr }};"><span style="width:9px; height:9px; border-radius:2px; background:var(--grey);"></span><span style="color:var(--ink2);">unattributed</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">29.7</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; color:var(--ink3);"><span style="width:9px; height:9px; border-radius:2px; background:var(--greysoft); border:1px solid var(--line2);"></span><span>unused</span><span style="font-family:'JetBrains Mono',monospace;">28.1</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--panel); padding:12px 16px 14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:12px; font-weight:600;">Attribution — who is spending this window</span>
+          <div style="display:flex; background:var(--panel2); border:1px solid var(--line2); border-radius:5px; overflow:hidden; font-size:11px;">
+            <span style="padding:2px 9px; background:var(--line2); color:var(--ink); font-weight:600;">session</span>
+            <span style="padding:2px 9px; color:var(--ink3);">device</span>
+            <span style="padding:2px 9px; color:var(--ink3);">model</span>
+            <span style="padding:2px 9px; color:var(--ink3);">agent</span>
+          </div>
+        </div>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">5 sessions · 3 devices · $91.49 · 5.8M tok</span>
+      </div>
+
+      <div style="display:flex; height:12px; border-radius:3px; overflow:hidden; background:var(--greysoft); margin-bottom:10px;">
+        <i style="width:13.56%; background:var(--s6); opacity:{{ opPlanner }};"></i><i style="width:11.35%; background:var(--s1); opacity:{{ opBd1 }};"></i><i style="width:7.63%; background:var(--s3); opacity:{{ opConsole }};"></i><i style="width:5.87%; background:var(--s9); opacity:{{ opCq }};"></i><i style="width:3.76%; background:var(--s2); opacity:{{ opBd2 }};"></i><i style="width:29.72%; background:var(--grey); opacity:{{ opUnattr }};"></i>
+      </div>
+
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; padding:0 0 6px; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); border-bottom:1px solid var(--line2);">
+        <span>session</span><span>share of window</span><span style="text-align:right;">pts of 100</span><span style="text-align:right;">$/hr</span><span style="text-align:right;">tokens</span><span>device</span><span style="text-align:right;">last active</span>
+      </div>
+
+      <div onMouseEnter="{{ hPlanner }}" onMouseLeave="{{ hLeave }}" style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px; opacity:{{ opPlanner }};">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s6); flex:none;"></i>planner<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">0d96</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:45.9%; background:var(--s6);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; width:38px; text-align:right;">18.9%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">13.56</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$10.60</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">1.73M</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">mac-mini</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+
+      <div onMouseEnter="{{ hBd1 }}" onMouseLeave="{{ hLeave }}" style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px; opacity:{{ opBd1 }};">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s1); flex:none;"></i>banking-dash<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">7d62</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:38.4%; background:var(--s1);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; width:38px; text-align:right;">15.8%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">11.35</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$9.81</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">1.62M</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">studio</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+
+      <div onMouseEnter="{{ hConsole }}" onMouseLeave="{{ hLeave }}" style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px; opacity:{{ opConsole }};">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s3); flex:none;"></i>console<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">2c83</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:25.8%; background:var(--s3);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; width:38px; text-align:right;">10.6%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">7.63</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$7.09</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">1.25M</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">mac-mini</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+
+      <div onMouseEnter="{{ hCq }}" onMouseLeave="{{ hLeave }}" style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px; opacity:{{ opCq }};">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s9); flex:none;"></i>claude-quota<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">51be</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:19.9%; background:var(--s9);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; width:38px; text-align:right;">8.2%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">5.87</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$4.25</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">694K</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">macbook-pro</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+
+      <div onMouseEnter="{{ hBd2 }}" onMouseLeave="{{ hLeave }}" style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px; opacity:{{ opBd2 }};">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s2); flex:none;"></i>banking-dash<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">4771</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:12.7%; background:var(--s2);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; width:38px; text-align:right;">5.2%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">3.76</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$3.20</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">520K</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">studio</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+
+      <div onMouseEnter="{{ hUnattr }}" onMouseLeave="{{ hLeave }}" style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px; background:var(--greysoft); opacity:{{ opUnattr }};">
+        <span style="display:flex; align-items:center; gap:8px; color:var(--ink2);"><i style="width:9px; height:9px; border-radius:2px; background:var(--grey); flex:none;"></i>unattributed</span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--panel2); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:100%; background:var(--grey);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; width:38px; text-align:right; color:var(--ink2);">41.3%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">29.72</span>
+        <span style="text-align:right; color:var(--ink3);">—</span>
+        <span style="text-align:right; color:var(--ink3);">—</span>
+        <span style="color:var(--ink3); font-size:11px;">not local</span>
+        <span style="text-align:right; color:var(--ink3);">—</span>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:flex-start; margin-top:10px; padding:9px 11px; background:var(--greysoft); border-left:2px solid var(--grey); border-radius:0 4px 4px 0;">
+        <span style="font-size:11.5px; color:var(--ink2); max-width:96ch;"><b style="color:var(--ink); font-family:'JetBrains Mono',monospace;">29.7 pts (41% of everything spent)</b> is measured quota that local telemetry can't explain — claude.ai chat, Cowork, or a machine that isn't reporting. Session shares are shares of the whole window, not of the attributed part, so this slice is never hidden.</span>
+      </div>
+    </div>
+
+    <div style="background:var(--panel); display:flex; align-items:center; gap:10px; padding:7px 16px;">
+      <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">explore</span>
+      <span style="flex:1; height:1px; background:var(--line2);"></span>
+      <span style="font-size:11px; color:var(--ink3);">slicers above apply · click a row to cross-filter</span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1.6fr 1fr; gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+          <span style="font-size:12px; font-weight:600;">Recent windows · peak %</span>
+          <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">24 windows · 6 hit the cap</span>
+        </div>
+        <div style="position:relative; height:88px; display:flex; align-items:flex-end; gap:3px; border-bottom:1px solid var(--line2);">
+          <div style="position:absolute; left:0; right:0; top:0; height:1px; background:var(--line2);"></div>
+          <div style="flex:1; height:100%; background:var(--short); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:100%; background:var(--short); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:55%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:55%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:100%; background:var(--short); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:91%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:91%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:73%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:82%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:100%; background:var(--short); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:61%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:48%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:55%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:100%; background:var(--short); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:48%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:61%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:82%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:100%; background:var(--short); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:48%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:55%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:82%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:91%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:48%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1; height:71.9%; background:var(--accentsoft); border-top:2px solid var(--accent); border-radius:2px 2px 0 0; outline:1px dashed var(--accent); outline-offset:1px;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:5px; font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">
+          <span>5 days ago</span><span style="color:var(--short);">■ hit cap</span><span>this window (in progress)</span>
+        </div>
+      </div>
+
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+          <span style="font-size:12px; font-weight:600;">By device · 7d spend</span>
+          <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">$845.58</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; font-size:11.5px;"><span style="font-family:'JetBrains Mono',monospace;">mac-mini</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">$483.39 · 57%</span></div>
+            <div style="height:8px; background:var(--greysoft); border-radius:2px; overflow:hidden;"><i style="display:block; height:100%; width:57.2%; background:var(--accent);"></i></div>
+            <span style="font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">31.1M tok · filtered</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; font-size:11.5px;"><span style="font-family:'JetBrains Mono',monospace;">studio</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">$186.84 · 22%</span></div>
+            <div style="height:8px; background:var(--greysoft); border-radius:2px; overflow:hidden;"><i style="display:block; height:100%; width:22.1%; background:var(--accent); opacity:.55;"></i></div>
+            <span style="font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">12.2M tok</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; font-size:11.5px;"><span style="font-family:'JetBrains Mono',monospace;">macbook-pro</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">$175.35 · 21%</span></div>
+            <div style="height:8px; background:var(--greysoft); border-radius:2px; overflow:hidden;"><i style="display:block; height:100%; width:20.7%; background:var(--accent); opacity:.55;"></i></div>
+            <span style="font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">11.2M tok</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:600;">Spend map · this window</span>
+          <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">$91.49</span>
+        </div>
+        <div style="display:flex; gap:2px; height:132px;">
+          <div style="width:58.4%; display:flex; flex-direction:column; gap:2px;">
+            <div style="height:51.9%; background:var(--s6); border-radius:3px; padding:7px 9px; color:#100810; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-size:11.5px; font-weight:600;">planner</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">$27.75</span></div>
+            <div style="height:48.1%; background:var(--s1); border-radius:3px; padding:7px 9px; color:#1a0d03; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-size:11.5px; font-weight:600;">banking-dash·7d62</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">$25.68</span></div>
+          </div>
+          <div style="width:41.6%; display:flex; flex-direction:column; gap:2px;">
+            <div style="height:48.8%; background:var(--s3); border-radius:3px; padding:7px 9px; color:#0e0820; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-size:11.5px; font-weight:600;">console</span><span style="font-family:'JetBrains Mono',monospace; font-size:12px;">$18.57</span></div>
+            <div style="height:29.2%; background:var(--s9); border-radius:3px; padding:6px 9px; color:#200610; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-size:11px; font-weight:600;">claude-quota</span><span style="font-family:'JetBrains Mono',monospace; font-size:11.5px;">$11.12</span></div>
+            <div style="height:22%; background:var(--s2); border-radius:3px; padding:6px 9px; color:#04201c; display:flex; flex-direction:column; justify-content:space-between;"><span style="font-size:11px; font-weight:600;">bd·4771</span><span style="font-family:'JetBrains Mono',monospace; font-size:11.5px;">$8.37</span></div>
+          </div>
+        </div>
+        <span style="display:block; margin-top:8px; font-size:10.5px; color:var(--ink3);">local cost only — the unattributed 29.7 pts has no cost data</span>
+      </div>
+
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:600;">By model · this window</span>
+          <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">5h</span>
+        </div>
+        <div style="display:flex; height:12px; border-radius:3px; overflow:hidden; margin-bottom:12px;">
+          <i style="width:52.1%; background:var(--accent);"></i><i style="width:37.9%; background:var(--accent); opacity:.6;"></i><i style="width:10%; background:var(--accent); opacity:.32;"></i>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:9px; font-size:11.5px;">
+          <div style="display:grid; grid-template-columns:10px 1fr auto auto; gap:10px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--accent);"></span><span style="font-family:'JetBrains Mono',monospace;">opus-5</span><b style="font-family:'JetBrains Mono',monospace;">52%</b><span style="font-family:'JetBrains Mono',monospace; color:var(--ink3); width:52px; text-align:right;">$47.70</span></div>
+          <div style="display:grid; grid-template-columns:10px 1fr auto auto; gap:10px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--accent); opacity:.6;"></span><span style="font-family:'JetBrains Mono',monospace;">sonnet-5</span><b style="font-family:'JetBrains Mono',monospace;">38%</b><span style="font-family:'JetBrains Mono',monospace; color:var(--ink3); width:52px; text-align:right;">$34.65</span></div>
+          <div style="display:grid; grid-template-columns:10px 1fr auto auto; gap:10px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--accent); opacity:.32;"></span><span style="font-family:'JetBrains Mono',monospace;">haiku-4-5</span><b style="font-family:'JetBrains Mono',monospace;">10%</b><span style="font-family:'JetBrains Mono',monospace; color:var(--ink3); width:52px; text-align:right;">$9.14</span></div>
+        </div>
+        <span style="display:block; margin-top:12px; font-size:10.5px; color:var(--ink3);">cache reads dominate token counts; cost is the honest axis</span>
+      </div>
+
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:600;">Calibration &amp; feeds</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--clear);"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>calibrated</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:7px; font-size:11.5px; font-family:'JetBrains Mono',monospace;">
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--ink2);">opus-5</span><span>0.62 %/$</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--ink2);">sonnet-5</span><span>0.34 %/$</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--ink2);">haiku-4-5</span><span>0.09 %/$</span></div>
+          <div style="height:1px; background:var(--line2); margin:3px 0;"></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--ink2);">fit</span><span>r² 0.86 · n=140</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--ink2);">status samples</span><span>297</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--ink2);">otel buckets</span><span>531</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--ink2);">uptime</span><span>3h 05m</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--panel); display:flex; align-items:center; justify-content:space-between; padding:7px 16px; font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">
+      <span>updated 17:15 · streaming /events</span>
+      <span>localhost:7789</span>
+    </div>
+  </div>
+</div>
+
+<div id="1b" style="display:flex; flex-direction:column; gap:10px;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:#fff; background:#191d24; border-radius:4px; padding:3px 7px;">1b</span>
+    <span style="font-size:13px; font-weight:600; color:#191d24;">Same screen, light theme — top zone</span>
+    <span style="font-size:12px; color:#5d6672;">identical structure, tokens swapped</span>
+  </div>
+
+  <div style="width:1440px; --bg:#f4f5f7; --panel:#ffffff; --panel2:#f7f8fa; --ink:#0e1116; --ink2:#4a5361; --ink3:#7b8492; --line:#e3e6ea; --line2:#d3d8df; --accent:#3b5bdb; --accentsoft:#eaeefc; --short:#c9352e; --shortsoft:#fbe6e4; --clear:#12854a; --clearsoft:#ddf0e5; --warn:#a9761a; --warnsoft:#fbf1dc; --grey:#9aa3af; --greysoft:#eef0f3; --s1:#c65a12; --s2:#0d8f83; --s3:#6d4de0; --s6:#b3149a; --s9:#d43e72; background:var(--line); border:1px solid var(--line2); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; gap:1px; color:var(--ink); font-size:13px; line-height:1.4;">
+
+    <div style="background:var(--panel); display:flex; align-items:center; justify-content:space-between; gap:16px; padding:11px 16px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="width:13px; height:13px; border-radius:3px; background:var(--accent);"></span>
+        <span style="font-weight:600; font-size:13.5px; letter-spacing:-.01em;">claude-quota</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3); background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:2px 7px;">window 14:38 → 19:38 · 5h</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:5px; font-size:11px;">
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>status line</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>telemetry</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>calibrated r²&nbsp;.86</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink); background:var(--panel2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px; font-family:'JetBrains Mono',monospace;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>live</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:7px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">verdict</span>
+        <span style="display:inline-flex; align-self:flex-start; align-items:center; gap:7px; background:var(--short); color:#fff; font-weight:700; font-size:12px; letter-spacing:.04em; border-radius:4px; padding:3px 9px;">SHORT</span>
+        <span style="font-size:11.5px; color:var(--ink2);">caps <b style="font-family:'JetBrains Mono',monospace; color:var(--short);">28m</b> before reset</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">projected cutoff</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--short);">19:10</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">18:55 – 19:32 <span style="font-family:'Space Grotesk',sans-serif;">±1σ</span></span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">window reset</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink);">19:38</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">in 2h 23m</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">burn rate</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink);">14.7<span style="font-size:14px; color:var(--ink3); margin-left:3px;">%/hr</span></span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">± 1.9 · fit over last 40m</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">quota used</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink2);">71.9<span style="font-size:14px; color:var(--ink3);">%</span></span>
+        <span style="font-size:11px; color:var(--ink3);">exact · status line · <span style="font-family:'JetBrains Mono',monospace;">28.1</span> pts left</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1.62fr 1fr; gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:12px; font-weight:600;">Projection to 100%</span>
+            <div style="display:flex; background:var(--panel2); border:1px solid var(--line2); border-radius:5px; overflow:hidden; font-size:11px;">
+              <span style="padding:2px 9px; background:var(--line2); color:var(--ink); font-weight:600;">burn line</span>
+              <span style="padding:2px 9px; color:var(--ink3);">by session</span>
+            </div>
+          </div>
+          <span style="font-size:11px; color:var(--ink3);">shaded cone = ±1σ on burn rate</span>
+        </div>
+        <svg viewBox="0 0 700 220" style="width:100%; height:214px; display:block; overflow:visible;">
+          <rect x="590.4" y="12" width="99.6" height="174" fill="var(--shortsoft)"></rect>
+          <line x1="46" y1="27.8" x2="690" y2="27.8" stroke="var(--line2)" stroke-width="1"></line>
+          <line x1="46" y1="106.9" x2="690" y2="106.9" stroke="var(--line)" stroke-width="1"></line>
+          <line x1="46" y1="186" x2="690" y2="186" stroke="var(--line2)" stroke-width="1"></line>
+          <text x="40" y="31" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">100%</text>
+          <text x="40" y="110" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">50%</text>
+          <text x="40" y="189" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">0%</text>
+          <polygon points="186.8,72.2 544.3,27.8 649.5,27.8" fill="var(--short)" opacity="0.14"></polygon>
+          <polyline points="46,87.8 53,87.5 60.1,86 67.1,85.7 74.2,85.1 81.2,83.5 88.2,82.9 95.3,82.4 102.3,81.6 109.3,80.9 116.4,79.7 123.4,79.4 130.5,78.6 137.5,77.3 144.5,76.5 151.6,75.7 158.6,75.4 165.6,74.3 172.7,73.7 179.7,72.6 186.8,72.2" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"></polyline>
+          <polyline points="186.8,72.2 590.4,27.8 690,27.8" fill="none" stroke="var(--short)" stroke-width="2" stroke-dasharray="5 4"></polyline>
+          <circle cx="186.8" cy="72.2" r="3.5" fill="var(--ink)"></circle>
+          <line x1="186.8" y1="12" x2="186.8" y2="186" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="3 3"></line>
+          <line x1="590.4" y1="12" x2="590.4" y2="186" stroke="var(--short)" stroke-width="1.5"></line>
+          <line x1="690" y1="12" x2="690" y2="186" stroke="var(--accent)" stroke-width="1.5"></line>
+          <text x="192" y="20" fill="var(--ink2)" font-family="JetBrains Mono, monospace" font-size="10">now 17:15 · 71.9%</text>
+          <text x="585" y="20" text-anchor="end" fill="var(--short)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">cutoff 19:10</text>
+          <text x="685" y="205" text-anchor="end" fill="var(--accent)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">reset 19:38</text>
+          <text x="46" y="205" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">16:35</text>
+          <text x="345" y="205" text-anchor="middle" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">18:00</text>
+        </svg>
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:5px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3);">
+            <span>runway · now → reset</span>
+            <span style="font-family:'JetBrains Mono',monospace; letter-spacing:0; text-transform:none;">2h 23m remaining</span>
+          </div>
+          <div style="display:flex; height:26px; border-radius:4px; overflow:hidden; background:var(--panel2);">
+            <div style="width:80.4%; background:var(--clearsoft); border-left:2px solid var(--clear); display:flex; align-items:center; padding-left:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--clear);">1h 55m usable</div>
+            <div style="width:19.6%; background:var(--shortsoft); border-left:2px solid var(--short); display:flex; align-items:center; padding-left:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--short);">28m capped</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px;">
+          <span style="font-size:12px; font-weight:600;">Composition of the 100</span>
+          <div style="display:flex; background:var(--panel2); border:1px solid var(--line2); border-radius:5px; overflow:hidden; font-size:11px;">
+            <span style="padding:2px 9px; background:var(--line2); color:var(--ink); font-weight:600;">ring</span>
+            <span style="padding:2px 9px; color:var(--ink3);">bars</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <svg viewBox="0 0 130 130" style="width:130px; height:130px; flex:none;">
+            <g transform="rotate(-90 65 65)">
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--greysoft)" stroke-width="17"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s6)" stroke-width="17" stroke-dasharray="44.3 282.4"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s1)" stroke-width="17" stroke-dasharray="37.1 289.6" stroke-dashoffset="-44.3"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s3)" stroke-width="17" stroke-dasharray="24.9 301.8" stroke-dashoffset="-81.4"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s9)" stroke-width="17" stroke-dasharray="19.2 307.5" stroke-dashoffset="-106.3"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s2)" stroke-width="17" stroke-dasharray="12.3 314.4" stroke-dashoffset="-125.5"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--grey)" stroke-width="17" stroke-dasharray="97.1 229.6" stroke-dashoffset="-137.8"></circle>
+            </g>
+            <text x="65" y="63" text-anchor="middle" fill="var(--ink)" font-family="JetBrains Mono, monospace" font-size="20" font-weight="600">71.9</text>
+            <text x="65" y="77" text-anchor="middle" fill="var(--ink3)" font-family="Space Grotesk, sans-serif" font-size="9.5" letter-spacing="0.06em">USED</text>
+          </svg>
+          <div style="flex:1; display:flex; flex-direction:column; gap:5px; font-size:11.5px;">
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s6);"></span><span>planner</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">13.6</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s1);"></span><span>banking-dash·7d62</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">11.4</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s3);"></span><span>console</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">7.6</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s9);"></span><span>claude-quota</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">5.9</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s2);"></span><span>banking-dash·4771</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">3.8</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--grey);"></span><span style="color:var(--ink2);">unattributed</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">29.7</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; color:var(--ink3);"><span style="width:9px; height:9px; border-radius:2px; background:var(--greysoft); border:1px solid var(--line2);"></span><span>unused</span><span style="font-family:'JetBrains Mono',monospace;">28.1</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--panel); padding:12px 16px 14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:12px; font-weight:600;">Attribution — who is spending this window</span>
+          <div style="display:flex; background:var(--panel2); border:1px solid var(--line2); border-radius:5px; overflow:hidden; font-size:11px;">
+            <span style="padding:2px 9px; background:var(--line2); color:var(--ink); font-weight:600;">session</span>
+            <span style="padding:2px 9px; color:var(--ink3);">device</span>
+            <span style="padding:2px 9px; color:var(--ink3);">model</span>
+            <span style="padding:2px 9px; color:var(--ink3);">agent</span>
+          </div>
+        </div>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">5 sessions · 3 devices · $91.49 · 5.8M tok</span>
+      </div>
+      <div style="display:flex; height:12px; border-radius:3px; overflow:hidden; background:var(--greysoft); margin-bottom:10px;">
+        <i style="width:13.56%; background:var(--s6);"></i><i style="width:11.35%; background:var(--s1);"></i><i style="width:7.63%; background:var(--s3);"></i><i style="width:5.87%; background:var(--s9);"></i><i style="width:3.76%; background:var(--s2);"></i><i style="width:29.72%; background:var(--grey);"></i>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; padding:0 0 6px; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); border-bottom:1px solid var(--line2);">
+        <span>session</span><span>share of window</span><span style="text-align:right;">pts of 100</span><span style="text-align:right;">$/hr</span><span style="text-align:right;">tokens</span><span>device</span><span style="text-align:right;">last active</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s6); flex:none;"></i>planner<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">0d96</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:45.9%; background:var(--s6);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right;">18.9%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">13.56</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$10.60</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">1.73M</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">mac-mini</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s1); flex:none;"></i>banking-dash<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">7d62</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:38.4%; background:var(--s1);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right;">15.8%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">11.35</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$9.81</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">1.62M</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">studio</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s3); flex:none;"></i>console<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">2c83</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:25.8%; background:var(--s3);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right;">10.6%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">7.63</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$7.09</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">1.25M</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">mac-mini</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s9); flex:none;"></i>claude-quota<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">51be</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:19.9%; background:var(--s9);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right;">8.2%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">5.87</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$4.25</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">694K</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">macbook-pro</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s2); flex:none;"></i>banking-dash<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">4771</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:12.7%; background:var(--s2);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right;">5.2%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">3.76</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$3.20</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">520K</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">studio</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">18m · idle</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px; background:var(--greysoft);">
+        <span style="display:flex; align-items:center; gap:8px; color:var(--ink2);"><i style="width:9px; height:9px; border-radius:2px; background:var(--grey); flex:none;"></i>unattributed</span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--panel2); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:100%; background:var(--grey);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right; color:var(--ink2);">41.3%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">29.72</span>
+        <span style="text-align:right; color:var(--ink3);">—</span>
+        <span style="text-align:right; color:var(--ink3);">—</span>
+        <span style="color:var(--ink3); font-size:11px;">not local</span>
+        <span style="text-align:right; color:var(--ink3);">—</span>
+      </div>
+      <div style="display:flex; gap:10px; align-items:flex-start; margin-top:10px; padding:9px 11px; background:var(--greysoft); border-left:2px solid var(--grey); border-radius:0 4px 4px 0;">
+        <span style="font-size:11.5px; color:var(--ink2); max-width:96ch;"><b style="color:var(--ink); font-family:'JetBrains Mono',monospace;">29.7 pts (41% of everything spent)</b> is measured quota that local telemetry can't explain — claude.ai chat, Cowork, or a machine that isn't reporting. Session shares are shares of the whole window, not of the attributed part, so this slice is never hidden.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="1c" style="display:flex; flex-direction:column; gap:10px;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:#fff; background:#191d24; border-radius:4px; padding:3px 7px;">1c</span>
+    <span style="font-size:13px; font-weight:600; color:#191d24;">Desktop — CLEAR (window resets first)</span>
+    <span style="font-size:12px; color:#5d6672;">same frame, green semantics, whole runway usable</span>
+  </div>
+
+  <div style="width:1440px; --bg:#0b0d11; --panel:#101318; --panel2:#161a21; --ink:#e8ecf1; --ink2:#9aa3b0; --ink3:#646d7a; --line:#1e232c; --line2:#2a313c; --accent:#7c8cff; --accentsoft:#1a2036; --short:#ff6b5f; --shortsoft:#31191c; --clear:#3ecf82; --clearsoft:#12301f; --grey:#4e5763; --greysoft:#191d24; --s1:#f0873c; --s2:#2dd4bf; --s3:#a78bfa; --s6:#e879cf; --s9:#f4728f; background:var(--line); border:1px solid var(--line2); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; gap:1px; color:var(--ink); font-size:13px; line-height:1.4;">
+
+    <div style="background:var(--panel); display:flex; align-items:center; justify-content:space-between; gap:16px; padding:11px 16px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="width:13px; height:13px; border-radius:3px; background:var(--accent);"></span>
+        <span style="font-weight:600; font-size:13.5px; letter-spacing:-.01em;">claude-quota</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3); background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:2px 7px;">window 14:38 → 19:38 · 5h</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:5px; font-size:11px;">
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>status line</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>telemetry</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink); background:var(--panel2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px; font-family:'JetBrains Mono',monospace;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>live</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:7px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">verdict</span>
+        <span style="display:inline-flex; align-self:flex-start; align-items:center; gap:7px; background:var(--clear); color:#04170d; font-weight:700; font-size:12px; letter-spacing:.04em; border-radius:4px; padding:3px 9px;">CLEAR</span>
+        <span style="font-size:11.5px; color:var(--ink2);">resets <b style="font-family:'JetBrains Mono',monospace; color:var(--clear);">5h 20m</b> before the cap</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">projected cutoff</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink2);">00:58<span style="font-size:13px; color:var(--ink3); margin-left:4px;">+1d</span></span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">23:41 – 03:12 <span style="font-family:'Space Grotesk',sans-serif;">±1σ · after reset</span></span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">window reset</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--clear);">19:38</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">in 2h 23m · arrives first</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">burn rate</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink);">6.8<span style="font-size:14px; color:var(--ink3); margin-left:3px;">%/hr</span></span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">± 1.4 · fit over last 40m</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">quota used</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink2);">48.0<span style="font-size:14px; color:var(--ink3);">%</span></span>
+        <span style="font-size:11px; color:var(--ink3);">exact · status line · <span style="font-family:'JetBrains Mono',monospace;">52.0</span> pts left</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1.62fr 1fr; gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:12px; font-weight:600;">Projection to 100%</span>
+            <div style="display:flex; background:var(--panel2); border:1px solid var(--line2); border-radius:5px; overflow:hidden; font-size:11px;">
+              <span style="padding:2px 9px; background:var(--line2); color:var(--ink); font-weight:600;">burn line</span>
+              <span style="padding:2px 9px; color:var(--ink3);">by session</span>
+            </div>
+          </div>
+          <span style="font-size:11px; color:var(--ink3);">projected <b style="color:var(--ink2); font-family:'JetBrains Mono',monospace;">64.1%</b> at reset — 35.9 pts spare</span>
+        </div>
+        <svg viewBox="0 0 700 220" style="width:100%; height:214px; display:block; overflow:visible;">
+          <rect x="445.5" y="12" width="244.5" height="174" fill="var(--clearsoft)" opacity="0.35"></rect>
+          <line x1="46" y1="27.8" x2="690" y2="27.8" stroke="var(--line2)" stroke-width="1"></line>
+          <line x1="46" y1="106.9" x2="690" y2="106.9" stroke="var(--line)" stroke-width="1"></line>
+          <line x1="46" y1="186" x2="690" y2="186" stroke="var(--line2)" stroke-width="1"></line>
+          <text x="40" y="31" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">100%</text>
+          <text x="40" y="110" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">50%</text>
+          <text x="40" y="189" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">0%</text>
+          <polygon points="133.3,110.1 690,55 690,73.8" fill="var(--clear)" opacity="0.16"></polygon>
+          <polyline points="46,117.2 54.7,116.4 63.4,115.6 72.1,114.8 80.8,114.2 89.5,113.4 98.2,112.7 106.9,111.9 115.6,111.3 124.3,110.7 133.3,110.1" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"></polyline>
+          <polyline points="133.3,110.1 690,64.4" fill="none" stroke="var(--clear)" stroke-width="2" stroke-dasharray="5 4"></polyline>
+          <circle cx="133.3" cy="110.1" r="3.5" fill="var(--ink)"></circle>
+          <line x1="133.3" y1="12" x2="133.3" y2="186" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="3 3"></line>
+          <line x1="445.5" y1="12" x2="445.5" y2="186" stroke="var(--clear)" stroke-width="1.5"></line>
+          <text x="139" y="20" fill="var(--ink2)" font-family="JetBrains Mono, monospace" font-size="10">now 17:15 · 48.0%</text>
+          <text x="452" y="20" fill="var(--clear)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">reset 19:38 — quota returns to 0</text>
+          <text x="685" y="70" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">cap would arrive 00:58</text>
+          <text x="46" y="205" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">16:35</text>
+          <text x="445.5" y="205" text-anchor="middle" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">19:38</text>
+          <text x="690" y="205" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">21:30</text>
+        </svg>
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:5px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3);">
+            <span>runway · now → reset</span>
+            <span style="font-family:'JetBrains Mono',monospace; letter-spacing:0; text-transform:none;">2h 23m remaining</span>
+          </div>
+          <div style="display:flex; height:26px; border-radius:4px; overflow:hidden; background:var(--panel2);">
+            <div style="width:100%; background:var(--clearsoft); border-left:2px solid var(--clear); display:flex; align-items:center; padding-left:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--clear);">2h 23m usable — the whole window</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px;">
+          <span style="font-size:12px; font-weight:600;">Composition of the 100</span>
+          <span style="font-size:11px; color:var(--ink3);">3 sessions live</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <svg viewBox="0 0 130 130" style="width:130px; height:130px; flex:none;">
+            <g transform="rotate(-90 65 65)">
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--greysoft)" stroke-width="17"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s6)" stroke-width="17" stroke-dasharray="60.4 266.3"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s3)" stroke-width="17" stroke-dasharray="36.6 290.1" stroke-dashoffset="-60.4"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--s9)" stroke-width="17" stroke-dasharray="20.9 305.8" stroke-dashoffset="-97"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--grey)" stroke-width="17" stroke-dasharray="38.9 287.8" stroke-dashoffset="-117.9"></circle>
+            </g>
+            <text x="65" y="63" text-anchor="middle" fill="var(--ink)" font-family="JetBrains Mono, monospace" font-size="20" font-weight="600">48.0</text>
+            <text x="65" y="77" text-anchor="middle" fill="var(--ink3)" font-family="Space Grotesk, sans-serif" font-size="9.5" letter-spacing="0.06em">USED</text>
+          </svg>
+          <div style="flex:1; display:flex; flex-direction:column; gap:6px; font-size:11.5px;">
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s6);"></span><span>planner</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">18.5</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s3);"></span><span>console</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">11.2</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s9);"></span><span>claude-quota</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">6.4</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--grey);"></span><span style="color:var(--ink2);">unattributed</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">11.9</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; color:var(--ink3);"><span style="width:9px; height:9px; border-radius:2px; background:var(--greysoft); border:1px solid var(--line2);"></span><span>unused</span><span style="font-family:'JetBrains Mono',monospace;">52.0</span></div>
+            <span style="font-size:10.5px; color:var(--ink3); margin-top:2px;">25% of usage unattributed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--panel); padding:12px 16px 14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+        <span style="font-size:12px; font-weight:600;">Attribution — who is spending this window</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">3 sessions · 2 devices · $38.42 · 2.4M tok</span>
+      </div>
+      <div style="display:flex; height:12px; border-radius:3px; overflow:hidden; background:var(--greysoft); margin-bottom:10px;">
+        <i style="width:18.5%; background:var(--s6);"></i><i style="width:11.2%; background:var(--s3);"></i><i style="width:6.4%; background:var(--s9);"></i><i style="width:11.9%; background:var(--grey);"></i>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; padding:0 0 6px; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); border-bottom:1px solid var(--line2);">
+        <span>session</span><span>share of window</span><span style="text-align:right;">pts of 100</span><span style="text-align:right;">$/hr</span><span style="text-align:right;">tokens</span><span>device</span><span style="text-align:right;">last active</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s6); flex:none;"></i>planner<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">0d96</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:100%; background:var(--s6);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right;">38.5%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">18.50</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$7.90</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">1.21M</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">mac-mini</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--clear);">live</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s3); flex:none;"></i>console<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">2c83</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:60.5%; background:var(--s3);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right;">23.3%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">11.20</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$4.60</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">760K</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">mac-mini</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--clear);">live</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;">
+        <span style="display:flex; align-items:center; gap:8px;"><i style="width:9px; height:9px; border-radius:2px; background:var(--s9); flex:none;"></i>claude-quota<span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink3);">51be</span></span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:34.6%; background:var(--s9);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right;">13.3%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace;">6.40</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">$2.20</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">430K</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink2);">macbook-pro</span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">9m · idle</span>
+      </div>
+      <div style="display:grid; grid-template-columns:210px 1fr 78px 76px 86px 104px 92px; gap:10px; align-items:center; padding:7px 0; font-size:12px; background:var(--greysoft);">
+        <span style="display:flex; align-items:center; gap:8px; color:var(--ink2);"><i style="width:9px; height:9px; border-radius:2px; background:var(--grey); flex:none;"></i>unattributed</span>
+        <span style="display:flex; align-items:center; gap:9px;"><span style="flex:1; height:7px; background:var(--panel2); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:64.3%; background:var(--grey);"></i></span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; width:38px; text-align:right; color:var(--ink2);">24.8%</b></span>
+        <span style="text-align:right; font-family:'JetBrains Mono',monospace; color:var(--ink2);">11.90</span>
+        <span style="text-align:right; color:var(--ink3);">—</span>
+        <span style="text-align:right; color:var(--ink3);">—</span>
+        <span style="color:var(--ink3); font-size:11px;">not local</span>
+        <span style="text-align:right; color:var(--ink3);">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="1d" style="display:flex; flex-direction:column; gap:10px;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:#fff; background:#191d24; border-radius:4px; padding:3px 7px;">1d</span>
+    <span style="font-size:13px; font-weight:600; color:#191d24;">Early state — attribution off, projection still collecting</span>
+    <span style="font-size:12px; color:#5d6672;">no verdict is shown, because there isn't one yet</span>
+  </div>
+
+  <div style="width:1440px; --bg:#0b0d11; --panel:#101318; --panel2:#161a21; --ink:#e8ecf1; --ink2:#9aa3b0; --ink3:#646d7a; --line:#1e232c; --line2:#2a313c; --accent:#7c8cff; --accentsoft:#1a2036; --short:#ff6b5f; --shortsoft:#31191c; --clear:#3ecf82; --clearsoft:#12301f; --warn:#e0a83a; --warnsoft:#2e2411; --grey:#4e5763; --greysoft:#191d24; background:var(--line); border:1px solid var(--line2); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; gap:1px; color:var(--ink); font-size:13px; line-height:1.4;">
+
+    <div style="background:var(--panel); display:flex; align-items:center; justify-content:space-between; gap:16px; padding:11px 16px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="width:13px; height:13px; border-radius:3px; background:var(--accent);"></span>
+        <span style="font-weight:600; font-size:13.5px; letter-spacing:-.01em;">claude-quota</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3); background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:2px 7px;">window 14:38 → 19:38 · 5h</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:5px; font-size:11px;">
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>status line</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--grey);"></i>telemetry off</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--grey);"></i>uncalibrated</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink); background:var(--panel2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px; font-family:'JetBrains Mono',monospace;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>live</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:7px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">verdict</span>
+        <span style="display:inline-flex; align-self:flex-start; align-items:center; gap:7px; border:1px dashed var(--line2); color:var(--ink3); font-weight:600; font-size:12px; letter-spacing:.04em; border-radius:4px; padding:2px 9px;">NOT YET</span>
+        <span style="font-size:11.5px; color:var(--ink3);">a verdict needs 10m of history</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:6px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">projected cutoff</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; line-height:1.05; color:var(--ink3);">—</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="flex:1; height:4px; background:var(--greysoft); border-radius:2px; overflow:hidden; display:block;"><i style="display:block; height:100%; width:60%; background:var(--accent);"></i></span>
+          <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">6m / 10m</span>
+        </div>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">window reset</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink);">19:38</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">in 2h 23m</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">burn rate</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; line-height:1.05; color:var(--ink3);">—</span>
+        <span style="font-size:11px; color:var(--ink3);">collecting data · too few samples to fit</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">quota used</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink);">71.9<span style="font-size:14px; color:var(--ink3);">%</span></span>
+        <span style="font-size:11px; color:var(--clear);">exact — this number is measured</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1.62fr 1fr; gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:600;">Projection to 100%</span>
+          <span style="font-size:11px; color:var(--warn); display:inline-flex; align-items:center; gap:6px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--warn);"></i>suppressed — collecting data</span>
+        </div>
+        <svg viewBox="0 0 700 220" style="width:100%; height:214px; display:block; overflow:visible;">
+          <line x1="46" y1="27.8" x2="690" y2="27.8" stroke="var(--line2)" stroke-width="1"></line>
+          <line x1="46" y1="106.9" x2="690" y2="106.9" stroke="var(--line)" stroke-width="1"></line>
+          <line x1="46" y1="186" x2="690" y2="186" stroke="var(--line2)" stroke-width="1"></line>
+          <text x="40" y="31" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">100%</text>
+          <text x="40" y="110" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">50%</text>
+          <text x="40" y="189" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">0%</text>
+          <polyline points="165.6,74.3 172.7,73.7 179.7,72.6 186.8,72.2" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"></polyline>
+          <circle cx="186.8" cy="72.2" r="3.5" fill="var(--ink)"></circle>
+          <line x1="186.8" y1="12" x2="186.8" y2="186" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="3 3"></line>
+          <line x1="690" y1="12" x2="690" y2="186" stroke="var(--accent)" stroke-width="1.5"></line>
+          <text x="192" y="20" fill="var(--ink2)" font-family="JetBrains Mono, monospace" font-size="10">now 17:15 · 71.9%</text>
+          <text x="685" y="205" text-anchor="end" fill="var(--accent)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">reset 19:38</text>
+          <text x="46" y="205" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">16:35</text>
+          <text x="438" y="100" text-anchor="middle" fill="var(--ink3)" font-family="Space Grotesk, sans-serif" font-size="12">no projection drawn until the fit is stable</text>
+          <text x="438" y="118" text-anchor="middle" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">4 samples over 6m · needs 10m</text>
+        </svg>
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:5px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3);">
+            <span>runway · now → reset</span>
+            <span style="font-family:'JetBrains Mono',monospace; letter-spacing:0; text-transform:none;">2h 23m remaining</span>
+          </div>
+          <div style="display:flex; height:26px; border-radius:4px; overflow:hidden; background:var(--greysoft); border-left:2px solid var(--grey);">
+            <div style="display:flex; align-items:center; padding-left:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3);">2h 23m left in the window · usable / capped split unknown</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
+          <span style="font-size:12px; font-weight:600;">Composition of the 100</span>
+          <span style="font-size:11px; color:var(--ink3);">0 of 71.9 explained</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <svg viewBox="0 0 130 130" style="width:130px; height:130px; flex:none;">
+            <g transform="rotate(-90 65 65)">
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--greysoft)" stroke-width="17"></circle>
+              <circle cx="65" cy="65" r="52" fill="none" stroke="var(--grey)" stroke-width="17" stroke-dasharray="234.9 91.8"></circle>
+            </g>
+            <text x="65" y="63" text-anchor="middle" fill="var(--ink)" font-family="JetBrains Mono, monospace" font-size="20" font-weight="600">71.9</text>
+            <text x="65" y="77" text-anchor="middle" fill="var(--ink3)" font-family="Space Grotesk, sans-serif" font-size="9.5" letter-spacing="0.06em">USED</text>
+          </svg>
+          <div style="flex:1; display:flex; flex-direction:column; gap:6px; font-size:11.5px;">
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--grey);"></span><span style="color:var(--ink2);">unattributed</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">71.9</span></div>
+            <div style="display:grid; grid-template-columns:9px 1fr auto; gap:8px; align-items:center; color:var(--ink3);"><span style="width:9px; height:9px; border-radius:2px; background:var(--greysoft); border:1px solid var(--line2);"></span><span>unused</span><span style="font-family:'JetBrains Mono',monospace;">28.1</span></div>
+            <span style="font-size:10.5px; color:var(--ink3); margin-top:4px; line-height:1.5;">The window total is real. Nothing is being split by session yet, so no slice is guessed.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--panel); padding:12px 16px 16px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+        <span style="font-size:12px; font-weight:600;">Attribution — who is spending this window</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">100% unattributed</span>
+      </div>
+      <div style="display:flex; height:12px; border-radius:3px; overflow:hidden; background:var(--greysoft); margin-bottom:14px;">
+        <i style="width:71.9%; background:var(--grey);"></i>
+      </div>
+      <div style="display:grid; grid-template-columns:1.15fr 1fr; gap:24px; padding:2px 0 0;">
+        <div style="display:flex; gap:12px;">
+          <span style="width:2px; align-self:stretch; background:var(--accent); border-radius:2px; flex:none;"></span>
+          <div>
+            <div style="font-size:13.5px; font-weight:600; margin-bottom:5px;">Per-session attribution is off</div>
+            <p style="margin:0 0 10px; font-size:12px; color:var(--ink2); line-height:1.55; max-width:64ch;">The 5-hour and 7-day percentages above are exact — they come from Claude Code's status line. Splitting them <em>by session</em> needs OpenTelemetry, and Claude Code only reads that setting when a session starts. Two steps, then the rows fill in on their own.</p>
+            <div style="display:flex; flex-direction:column; gap:7px; font-size:12px;">
+              <div style="display:flex; align-items:center; gap:10px;"><span style="width:17px; height:17px; border-radius:4px; background:var(--panel2); border:1px solid var(--line2); display:inline-flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink2); flex:none;">1</span><span style="color:var(--ink2);">Confirm setup:</span><code style="font-family:'JetBrains Mono',monospace; font-size:11.5px; background:var(--panel2); border:1px solid var(--line2); padding:2px 8px; border-radius:4px;">claude-quota doctor</code></div>
+              <div style="display:flex; align-items:center; gap:10px;"><span style="width:17px; height:17px; border-radius:4px; background:var(--panel2); border:1px solid var(--line2); display:inline-flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--ink2); flex:none;">2</span><span style="color:var(--ink2);">Restart your Claude Code sessions (or start new ones)</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; border-left:1px solid var(--line); padding-left:24px;">
+          <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">meanwhile, this is still true</span>
+          <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--ink2);">5-hour used</span><span style="font-family:'JetBrains Mono',monospace;">71.9% · exact</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--ink2);">7-day used</span><span style="font-family:'JetBrains Mono',monospace;">59% · exact</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--ink2);">window resets</span><span style="font-family:'JetBrains Mono',monospace;">19:38 · in 2h 23m</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--ink2);">status samples</span><span style="font-family:'JetBrains Mono',monospace;">4 · since 17:09</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:var(--ink2);">otel records</span><span style="font-family:'JetBrains Mono',monospace; color:var(--ink3);">0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="1e" style="display:flex; flex-direction:column; gap:10px;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:#fff; background:#191d24; border-radius:4px; padding:3px 7px;">1e</span>
+    <span style="font-size:13px; font-weight:600; color:#191d24;">Degraded (estimated quota) + capped at 112%</span>
+    <span style="font-size:12px; color:#5d6672;">every estimated number is dashed and tagged</span>
+  </div>
+
+  <div style="width:1440px; --bg:#f4f5f7; --panel:#ffffff; --panel2:#f7f8fa; --ink:#0e1116; --ink2:#4a5361; --ink3:#7b8492; --line:#e3e6ea; --line2:#d3d8df; --accent:#3b5bdb; --accentsoft:#eaeefc; --short:#c9352e; --shortsoft:#fbe6e4; --clear:#12854a; --clearsoft:#ddf0e5; --warn:#a9761a; --warnsoft:#fbf1dc; --grey:#9aa3af; --greysoft:#eef0f3; --s1:#c65a12; --s2:#0d8f83; --s3:#6d4de0; --s6:#b3149a; --s9:#d43e72; background:var(--line); border:1px solid var(--line2); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; gap:1px; color:var(--ink); font-size:13px; line-height:1.4;">
+
+    <div style="background:var(--panel); display:flex; align-items:center; justify-content:space-between; gap:16px; padding:11px 16px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="width:13px; height:13px; border-radius:3px; background:var(--accent);"></span>
+        <span style="font-weight:600; font-size:13.5px; letter-spacing:-.01em;">claude-quota</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink3); background:var(--panel2); border:1px solid var(--line); border-radius:4px; padding:2px 7px;">window 14:38 → 19:38 · 5h</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:5px; font-size:11px;">
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--warn); border:1px solid var(--warn); background:var(--warnsoft); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--warn);"></i>status line · no rate limits</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>telemetry</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>calibrated r²&nbsp;.86</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--ink); background:var(--panel2); border:1px solid var(--line2); border-radius:4px; padding:3px 8px; font-family:'JetBrains Mono',monospace;"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>live</span>
+      </div>
+    </div>
+
+    <div style="background:var(--warnsoft); display:flex; align-items:center; gap:10px; padding:8px 16px; border-left:2px solid var(--warn);">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600; color:var(--warn); letter-spacing:.05em;">DEGRADED</span>
+      <span style="font-size:12px; color:var(--ink2);">No <code style="font-family:'JetBrains Mono',monospace; font-size:11px;">rate_limits</code> from the status line for <b style="font-family:'JetBrains Mono',monospace;">184m</b>. Percentages below are <b>derived from local telemetry × calibration</b>, not measured — treat them as a floor, not truth.</span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:7px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">verdict</span>
+        <span style="display:inline-flex; align-self:flex-start; align-items:center; gap:7px; background:var(--short); color:#fff; font-weight:700; font-size:12px; letter-spacing:.04em; border-radius:4px; padding:3px 9px;">CAPPED</span>
+        <span style="font-size:11.5px; color:var(--ink2);">no headroom until <b style="font-family:'JetBrains Mono',monospace;">19:38</b></span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">cap reached</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--short); border-bottom:1.5px dashed var(--short); align-self:flex-start;">17:01</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">14m ago · estimated</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">window reset</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--ink);">19:38</span>
+        <span style="font-size:11px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">in 2h 23m · from status line</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">burn rate</span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; line-height:1.05; color:var(--ink3);">—</span>
+        <span style="font-size:11px; color:var(--ink3);">projection paused — already at the cap</span>
+      </div>
+      <div style="background:var(--panel); padding:12px 16px 13px; display:flex; flex-direction:column; gap:4px;">
+        <span style="font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">quota used <span style="font-family:'JetBrains Mono',monospace; color:var(--warn); letter-spacing:0; text-transform:none;">est</span></span>
+        <span style="font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; color:var(--short); border-bottom:1.5px dashed var(--short); align-self:flex-start;">112<span style="font-size:14px;">%</span></span>
+        <span style="font-size:11px; color:var(--short);">capped 14m ago · still counting</span>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1.62fr 1fr; gap:1px; background:var(--line);">
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:600;">Estimated usage · past the cap</span>
+          <span style="font-size:11px; color:var(--warn);">dashed line = estimate, no measured samples since 14:11</span>
+        </div>
+        <svg viewBox="0 0 700 220" style="width:100%; height:214px; display:block; overflow:visible;">
+          <rect x="46" y="12" width="644" height="29" fill="var(--shortsoft)"></rect>
+          <line x1="46" y1="41" x2="690" y2="41" stroke="var(--short)" stroke-width="1"></line>
+          <line x1="46" y1="113" x2="690" y2="113" stroke="var(--line)" stroke-width="1"></line>
+          <line x1="46" y1="186" x2="690" y2="186" stroke="var(--line2)" stroke-width="1"></line>
+          <text x="40" y="27" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">120%</text>
+          <text x="40" y="44" text-anchor="end" fill="var(--short)" font-family="JetBrains Mono, monospace" font-size="10">100%</text>
+          <text x="40" y="116" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">50%</text>
+          <text x="40" y="189" text-anchor="end" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">0%</text>
+          <polyline points="46,72.9 137.5,41 186.8,23.6" fill="none" stroke="var(--short)" stroke-width="2" stroke-dasharray="6 4" stroke-linejoin="round"></polyline>
+          <polyline points="186.8,23.6 690,23.6" fill="none" stroke="var(--ink3)" stroke-width="1.5" stroke-dasharray="2 5"></polyline>
+          <circle cx="137.5" cy="41" r="3.5" fill="var(--short)"></circle>
+          <circle cx="186.8" cy="23.6" r="3.5" fill="var(--short)"></circle>
+          <line x1="137.5" y1="12" x2="137.5" y2="186" stroke="var(--short)" stroke-width="1"></line>
+          <line x1="186.8" y1="12" x2="186.8" y2="186" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="3 3"></line>
+          <line x1="690" y1="12" x2="690" y2="186" stroke="var(--accent)" stroke-width="1.5"></line>
+          <text x="132" y="60" text-anchor="end" fill="var(--short)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">cap 17:01</text>
+          <text x="192" y="20" fill="var(--ink2)" font-family="JetBrains Mono, monospace" font-size="10">now 17:15 · 112% est</text>
+          <text x="440" y="40" text-anchor="middle" fill="var(--ink3)" font-family="Space Grotesk, sans-serif" font-size="11">requests are refused until the window rolls over</text>
+          <text x="685" y="205" text-anchor="end" fill="var(--accent)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">reset 19:38</text>
+          <text x="46" y="205" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="10">16:35</text>
+        </svg>
+        <div style="margin-top:12px; display:flex; flex-direction:column; gap:5px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3);">
+            <span>runway · now → reset</span>
+            <span style="font-family:'JetBrains Mono',monospace; letter-spacing:0; text-transform:none;">2h 23m remaining</span>
+          </div>
+          <div style="display:flex; height:26px; border-radius:4px; overflow:hidden; background:var(--shortsoft); border-left:2px solid var(--short);">
+            <div style="display:flex; align-items:center; padding-left:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--short);">2h 23m capped — nothing usable until 19:38</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--panel); padding:12px 16px 14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
+          <span style="font-size:12px; font-weight:600;">Composition <span style="font-weight:400; color:var(--warn); font-size:11px;">· of an estimate</span></span>
+          <span style="font-size:11px; color:var(--ink3);">ratios, not points</span>
+        </div>
+        <div style="display:flex; height:12px; border-radius:3px; overflow:hidden; background:var(--greysoft); margin-bottom:12px; outline:1px dashed var(--warn); outline-offset:2px;">
+          <i style="width:31%; background:var(--s6);"></i><i style="width:24%; background:var(--s1);"></i><i style="width:14%; background:var(--s3);"></i><i style="width:31%; background:var(--grey);"></i>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:7px; font-size:11.5px;">
+          <div style="display:grid; grid-template-columns:9px 1fr auto auto; gap:10px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s6);"></span><span>planner</span><b style="font-family:'JetBrains Mono',monospace;">31%</b><span style="font-family:'JetBrains Mono',monospace; color:var(--ink3); width:52px; text-align:right;">$27.75</span></div>
+          <div style="display:grid; grid-template-columns:9px 1fr auto auto; gap:10px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s1);"></span><span>banking-dash·7d62</span><b style="font-family:'JetBrains Mono',monospace;">24%</b><span style="font-family:'JetBrains Mono',monospace; color:var(--ink3); width:52px; text-align:right;">$25.68</span></div>
+          <div style="display:grid; grid-template-columns:9px 1fr auto auto; gap:10px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--s3);"></span><span>console</span><b style="font-family:'JetBrains Mono',monospace;">14%</b><span style="font-family:'JetBrains Mono',monospace; color:var(--ink3); width:52px; text-align:right;">$18.57</span></div>
+          <div style="display:grid; grid-template-columns:9px 1fr auto auto; gap:10px; align-items:center;"><span style="width:9px; height:9px; border-radius:2px; background:var(--grey);"></span><span style="color:var(--ink2);">unattributed</span><b style="font-family:'JetBrains Mono',monospace; color:var(--ink2);">31%</b><span style="font-family:'JetBrains Mono',monospace; color:var(--ink3); width:52px; text-align:right;">—</span></div>
+        </div>
+        <div style="margin-top:12px; padding:9px 11px; background:var(--warnsoft); border-left:2px solid var(--warn); border-radius:0 4px 4px 0; font-size:11.5px; color:var(--ink2); line-height:1.5;">
+          While the quota is estimated, only <b>relative shares</b> are trustworthy. Points of quota are withheld — the denominator itself is a guess.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="1f" style="display:flex; flex-direction:column; gap:10px;">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:#fff; background:#191d24; border-radius:4px; padding:3px 7px;">1f</span>
+    <span style="font-size:13px; font-weight:600; color:#191d24;">Mobile — SHORT, 390pt</span>
+    <span style="font-size:12px; color:#5d6672;">verdict, runway, then who is spending it</span>
+  </div>
+
+  <div style="width:390px; --bg:#0b0d11; --panel:#101318; --panel2:#161a21; --ink:#e8ecf1; --ink2:#9aa3b0; --ink3:#646d7a; --line:#1e232c; --line2:#2a313c; --accent:#7c8cff; --accentsoft:#1a2036; --short:#ff6b5f; --shortsoft:#31191c; --clear:#3ecf82; --clearsoft:#12301f; --grey:#4e5763; --greysoft:#191d24; --s1:#f0873c; --s2:#2dd4bf; --s3:#a78bfa; --s6:#e879cf; --s9:#f4728f; background:var(--line); border:1px solid var(--line2); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; gap:1px; color:var(--ink); font-size:13px; line-height:1.4;">
+
+    <div style="background:var(--panel); display:flex; align-items:center; justify-content:space-between; padding:10px 14px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="width:12px; height:12px; border-radius:3px; background:var(--accent);"></span>
+        <span style="font-weight:600; font-size:13px;">claude-quota</span>
+      </div>
+      <span style="display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--ink2);"><i style="width:6px; height:6px; border-radius:50%; background:var(--clear);"></i>live · exact</span>
+    </div>
+
+    <div style="background:var(--panel); padding:14px;">
+      <div style="display:flex; align-items:center; gap:9px; margin-bottom:10px;">
+        <span style="background:var(--short); color:#12070a; font-weight:700; font-size:12px; letter-spacing:.04em; border-radius:4px; padding:3px 9px;">SHORT</span>
+        <span style="font-size:12px; color:var(--ink2);">caps <b style="font-family:'JetBrains Mono',monospace; color:var(--short);">28m</b> before reset</span>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:6px; overflow:hidden;">
+        <div style="background:var(--panel); padding:10px 12px; display:flex; flex-direction:column; gap:2px;">
+          <span style="font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">cutoff</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:26px; font-weight:600; line-height:1.1; color:var(--short);">19:10</span>
+          <span style="font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">18:55–19:32</span>
+        </div>
+        <div style="background:var(--panel); padding:10px 12px; display:flex; flex-direction:column; gap:2px;">
+          <span style="font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink3);">reset</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:26px; font-weight:600; line-height:1.1;">19:38</span>
+          <span style="font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">in 2h 23m</span>
+        </div>
+      </div>
+      <div style="display:flex; height:24px; border-radius:4px; overflow:hidden; background:var(--panel2); margin-top:10px;">
+        <div style="width:80.4%; background:var(--clearsoft); border-left:2px solid var(--clear); display:flex; align-items:center; padding-left:7px; font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--clear);">1h 55m usable</div>
+        <div style="width:19.6%; background:var(--shortsoft); border-left:2px solid var(--short);"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:5px; font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">
+        <span>now 17:15</span><span style="color:var(--short);">28m capped</span>
+      </div>
+    </div>
+
+    <div style="background:var(--panel); padding:12px 14px;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;">
+        <span style="font-size:11.5px; font-weight:600;">Burn to 100%</span>
+        <span style="font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">14.7 ± 1.9 %/hr</span>
+      </div>
+      <svg viewBox="0 0 360 120" style="width:100%; height:110px; display:block;">
+        <rect x="298.6" y="8" width="53.4" height="96" fill="var(--shortsoft)"></rect>
+        <line x1="8" y1="20" x2="352" y2="20" stroke="var(--line2)" stroke-width="1"></line>
+        <line x1="8" y1="104" x2="352" y2="104" stroke="var(--line2)" stroke-width="1"></line>
+        <text x="12" y="17" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="9">100%</text>
+        <polygon points="99,44.6 275.5,20 331.8,20" fill="var(--short)" opacity="0.16"></polygon>
+        <polyline points="8,52.9 17,52.5 26,51.6 35,50.6 44,49.9 53,49 62,48.2 71,47.3 80,46.4 89,45.4 99,44.6" fill="none" stroke="var(--ink)" stroke-width="2"></polyline>
+        <polyline points="99,44.6 298.6,20 352,20" fill="none" stroke="var(--short)" stroke-width="2" stroke-dasharray="5 4"></polyline>
+        <circle cx="99" cy="44.6" r="3" fill="var(--ink)"></circle>
+        <line x1="298.6" y1="8" x2="298.6" y2="104" stroke="var(--short)" stroke-width="1.5"></line>
+        <line x1="352" y1="8" x2="352" y2="104" stroke="var(--accent)" stroke-width="1.5"></line>
+        <text x="294" y="17" text-anchor="end" fill="var(--short)" font-family="JetBrains Mono, monospace" font-size="9" font-weight="600">19:10</text>
+        <text x="8" y="117" fill="var(--ink3)" font-family="JetBrains Mono, monospace" font-size="9">16:35</text>
+        <text x="352" y="117" text-anchor="end" fill="var(--accent)" font-family="JetBrains Mono, monospace" font-size="9">19:38</text>
+      </svg>
+    </div>
+
+    <div style="background:var(--panel); padding:12px 14px 14px;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:9px;">
+        <span style="font-size:11.5px; font-weight:600;">Who is spending it</span>
+        <span style="font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">71.9% used</span>
+      </div>
+      <div style="display:flex; height:11px; border-radius:3px; overflow:hidden; background:var(--greysoft); margin-bottom:12px;">
+        <i style="width:13.56%; background:var(--s6);"></i><i style="width:11.35%; background:var(--s1);"></i><i style="width:7.63%; background:var(--s3);"></i><i style="width:5.87%; background:var(--s9);"></i><i style="width:3.76%; background:var(--s2);"></i><i style="width:29.72%; background:var(--grey);"></i>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; flex-direction:column; gap:3px;">
+          <div style="display:flex; align-items:center; gap:8px; font-size:12px;"><i style="width:8px; height:8px; border-radius:2px; background:var(--s6); flex:none;"></i><span style="flex:1;">planner</span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px;">18.9%</b></div>
+          <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace; padding-left:16px;"><span>13.56 pts · $10.60/hr</span><span>mac-mini · idle 18m</span></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:3px;">
+          <div style="display:flex; align-items:center; gap:8px; font-size:12px;"><i style="width:8px; height:8px; border-radius:2px; background:var(--s1); flex:none;"></i><span style="flex:1;">banking-dash·7d62</span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px;">15.8%</b></div>
+          <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace; padding-left:16px;"><span>11.35 pts · $9.81/hr</span><span>studio · idle 18m</span></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:3px;">
+          <div style="display:flex; align-items:center; gap:8px; font-size:12px;"><i style="width:8px; height:8px; border-radius:2px; background:var(--s3); flex:none;"></i><span style="flex:1;">console</span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px;">10.6%</b></div>
+          <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink3); font-family:'JetBrains Mono',monospace; padding-left:16px;"><span>7.63 pts · $7.09/hr</span><span>mac-mini · idle 18m</span></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink2);"><i style="width:8px; height:8px; border-radius:2px; background:var(--s9); flex:none;"></i><span style="flex:1;">claude-quota</span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px;">8.2%</b></div>
+        <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink2);"><i style="width:8px; height:8px; border-radius:2px; background:var(--s2); flex:none;"></i><span style="flex:1;">banking-dash·4771</span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px;">5.2%</b></div>
+        <div style="display:flex; flex-direction:column; gap:5px; padding:9px 10px; background:var(--greysoft); border-left:2px solid var(--grey); border-radius:0 4px 4px 0;">
+          <div style="display:flex; align-items:center; gap:8px; font-size:12px;"><i style="width:8px; height:8px; border-radius:2px; background:var(--grey); flex:none;"></i><span style="flex:1; color:var(--ink2);">unattributed</span><b style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--ink2);">41.3%</b></div>
+          <span style="font-size:10.5px; color:var(--ink3); line-height:1.5;">29.7 pts this window came from somewhere else — claude.ai, Cowork, or a machine that isn't reporting.</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--panel); display:flex; align-items:center; justify-content:space-between; padding:8px 14px; font-size:10px; color:var(--ink3); font-family:'JetBrains Mono',monospace;">
+      <span>updated 17:15</span><span>7d 59%</span>
+    </div>
+  </div>
+</div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;hoverIsolate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Interaction&quot;},&quot;dimOpacity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.22,&quot;min&quot;:0.05,&quot;max&quot;:0.6,&quot;step&quot;:0.01,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Interaction&quot;}}">
+class Component extends DCLogic {
+  state = { hov: null };
+  op(k) {
+    if (this.props.hoverIsolate === false) return 1;
+    const dim = this.props.dimOpacity ?? 0.22;
+    return this.state.hov === null || this.state.hov === k ? 1 : dim;
+  }
+  set(k) { return () => this.setState({ hov: k }); }
+  renderVals() {
+    return {
+      opPlanner: this.op("planner"), opBd1: this.op("bd1"), opConsole: this.op("console"),
+      opCq: this.op("cq"), opBd2: this.op("bd2"), opUnattr: this.op("unattr"),
+      hPlanner: this.set("planner"), hBd1: this.set("bd1"), hConsole: this.set("console"),
+      hCq: this.set("cq"), hBd2: this.set("bd2"), hUnattr: this.set("unattr"),
+      hLeave: () => this.setState({ hov: null }),
+    };
+  }
+}
+</script>
+</body>
+</html>
