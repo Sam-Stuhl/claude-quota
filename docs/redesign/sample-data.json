@@ -1,0 +1,692 @@
+{
+  "summary": {
+    "now": 1787271348,
+    "degraded": true,
+    "degraded_reason": "rate_limits absent for 184m",
+    "window_start": 1787249454,
+    "five_hour": {
+      "used_percentage": 42.18,
+      "resets_at": 1787267454,
+      "estimated": true,
+      "capped": false,
+      "capped_since": null
+    },
+    "seven_day": {
+      "used_percentage": 59.0,
+      "resets_at": 1787605854,
+      "estimated": false
+    },
+    "unattributed_pct": 0.0,
+    "sessions": [
+      {
+        "session_id": "planner-0d96",
+        "label": "planner",
+        "color_idx": 6,
+        "cost_usd": 27.75,
+        "tokens": 1733197,
+        "est_pct": 13.56,
+        "last_active": 1787260254,
+        "idle": true
+      },
+      {
+        "session_id": "banking-dash-7d62",
+        "label": "banking-dash",
+        "color_idx": 1,
+        "cost_usd": 25.68,
+        "tokens": 1615430,
+        "est_pct": 11.35,
+        "last_active": 1787260254,
+        "idle": true
+      },
+      {
+        "session_id": "console-2c83",
+        "label": "console",
+        "color_idx": 3,
+        "cost_usd": 18.57,
+        "tokens": 1250252,
+        "est_pct": 7.63,
+        "last_active": 1787260254,
+        "idle": true
+      },
+      {
+        "session_id": "claude-quota-51be",
+        "label": "claude-quota",
+        "color_idx": 9,
+        "cost_usd": 11.12,
+        "tokens": 693848,
+        "est_pct": 5.87,
+        "last_active": 1787260254,
+        "idle": true
+      },
+      {
+        "session_id": "banking-dash-4771",
+        "label": "banking-dash",
+        "color_idx": 2,
+        "cost_usd": 8.37,
+        "tokens": 519569,
+        "est_pct": 3.76,
+        "last_active": 1787260254,
+        "idle": true
+      }
+    ],
+    "projection": {
+      "available": false,
+      "current_pct": 71.9,
+      "resets_at": 1787267454,
+      "burn_rate_pct_per_hour": null,
+      "burn_rate_stderr": null,
+      "cutoff_at": null,
+      "seconds_to_cap": null,
+      "verdict": null,
+      "margin_seconds": null,
+      "ci_low_cutoff": null,
+      "ci_high_cutoff": null,
+      "suppressed_reason": "collecting data"
+    },
+    "calibrated": true,
+    "series": [
+      [
+        1787257854,
+        62.1
+      ],
+      [
+        1787257974,
+        62.3
+      ],
+      [
+        1787258094,
+        63.2
+      ],
+      [
+        1787258214,
+        63.4
+      ],
+      [
+        1787258334,
+        63.8
+      ],
+      [
+        1787258454,
+        64.8
+      ],
+      [
+        1787258574,
+        65.2
+      ],
+      [
+        1787258694,
+        65.5
+      ],
+      [
+        1787258814,
+        66.0
+      ],
+      [
+        1787258934,
+        66.4
+      ],
+      [
+        1787259054,
+        67.2
+      ],
+      [
+        1787259174,
+        67.4
+      ],
+      [
+        1787259294,
+        67.9
+      ],
+      [
+        1787259414,
+        68.7
+      ],
+      [
+        1787259534,
+        69.2
+      ],
+      [
+        1787259654,
+        69.7
+      ],
+      [
+        1787259774,
+        69.9
+      ],
+      [
+        1787259894,
+        70.6
+      ],
+      [
+        1787260014,
+        71.0
+      ],
+      [
+        1787260134,
+        71.7
+      ],
+      [
+        1787260254,
+        71.9
+      ]
+    ],
+    "sources": {
+      "statusline": {
+        "live": false,
+        "rate_limits": false
+      },
+      "otel": {
+        "live": false,
+        "ever": true
+      }
+    },
+    "has_attribution": true
+  },
+  "sessions": {
+    "now": 1787271348,
+    "sessions": [],
+    "unattributed_pct": 0.0,
+    "degraded": true
+  },
+  "breakdown_model": {
+    "now": 1787271348,
+    "by": "model",
+    "window": "5h",
+    "items": [
+      {
+        "key": "claude-opus-5",
+        "cost_usd": 47.7,
+        "tok_input": 464515,
+        "tok_output": 71906,
+        "tok_cache_read": 2411179,
+        "tok_cache_write": 151481
+      },
+      {
+        "key": "claude-sonnet-5",
+        "cost_usd": 34.65,
+        "tok_input": 353325,
+        "tok_output": 48782,
+        "tok_cache_read": 1625792,
+        "tok_cache_write": 110614
+      },
+      {
+        "key": "claude-haiku-4-5",
+        "cost_usd": 9.14,
+        "tok_input": 86835,
+        "tok_output": 13021,
+        "tok_cache_read": 444833,
+        "tok_cache_write": 30013
+      }
+    ]
+  },
+  "breakdown_device": {
+    "now": 1787271348,
+    "by": "device",
+    "window": "7d",
+    "items": [
+      {
+        "key": "mac-mini",
+        "cost_usd": 483.39,
+        "tok_input": 4849154,
+        "tok_output": 683063,
+        "tok_cache_read": 23996458,
+        "tok_cache_write": 1575114
+      },
+      {
+        "key": "studio",
+        "cost_usd": 186.84,
+        "tok_input": 1925210,
+        "tok_output": 260128,
+        "tok_cache_read": 9342489,
+        "tok_cache_write": 623442
+      },
+      {
+        "key": "macbook-pro",
+        "cost_usd": 175.35,
+        "tok_input": 1776759,
+        "tok_output": 252779,
+        "tok_cache_read": 8610285,
+        "tok_cache_write": 550965
+      }
+    ]
+  },
+  "breakdown_agent": {
+    "now": 1787271348,
+    "by": "agent",
+    "window": "7d",
+    "items": [
+      {
+        "key": "general-purpose",
+        "cost_usd": 194.47,
+        "tok_input": 1958395,
+        "tok_output": 283634,
+        "tok_cache_read": 9576994,
+        "tok_cache_write": 624339
+      },
+      {
+        "key": "Explore",
+        "cost_usd": 185.4,
+        "tok_input": 1873324,
+        "tok_output": 259258,
+        "tok_cache_read": 9413095,
+        "tok_cache_write": 594192
+      },
+      {
+        "key": "code-reviewer",
+        "cost_usd": 179.84,
+        "tok_input": 1823870,
+        "tok_output": 251982,
+        "tok_cache_read": 9077867,
+        "tok_cache_write": 582153
+      },
+      {
+        "key": "(none)",
+        "cost_usd": 153.43,
+        "tok_input": 1550970,
+        "tok_output": 211043,
+        "tok_cache_read": 7499436,
+        "tok_cache_write": 500872
+      },
+      {
+        "key": "Plan",
+        "cost_usd": 132.44,
+        "tok_input": 1344564,
+        "tok_output": 190053,
+        "tok_cache_read": 6381840,
+        "tok_cache_write": 447965
+      }
+    ]
+  },
+  "history": {
+    "now": 1787271348,
+    "days": 14,
+    "windows": [
+      {
+        "reset_at": 1787267454,
+        "peak_pct": 71.9,
+        "hit_cap": false,
+        "total_cost": 91.49,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1787248800,
+        "peak_pct": 48.0,
+        "hit_cap": false,
+        "total_cost": 46.08,
+        "session_count": 6
+      },
+      {
+        "reset_at": 1787241600,
+        "peak_pct": 91.0,
+        "hit_cap": false,
+        "total_cost": 47.0,
+        "session_count": 6
+      },
+      {
+        "reset_at": 1787212800,
+        "peak_pct": 82.0,
+        "hit_cap": false,
+        "total_cost": 24.91,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1787205600,
+        "peak_pct": 55.0,
+        "hit_cap": false,
+        "total_cost": 22.01,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1787162400,
+        "peak_pct": 48.0,
+        "hit_cap": false,
+        "total_cost": 45.93,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1787126400,
+        "peak_pct": 100.0,
+        "hit_cap": true,
+        "total_cost": 56.92,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1787054400,
+        "peak_pct": 82.0,
+        "hit_cap": false,
+        "total_cost": 42.01,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1787032800,
+        "peak_pct": 61.0,
+        "hit_cap": false,
+        "total_cost": 28.02,
+        "session_count": 2
+      },
+      {
+        "reset_at": 1786989600,
+        "peak_pct": 48.0,
+        "hit_cap": false,
+        "total_cost": 46.72,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1786968000,
+        "peak_pct": 100.0,
+        "hit_cap": true,
+        "total_cost": 63.03,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786960800,
+        "peak_pct": 55.0,
+        "hit_cap": false,
+        "total_cost": 52.69,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786953600,
+        "peak_pct": 48.0,
+        "hit_cap": false,
+        "total_cost": 34.44,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786874400,
+        "peak_pct": 61.0,
+        "hit_cap": false,
+        "total_cost": 41.69,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1786860000,
+        "peak_pct": 100.0,
+        "hit_cap": true,
+        "total_cost": 50.23,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786816800,
+        "peak_pct": 82.0,
+        "hit_cap": false,
+        "total_cost": 34.76,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1786795200,
+        "peak_pct": 73.0,
+        "hit_cap": false,
+        "total_cost": 53.74,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786780800,
+        "peak_pct": 91.0,
+        "hit_cap": false,
+        "total_cost": 59.42,
+        "session_count": 6
+      },
+      {
+        "reset_at": 1786773600,
+        "peak_pct": 91.0,
+        "hit_cap": false,
+        "total_cost": 37.79,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786730400,
+        "peak_pct": 100.0,
+        "hit_cap": true,
+        "total_cost": 39.32,
+        "session_count": 3
+      },
+      {
+        "reset_at": 1786701600,
+        "peak_pct": 55.0,
+        "hit_cap": false,
+        "total_cost": 62.78,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786694400,
+        "peak_pct": 55.0,
+        "hit_cap": false,
+        "total_cost": 69.84,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786687200,
+        "peak_pct": 100.0,
+        "hit_cap": true,
+        "total_cost": 49.96,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1786644000,
+        "peak_pct": 100.0,
+        "hit_cap": true,
+        "total_cost": 63.16,
+        "session_count": 7
+      },
+      {
+        "reset_at": 1786636800,
+        "peak_pct": 91.0,
+        "hit_cap": false,
+        "total_cost": 55.88,
+        "session_count": 7
+      },
+      {
+        "reset_at": 1786615200,
+        "peak_pct": 67.0,
+        "hit_cap": false,
+        "total_cost": 46.2,
+        "session_count": 7
+      },
+      {
+        "reset_at": 1786600800,
+        "peak_pct": 67.0,
+        "hit_cap": false,
+        "total_cost": 53.4,
+        "session_count": 6
+      },
+      {
+        "reset_at": 1786557600,
+        "peak_pct": 61.0,
+        "hit_cap": false,
+        "total_cost": 39.55,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1786550400,
+        "peak_pct": 48.0,
+        "hit_cap": false,
+        "total_cost": 56.02,
+        "session_count": 6
+      },
+      {
+        "reset_at": 1786536000,
+        "peak_pct": 61.0,
+        "hit_cap": false,
+        "total_cost": 44.06,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786514400,
+        "peak_pct": 82.0,
+        "hit_cap": false,
+        "total_cost": 43.08,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1786471200,
+        "peak_pct": 61.0,
+        "hit_cap": false,
+        "total_cost": 23.55,
+        "session_count": 2
+      },
+      {
+        "reset_at": 1786449600,
+        "peak_pct": 48.0,
+        "hit_cap": false,
+        "total_cost": 35.07,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786435200,
+        "peak_pct": 73.0,
+        "hit_cap": false,
+        "total_cost": 45.1,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786384800,
+        "peak_pct": 100.0,
+        "hit_cap": true,
+        "total_cost": 33.93,
+        "session_count": 3
+      },
+      {
+        "reset_at": 1786363200,
+        "peak_pct": 67.0,
+        "hit_cap": false,
+        "total_cost": 65.97,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786356000,
+        "peak_pct": 82.0,
+        "hit_cap": false,
+        "total_cost": 53.5,
+        "session_count": 3
+      },
+      {
+        "reset_at": 1786341600,
+        "peak_pct": 67.0,
+        "hit_cap": false,
+        "total_cost": 48.78,
+        "session_count": 4
+      },
+      {
+        "reset_at": 1786298400,
+        "peak_pct": 61.0,
+        "hit_cap": false,
+        "total_cost": 79.58,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786291200,
+        "peak_pct": 67.0,
+        "hit_cap": false,
+        "total_cost": 64.47,
+        "session_count": 5
+      },
+      {
+        "reset_at": 1786204800,
+        "peak_pct": 73.0,
+        "hit_cap": false,
+        "total_cost": 55.25,
+        "session_count": 6
+      },
+      {
+        "reset_at": 1786190400,
+        "peak_pct": 61.0,
+        "hit_cap": false,
+        "total_cost": 101.59,
+        "session_count": 8
+      },
+      {
+        "reset_at": 1786183200,
+        "peak_pct": 61.0,
+        "hit_cap": false,
+        "total_cost": 98.78,
+        "session_count": 7
+      },
+      {
+        "reset_at": 1786176000,
+        "peak_pct": 91.0,
+        "hit_cap": false,
+        "total_cost": 61.33,
+        "session_count": 6
+      },
+      {
+        "reset_at": 1786125600,
+        "peak_pct": 73.0,
+        "hit_cap": false,
+        "total_cost": 12.75,
+        "session_count": 2
+      },
+      {
+        "reset_at": 1786096800,
+        "peak_pct": 82.0,
+        "hit_cap": false,
+        "total_cost": 44.57,
+        "session_count": 3
+      },
+      {
+        "reset_at": 1786089600,
+        "peak_pct": 91.0,
+        "hit_cap": false,
+        "total_cost": 48.28,
+        "session_count": 3
+      }
+    ]
+  },
+  "health": {
+    "now": 1787271348,
+    "uptime_s": 11092,
+    "sources": {
+      "statusline": {
+        "live": false,
+        "last_seen": 1787260254,
+        "samples": 297,
+        "rate_limits_present": false,
+        "last_rate_limits": 1787260254
+      },
+      "otel_metrics": {
+        "live": false,
+        "last_seen": null,
+        "messages": 0,
+        "data_points": 0,
+        "buckets": 531
+      },
+      "otel_logs": {
+        "last_seen": null,
+        "records": 0,
+        "events": 16
+      }
+    },
+    "calibration": {
+      "calibrated": true,
+      "models": [
+        {
+          "model": "claude-opus-5",
+          "pct_per_usd": 0.62,
+          "r2": 0.86,
+          "n_samples": 140,
+          "updated_at": 1787260254
+        },
+        {
+          "model": "claude-sonnet-5",
+          "pct_per_usd": 0.34,
+          "r2": 0.86,
+          "n_samples": 140,
+          "updated_at": 1787260254
+        },
+        {
+          "model": "claude-haiku-4-5",
+          "pct_per_usd": 0.09,
+          "r2": 0.86,
+          "n_samples": 140,
+          "updated_at": 1787260254
+        }
+      ]
+    },
+    "counts": {
+      "quota_sample": 297,
+      "usage_bucket": 531,
+      "session": 10,
+      "event_log": 16
+    }
+  }
+}

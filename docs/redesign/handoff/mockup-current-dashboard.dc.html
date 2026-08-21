@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body { margin:0; background:#f7f8fa; }
+a { color:#3b5bdb; text-decoration:none; }
+a:hover { color:#2c47b8; }
+</style>
+</helmet>
+<div style="background:#f7f8fa; color:#101317; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; min-height:100vh;">
+  <div style="max-width:900px; margin:0 auto; padding:20px 18px 48px;">
+
+    <header style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:680; font-size:15px; letter-spacing:-.01em;">
+        <span style="width:15px; height:15px; border-radius:5px; background:#3b5bdb;"></span>claude-quota
+      </div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:#444d59; background:#fff; border:1px solid #e3e7ec; border-radius:7px; padding:4px 9px;"><i style="width:7px; height:7px; border-radius:50%; background:#d43f3a; flex:none;"></i>status line down</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:#444d59; background:#fff; border:1px solid #e3e7ec; border-radius:7px; padding:4px 9px;"><i style="width:7px; height:7px; border-radius:50%; background:#c07f10; flex:none;"></i>telemetry stalled</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:#444d59; background:#fff; border:1px solid #e3e7ec; border-radius:7px; padding:4px 9px;"><i style="width:7px; height:7px; border-radius:50%; background:#1f9d57; flex:none;"></i>calibrated</span>
+        <span style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:#444d59; background:#fff; border:1px solid #e3e7ec; border-radius:7px; padding:4px 9px;"><i style="width:7px; height:7px; border-radius:50%; background:#1f9d57; flex:none;"></i>live</span>
+      </div>
+    </header>
+
+    <section style="background:#fff; border:1px solid #e3e7ec; border-radius:14px; padding:20px 22px 16px; margin-bottom:14px;">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:20px;">
+        <div style="min-width:0;">
+          <div style="font-size:12px; color:#79828f; font-weight:550; display:flex; align-items:center; gap:8px;">Projected cutoff</div>
+          <div style="font-size:46px; font-weight:720; letter-spacing:-.03em; line-height:1.02; font-variant-numeric:tabular-nums; margin:2px 0 4px; color:#79828f;">—</div>
+          <div style="font-size:13px; color:#444d59; max-width:42ch;">quota estimated from telemetry</div>
+        </div>
+        <div style="text-align:right; flex:none;">
+          <div style="font-size:40px; font-weight:700; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums; color:#444d59;">42<b style="font-size:.45em; font-weight:600; color:#79828f; margin-left:2px; letter-spacing:0;">%</b></div>
+          <div style="display:flex; align-items:baseline; gap:8px; margin-top:4px; justify-content:flex-end;">
+            <span style="font-size:12px; color:#79828f; font-weight:500;">5-hour used</span>
+            <span style="font-size:12px; color:#d43f3a; font-weight:600;">estimated</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin:20px 0 8px;">
+        <div style="position:relative; height:15px; margin-bottom:7px; font-size:11.5px;">
+          <span style="position:absolute; left:50%; transform:translateX(-50%); white-space:nowrap; font-weight:600; color:#79828f;">waiting for reset time…</span>
+        </div>
+        <div style="position:relative; display:flex; height:34px; border-radius:9px; overflow:hidden; background:#f0f2f5;">
+          <div style="height:100%; width:100%; background:#f0f2f5;"></div>
+        </div>
+        <div style="position:relative; height:15px; margin-top:7px; font-size:11.5px; color:#79828f;">
+          <span style="position:absolute; left:0; color:#444d59; font-weight:600;">now</span>
+        </div>
+        <div style="font-size:12px; color:#79828f; margin-top:4px;"></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1px; margin-top:14px; background:#e3e7ec; border:1px solid #e3e7ec; border-radius:10px; overflow:hidden;">
+        <div style="background:#fff; padding:10px 12px;">
+          <label style="display:block; font-size:11px; color:#79828f; margin-bottom:3px;">Resets</label>
+          <b style="font-size:16px; font-weight:650; font-variant-numeric:tabular-nums; letter-spacing:-.01em;">4:10 PM</b>
+          <small style="display:block; font-size:11px; color:#79828f; margin-top:1px;">1h 5m left</small>
+        </div>
+        <div style="background:#fff; padding:10px 12px;">
+          <label style="display:block; font-size:11px; color:#79828f; margin-bottom:3px;">Burn rate</label>
+          <b style="font-size:16px; font-weight:650; font-variant-numeric:tabular-nums; letter-spacing:-.01em;">—</b>
+          <small style="display:block; font-size:11px; color:#79828f; margin-top:1px;">collecting data</small>
+        </div>
+        <div style="background:#fff; padding:10px 12px;">
+          <label style="display:block; font-size:11px; color:#79828f; margin-bottom:3px;">Projected at reset</label>
+          <b style="font-size:16px; font-weight:650; font-variant-numeric:tabular-nums; letter-spacing:-.01em;">—</b>
+          <small style="display:block; font-size:11px; color:#79828f; margin-top:1px;"></small>
+        </div>
+        <div style="background:#fff; padding:10px 12px;">
+          <label style="display:block; font-size:11px; color:#79828f; margin-bottom:3px;">Cost this window</label>
+          <b style="font-size:16px; font-weight:650; font-variant-numeric:tabular-nums; letter-spacing:-.01em;">$0.00</b>
+          <small style="display:block; font-size:11px; color:#79828f; margin-top:1px;">0 tokens</small>
+        </div>
+      </div>
+    </section>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+      <section style="grid-column:1 / -1; background:#fff; border:1px solid #e3e7ec; border-radius:14px; padding:16px 18px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+          <h2 style="margin:0; font-size:13px; font-weight:600; color:#444d59; letter-spacing:-.01em;">Where it's going</h2>
+          <span style="font-size:11px; color:#79828f;">100% unattributed</span>
+        </div>
+        <div style="display:flex; gap:14px; align-items:flex-start; padding:4px 0 2px;">
+          <div style="flex:none; width:5px; align-self:stretch; border-radius:3px; background:#aab2bd;"></div>
+          <div style="flex:1;">
+            <h3 style="margin:0 0 4px; font-size:13.5px; font-weight:620; color:#101317;">Telemetry has stalled</h3>
+            <p style="margin:0 0 8px; font-size:12.5px; color:#444d59; max-width:62ch;">The 5-hour and 7-day numbers are exact (they come from Claude Code's status line). But splitting usage <em>by session</em> needs OpenTelemetry, and Claude Code reads that setting only when a session starts.</p>
+            <ol style="margin:0; padding-left:18px; font-size:12.5px; color:#444d59;">
+              <li style="margin:2px 0;">Confirm setup: <code style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace; font-size:12px; background:#f0f2f5; padding:1px 6px; border-radius:5px; color:#101317;">claude-quota doctor</code></li>
+              <li style="margin:2px 0;">Restart your Claude Code sessions (or start new ones)</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section style="background:#fff; border:1px solid #e3e7ec; border-radius:14px; padding:16px 18px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+          <h2 style="margin:0; font-size:13px; font-weight:600; color:#444d59; letter-spacing:-.01em;">7-day window</h2>
+        </div>
+        <div style="font-size:34px; font-weight:700; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums; color:#101317; margin:2px 0 8px;">59<b style="font-size:.45em; font-weight:600; color:#79828f; margin-left:2px; letter-spacing:0;">%</b></div>
+        <div style="height:8px; border-radius:5px; background:#f0f2f5; overflow:hidden; margin:2px 0 8px;"><span style="display:block; height:100%; width:59%; background:#3b5bdb; border-radius:5px;"></span></div>
+        <div style="color:#79828f; font-size:12px;">resets Mon, 2:10 PM</div>
+      </section>
+
+      <section style="background:#fff; border:1px solid #e3e7ec; border-radius:14px; padding:16px 18px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+          <h2 style="margin:0; font-size:13px; font-weight:600; color:#444d59; letter-spacing:-.01em;">By model</h2>
+        </div>
+        <div style="display:flex; height:14px; border-radius:7px; overflow:hidden; margin-bottom:12px; background:#f0f2f5;">
+          <i style="width:52.1%; background:#3b5bdb;"></i><i style="width:37.9%; background:#e0662a;"></i><i style="width:10.0%; background:#1f9d57;"></i>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:7px;">
+          <div style="display:grid; grid-template-columns:11px 1fr auto auto; align-items:center; gap:10px;">
+            <span style="width:10px; height:10px; border-radius:3px; background:#3b5bdb;"></span>
+            <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace; font-size:12.5px; font-weight:550;">opus-5</span>
+            <span style="font-variant-numeric:tabular-nums; font-weight:650;">52%</span>
+            <span style="font-variant-numeric:tabular-nums; color:#79828f; font-size:12.5px;">$47.70</span>
+          </div>
+          <div style="display:grid; grid-template-columns:11px 1fr auto auto; align-items:center; gap:10px;">
+            <span style="width:10px; height:10px; border-radius:3px; background:#e0662a;"></span>
+            <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace; font-size:12.5px; font-weight:550;">sonnet-5</span>
+            <span style="font-variant-numeric:tabular-nums; font-weight:650;">38%</span>
+            <span style="font-variant-numeric:tabular-nums; color:#79828f; font-size:12.5px;">$34.65</span>
+          </div>
+          <div style="display:grid; grid-template-columns:11px 1fr auto auto; align-items:center; gap:10px;">
+            <span style="width:10px; height:10px; border-radius:3px; background:#1f9d57;"></span>
+            <span style="font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,monospace; font-size:12.5px; font-weight:550;">haiku-4-5</span>
+            <span style="font-variant-numeric:tabular-nums; font-weight:650;">10%</span>
+            <span style="font-variant-numeric:tabular-nums; color:#79828f; font-size:12.5px;">$9.14</span>
+          </div>
+        </div>
+      </section>
+
+      <section style="grid-column:1 / -1; background:#fff; border:1px solid #e3e7ec; border-radius:14px; padding:16px 18px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+          <h2 style="margin:0; font-size:13px; font-weight:600; color:#444d59; letter-spacing:-.01em;">Recent windows</h2>
+        </div>
+        <div style="display:flex; align-items:flex-end; gap:4px; height:70px;">
+          <div style="flex:1; background:#d43f3a; border-radius:3px 3px 0 0; height:100%;"></div>
+          <div style="flex:1; background:#d43f3a; border-radius:3px 3px 0 0; height:100%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:55%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:55%;"></div>
+          <div style="flex:1; background:#d43f3a; border-radius:3px 3px 0 0; height:100%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:91%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:91%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:73%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:82%;"></div>
+          <div style="flex:1; background:#d43f3a; border-radius:3px 3px 0 0; height:100%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:61%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:48%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:55%;"></div>
+          <div style="flex:1; background:#d43f3a; border-radius:3px 3px 0 0; height:100%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:48%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:61%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:82%;"></div>
+          <div style="flex:1; background:#d43f3a; border-radius:3px 3px 0 0; height:100%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:48%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:55%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:82%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:91%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:48%;"></div>
+          <div style="flex:1; background:#e7ecfe; border-radius:3px 3px 0 0; height:71.9%;"></div>
+        </div>
+      </section>
+    </div>
+
+    <footer style="display:flex; justify-content:space-between; color:#79828f; font-size:11.5px; padding:12px 4px 0;">
+      <span>updated 5:15 PM</span>
+      <span>window 11:10 AM → 4:10 PM</span>
+    </footer>
+  </div>
+</div>
+
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,15 @@
+.git
+.venv
+venv
+__pycache__
+*.pyc
+*.db
+*.db-wal
+*.db-shm
+data
+tests
+.pytest_cache
+.ruff_cache
+.mypy_cache
+uv.lock
+.DS_Store

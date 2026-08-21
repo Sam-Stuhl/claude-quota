@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>claude-quota</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="shell" id="shell">
+
+    <header class="pane hdr">
+      <div class="hdr-l">
+        <span class="mark"></span>
+        <span class="brand">claude-quota</span>
+        <span class="pill mono" id="window-pill">window …</span>
+      </div>
+      <div class="feeds" id="feeds"></div>
+    </header>
+
+    <div class="pane slicer" id="slicer"></div>
+
+    <div class="grid kpi" id="kpi"></div>
+
+    <div class="grid proj-comp">
+      <div class="pane" id="projection-panel"></div>
+      <div class="pane" id="composition-panel"></div>
+    </div>
+
+    <div class="pane" id="attribution-panel"></div>
+
+    <div class="pane explore-head">
+      <span class="eyebrow">explore</span>
+      <span class="rule"></span>
+      <span class="hint" id="explore-hint">slicers above apply · click a row to focus</span>
+    </div>
+
+    <div class="grid explore-a">
+      <div class="pane" id="recent-windows"></div>
+      <div class="pane" id="by-device"></div>
+    </div>
+
+    <div class="grid explore-b">
+      <div class="pane" id="spend-map"></div>
+      <div class="pane" id="by-model"></div>
+      <div class="pane" id="calibration"></div>
+    </div>
+
+    <footer class="pane foot">
+      <span class="mono" id="foot-l">updated …</span>
+      <span class="mono" id="foot-r"></span>
+    </footer>
+
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
