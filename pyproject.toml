@@ -20,9 +20,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Postgres backend, for hosts without persistent storage (set DATABASE_URL).
+# Local installs stay on SQLite and don't need this.
+postgres = [
+    "psycopg[binary]>=3.1",
+]
 dev = [
     "pytest>=8.0",
     "ruff>=0.5",
+    "psycopg[binary]>=3.1",
 ]
 
 [project.scripts]

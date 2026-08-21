@@ -31,7 +31,10 @@ def _series(conn: sqlite3.Connection, start: int, now: int, max_points: int = 15
 def _sources(conn: sqlite3.Connection, now: int) -> dict:
     def scalar(sql: str) -> int:
         row = conn.execute(sql).fetchone()
-        return int(row[0]) if row and row[0] is not None else 0
+        if not row:
+            return 0
+        val = next(iter(row.values())) if hasattr(row, "values") else row[0]
+        return int(val) if val is not None else 0
 
     last_status = scalar("SELECT MAX(ts) FROM quota_sample")
     last_limits = scalar("SELECT MAX(ts) FROM quota_sample WHERE had_limits = 1")

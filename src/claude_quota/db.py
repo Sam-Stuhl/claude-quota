@@ -1,8 +1,10 @@
-"""SQLite access: connection management, schema init, and retention.
+"""Database access: connection management, schema init, and retention.
 
-The daemon keeps a single write connection (SQLite serializes writes anyway)
-and hands out short-lived read connections. WAL mode lets readers proceed while
-the writer is busy, which is what the SSE/API side wants.
+Defaults to local SQLite. When DATABASE_URL points at a Postgres instance the
+same code runs against Postgres instead, so a container with no persistent
+volume can keep its data in an external database. A small adapter (PgConn)
+translates the handful of SQLite-isms the rest of the code relies on (``?``
+placeholders, dict-style rows), so callers stay dialect-agnostic.
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ from pathlib import Path
 from . import config
 
 _SCHEMA = (Path(__file__).parent / "schema.sql").read_text()
+_SCHEMA_PG = (Path(__file__).parent / "schema_pg.sql").read_text()
 
 # A small, stable palette of slots. color_idx indexes into this on the client;
 # we only store the integer so a session keeps its colour across reloads.
@@ -23,8 +26,53 @@ PALETTE_SIZE = 12
 SCHEMA_VERSION = 2
 
 
-def connect(path: Path | None = None) -> sqlite3.Connection:
-    """Open a connection with sane defaults and the schema applied."""
+class PgConn:
+    """Adapts a psycopg connection to the subset of the sqlite3 API we use.
+
+    Translates ``?`` placeholders to ``%s`` and runs in autocommit, so each
+    write lands immediately and there is no aborted-transaction state to nurse.
+    Rows come back dict-style (via psycopg's dict_row), matching sqlite3.Row's
+    ``row["col"]`` access.
+    """
+
+    def __init__(self, raw) -> None:
+        self._raw = raw
+
+    @staticmethod
+    def _q(sql: str) -> str:
+        return sql.replace("?", "%s")
+
+    def execute(self, sql: str, params: tuple = ()):  # returns a cursor
+        return self._raw.execute(self._q(sql), tuple(params) or None)
+
+    def executemany(self, sql: str, rows: Iterable[tuple]) -> None:
+        rows = [tuple(r) for r in rows]
+        if not rows:
+            return
+        with self._raw.cursor() as cur:
+            cur.executemany(self._q(sql), rows)
+
+    def executescript(self, script: str) -> None:
+        with self._raw.cursor() as cur:
+            for stmt in script.split(";"):
+                if stmt.strip():
+                    cur.execute(stmt)
+
+    def commit(self) -> None:  # autocommit is on; nothing to do
+        pass
+
+    def close(self) -> None:
+        self._raw.close()
+
+
+def connect(path: Path | None = None):
+    """Open a connection with the schema applied (SQLite or Postgres)."""
+    if config.is_postgres():
+        return _connect_pg()
+    return _connect_sqlite(path)
+
+
+def _connect_sqlite(path: Path | None) -> sqlite3.Connection:
     p = path or config.db_path()
     p.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(p), check_same_thread=False, timeout=5.0)
@@ -35,6 +83,16 @@ def connect(path: Path | None = None) -> sqlite3.Connection:
     conn.executescript(_SCHEMA)
     migrate(conn)
     conn.commit()
+    return conn
+
+
+def _connect_pg() -> PgConn:
+    import psycopg
+    from psycopg.rows import dict_row
+
+    raw = psycopg.connect(config.database_url(), autocommit=True, row_factory=dict_row)
+    conn = PgConn(raw)
+    conn.executescript(_SCHEMA_PG)
     return conn
 
 
@@ -143,7 +201,7 @@ def upsert_session(
     a later sparse ingest (e.g. an OTel-only sighting) doesn't blank them out.
     """
     existing = conn.execute(
-        "SELECT session_id FROM session WHERE session_id = ?", (session_id,)
+        "SELECT last_seen FROM session WHERE session_id = ?", (session_id,)
     ).fetchone()
     if existing is None:
         conn.execute(
@@ -165,9 +223,12 @@ def upsert_session(
             ),
         )
     else:
+        # Compute the new last_seen in Python: SQLite's scalar MAX(a, b) and
+        # Postgres's GREATEST(a, b) differ, so avoid both.
+        last_seen = max(int(existing["last_seen"]), ts)
         conn.execute(
             """UPDATE session SET
-                 last_seen = MAX(last_seen, ?),
+                 last_seen = ?,
                  device = COALESCE(?, device),
                  cwd = COALESCE(?, cwd),
                  project_dir = COALESCE(?, project_dir),
@@ -175,7 +236,7 @@ def upsert_session(
                  entrypoint = COALESCE(?, entrypoint),
                  start_type = COALESCE(?, start_type)
                WHERE session_id = ?""",
-            (ts, device, cwd, project_dir, git_worktree, entrypoint, start_type, session_id),
+            (last_seen, device, cwd, project_dir, git_worktree, entrypoint, start_type, session_id),
         )
 
 

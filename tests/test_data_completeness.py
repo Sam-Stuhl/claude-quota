@@ -1,9 +1,10 @@
 import sqlite3
 
+import pytest
 from opentelemetry.proto.collector.metrics.v1 import metrics_service_pb2
 from opentelemetry.proto.common.v1 import common_pb2
 
-from claude_quota import db
+from claude_quota import config, db
 from claude_quota.daemon import ingest, otlp
 
 
@@ -89,6 +90,7 @@ CREATE TABLE usage_bucket (ts INTEGER NOT NULL, session_id TEXT NOT NULL,
 """
 
 
+@pytest.mark.skipif(config.is_postgres(), reason="SQLite-specific in-place migration")
 def test_migration_v1_to_v2(tmp_path):
     p = tmp_path / "old.db"
     raw = sqlite3.connect(str(p))

@@ -7,7 +7,9 @@ FROM python:3.12-slim
 WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip install --no-cache-dir .
+# Include the Postgres backend: a container has no persistent volume, so it
+# keeps its data in an external database via DATABASE_URL.
+RUN pip install --no-cache-dir ".[postgres]"
 
 ENV CLAUDE_QUOTA_HOST=0.0.0.0 \
     CLAUDE_QUOTA_DIR=/data

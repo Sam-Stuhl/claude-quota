@@ -15,8 +15,12 @@ from .state import AppState
 
 
 def _scalar(conn: sqlite3.Connection, sql: str) -> int:
+    # Works with both sqlite3.Row (index access) and psycopg dict rows (.values).
     row = conn.execute(sql).fetchone()
-    return int(row[0]) if row and row[0] is not None else 0
+    if not row:
+        return 0
+    val = next(iter(row.values())) if hasattr(row, "values") else row[0]
+    return int(val) if val is not None else 0
 
 
 def build(conn: sqlite3.Connection, state: AppState, now: int | None = None) -> dict:

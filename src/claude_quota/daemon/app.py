@@ -173,6 +173,40 @@ def create_app() -> FastAPI:
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
         )
 
+    # OTLP over HTTP on the main port too, so a single reverse-proxied domain
+    # serves the API, web, statusline ingest AND telemetry (remote/container
+    # mode). Locally, Claude Code uses the gRPC receiver; these are harmless.
+    @app.post("/v1/metrics")
+    async def otlp_http_metrics(request: Request):
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
+        from opentelemetry.proto.collector.metrics.v1 import metrics_service_pb2
+
+        req = metrics_service_pb2.ExportMetricsServiceRequest()
+        req.ParseFromString(await request.body())
+        s = state(request)
+        s.otlp.note_metrics(otlp.handle_metrics_request(s.conn, req))
+        await s.notify_change()
+        return Response(
+            metrics_service_pb2.ExportMetricsServiceResponse().SerializeToString(),
+            media_type="application/x-protobuf",
+        )
+
+    @app.post("/v1/logs")
+    async def otlp_http_logs(request: Request):
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
+        from opentelemetry.proto.collector.logs.v1 import logs_service_pb2
+
+        req = logs_service_pb2.ExportLogsServiceRequest()
+        req.ParseFromString(await request.body())
+        s = state(request)
+        s.otlp.note_logs(otlp.handle_logs_request(s.conn, req))
+        return Response(
+            logs_service_pb2.ExportLogsServiceResponse().SerializeToString(),
+            media_type="application/x-protobuf",
+        )
+
     @app.get("/")
     async def index():
         idx = WEB_DIR / "index.html"

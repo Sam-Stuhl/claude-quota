@@ -42,6 +42,16 @@ def test_human_endpoints_not_gated_by_app_token(authed_client):
     assert authed_client.get("/api/summary").status_code == 200
 
 
+def test_otlp_http_on_main_port_is_gated(authed_client):
+    # A single reverse-proxied domain must serve telemetry too, and gate it.
+    from opentelemetry.proto.collector.metrics.v1 import metrics_service_pb2
+
+    body = metrics_service_pb2.ExportMetricsServiceRequest().SerializeToString()
+    assert authed_client.post("/v1/metrics", content=body).status_code == 401
+    r = authed_client.post("/v1/metrics", content=body, headers={"Authorization": "Bearer s3cret"})
+    assert r.status_code == 200
+
+
 @pytest.fixture
 def dirs(tmp_path, monkeypatch):
     monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path / "claude"))

@@ -121,13 +121,20 @@ persist the database.
 ```bash
 docker build -t claude-quota .
 docker run -d -e CLAUDE_QUOTA_TOKEN=<secret> -v claude-quota-data:/data \
-  -p 7788:7788 -p 4318:4318 claude-quota
+  -p 7788:7788 claude-quota
 ```
 
-Put it behind your reverse proxy (Traefik, Cloudflare) at, say,
-`https://claude-quota.example.com`. The token protects the machine ingest
-endpoints (`/ingest/statusline` and `/v1/*`); protect the human-facing dashboard
-(`/`, `/api/*`, `/events`) with your proxy's own access control.
+Behind a reverse proxy the daemon serves everything on one origin (port 7788):
+the API, the web dashboard, `/ingest/statusline`, and OTLP at `/v1/metrics` +
+`/v1/logs`. Point it at `https://claude-quota.example.com`. The token protects
+the machine ingest endpoints (`/ingest/statusline` and `/v1/*`); protect the
+human-facing dashboard (`/`, `/api/*`, `/events`) with your proxy's own access
+control.
+
+**Storage.** By default the daemon writes SQLite to `/data` (mount a volume).
+If your host has no persistent volume, set `DATABASE_URL` to a Postgres instance
+instead and it stores everything there (build the image with the `postgres`
+extra, which the bundled `Dockerfile` already does).
 
 **On each device** that runs Claude Code:
 
