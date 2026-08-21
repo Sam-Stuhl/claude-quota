@@ -41,9 +41,10 @@ def close_windows(conn: sqlite3.Connection, now: int | None = None) -> int:
         total_cost = float(cost_row["c"] or 0.0)
         sessions = int(cost_row["n"] or 0)
         conn.execute(
-            """INSERT OR IGNORE INTO window_history
+            """INSERT INTO window_history
                (reset_at, peak_pct, hit_cap, total_cost, session_count)
-               VALUES (?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, ?)
+               ON CONFLICT (reset_at) DO NOTHING""",
             (reset, peak_pct, 1 if peak_pct >= 100 else 0, total_cost, sessions),
         )
         n += 1

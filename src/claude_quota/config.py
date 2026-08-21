@@ -40,6 +40,21 @@ def claude_config_dir() -> Path:
     return Path(override).expanduser() if override else Path.home() / ".claude"
 
 
+def database_url() -> str | None:
+    """A Postgres URL enables the Postgres backend (for ephemeral/remote hosts).
+
+    Unset (the default) means local SQLite. This is how a container with no
+    persistent volume keeps its data: point it at an external Postgres.
+    """
+    url = os.environ.get("DATABASE_URL")
+    return url or None
+
+
+def is_postgres() -> bool:
+    url = database_url()
+    return bool(url) and url.split("://", 1)[0] in ("postgres", "postgresql")
+
+
 def db_path() -> Path:
     return runtime_dir() / "quota.db"
 

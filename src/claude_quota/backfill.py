@@ -89,11 +89,11 @@ def _import_file(conn: sqlite3.Connection, path: Path) -> int:
                    ON CONFLICT(ts, session_id, model, query_source, agent_name,
                                skill_name, mcp_server, plugin_name, effort)
                    DO UPDATE SET
-                     cost_usd    = cost_usd + excluded.cost_usd,
-                     tok_input   = tok_input + excluded.tok_input,
-                     tok_output  = tok_output + excluded.tok_output,
-                     tok_cache_r = tok_cache_r + excluded.tok_cache_r,
-                     tok_cache_w = tok_cache_w + excluded.tok_cache_w""",
+                     cost_usd    = usage_bucket.cost_usd + excluded.cost_usd,
+                     tok_input   = usage_bucket.tok_input + excluded.tok_input,
+                     tok_output  = usage_bucket.tok_output + excluded.tok_output,
+                     tok_cache_r = usage_bucket.tok_cache_r + excluded.tok_cache_r,
+                     tok_cache_w = usage_bucket.tok_cache_w + excluded.tok_cache_w""",
                 (
                     bts,
                     rec["session_id"],
