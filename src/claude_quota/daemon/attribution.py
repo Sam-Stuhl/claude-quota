@@ -126,7 +126,7 @@ def compute(conn: sqlite3.Connection, now: int | None = None) -> dict:
     meta = {
         r["session_id"]: r
         for r in conn.execute(
-            "SELECT session_id, cwd, project_dir, git_worktree, color_idx, last_seen "
+            "SELECT session_id, cwd, project_dir, git_worktree, color_idx, last_seen, device "
             "FROM session"
         ).fetchall()
     }
@@ -143,6 +143,7 @@ def compute(conn: sqlite3.Connection, now: int | None = None) -> dict:
                     m["project_dir"] if m else None,
                     m["git_worktree"] if m else None,
                 ),
+                "device": (m["device"] if m else None),
                 "color_idx": int(m["color_idx"]) if m else 0,
                 "cost_usd": round(d["cost"], 4),
                 "tokens": d["toks"],

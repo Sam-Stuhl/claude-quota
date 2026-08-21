@@ -4,87 +4,55 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>claude-quota</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div class="app">
-    <header class="bar">
-      <div class="brand"><span class="mark"></span>claude-quota</div>
-      <div class="feeds" id="feeds">
-        <span class="feed" id="feed-status"><i></i>status line</span>
-        <span class="feed" id="feed-otel"><i></i>telemetry</span>
-        <span class="feed" id="feed-calib"><i></i>calibration</span>
-        <span class="feed conn" id="feed-conn"><i></i><span id="conn-text">connecting</span></span>
+  <div class="shell" id="shell">
+
+    <header class="pane hdr">
+      <div class="hdr-l">
+        <span class="mark"></span>
+        <span class="brand">claude-quota</span>
+        <span class="pill mono" id="window-pill">window …</span>
       </div>
+      <div class="feeds" id="feeds"></div>
     </header>
 
-    <!-- 5-hour: the focal panel. Real percentage history plus the time axis. -->
-    <section class="hero">
-      <div class="hero-head">
-        <div class="cutoff-block">
-          <div class="cutoff-label">Projected cutoff <span class="verdict" id="verdict"></span></div>
-          <div class="cutoff-time" id="cutoff-time">—</div>
-          <div class="cutoff-detail" id="cutoff-detail">gathering history…</div>
-        </div>
-        <div class="metric">
-          <div class="metric-value"><span id="five-pct">—</span><b>%</b></div>
-          <div class="metric-sub">
-            <span class="metric-name">5-hour used</span>
-            <span class="cap-note" id="cap-note" hidden></span>
-          </div>
-        </div>
-      </div>
+    <div class="pane slicer" id="slicer"></div>
 
-      <!-- Runway: the remaining window as a timeline, with the projected cap
-           marked against the reset. Green = usable, red = time lost to the cap. -->
-      <div class="runway">
-        <div class="runway-labels" id="rw-labels"></div>
-        <div class="runway-track" id="rw-track"></div>
-        <div class="runway-axis" id="rw-axis"></div>
-        <div class="runway-note" id="rw-note"></div>
-      </div>
+    <div class="grid kpi" id="kpi"></div>
 
-      <div class="stats">
-        <div class="stat"><label>Resets</label><b id="s-reset">—</b><small id="s-remaining"></small></div>
-        <div class="stat"><label>Burn rate</label><b id="s-burn">—</b><small id="s-burn-ci"></small></div>
-        <div class="stat"><label>Projected at reset</label><b id="s-proj">—</b><small id="s-proj-sub"></small></div>
-        <div class="stat"><label>Cost this window</label><b id="s-cost">—</b><small id="s-tokens"></small></div>
-      </div>
-    </section>
-
-    <div class="grid">
-      <!-- Attribution: who is spending the window, or how to turn it on. -->
-      <section class="panel span2">
-        <div class="panel-head">
-          <h2>Where it's going</h2>
-          <span class="hint" id="attr-hint"></span>
-        </div>
-        <div class="attr-bar" id="attr-bar" hidden></div>
-        <div id="attr-body"></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head"><h2>7-day window</h2></div>
-        <div class="metric-value sm"><span id="seven-pct">—</span><b>%</b></div>
-        <div class="meter"><span id="seven-fill"></span></div>
-        <div class="muted" id="seven-reset"></div>
-      </section>
-
-      <section class="panel" id="models-panel" hidden>
-        <div class="panel-head"><h2>By model</h2></div>
-        <div id="models-body"></div>
-      </section>
-
-      <section class="panel" id="history-panel" hidden>
-        <div class="panel-head"><h2>Recent windows</h2></div>
-        <div class="hist" id="history-body"></div>
-      </section>
+    <div class="grid proj-comp">
+      <div class="pane" id="projection-panel"></div>
+      <div class="pane" id="composition-panel"></div>
     </div>
 
-    <footer class="foot">
-      <span id="foot-updated">—</span>
-      <span id="foot-window"></span>
+    <div class="pane" id="attribution-panel"></div>
+
+    <div class="pane explore-head">
+      <span class="eyebrow">explore</span>
+      <span class="rule"></span>
+      <span class="hint" id="explore-hint">slicers above apply · click a row to focus</span>
+    </div>
+
+    <div class="grid explore-a">
+      <div class="pane" id="recent-windows"></div>
+      <div class="pane" id="by-device"></div>
+    </div>
+
+    <div class="grid explore-b">
+      <div class="pane" id="spend-map"></div>
+      <div class="pane" id="by-model"></div>
+      <div class="pane" id="calibration"></div>
+    </div>
+
+    <footer class="pane foot">
+      <span class="mono" id="foot-l">updated …</span>
+      <span class="mono" id="foot-r"></span>
     </footer>
+
   </div>
   <script src="/app.js"></script>
 </body>
