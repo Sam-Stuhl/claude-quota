@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS session (
   session_id   TEXT PRIMARY KEY,
   first_seen   BIGINT NOT NULL,
   last_seen    BIGINT NOT NULL,
+  name         TEXT,
   device       TEXT,
   cwd          TEXT,
   project_dir  TEXT,

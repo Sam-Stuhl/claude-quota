@@ -32,6 +32,7 @@ class ParsedSample:
     cc_version: str | None
     had_limits: bool
     device: str | None = None
+    session_name: str | None = None
     model_id: str | None = None
     cost_usd_total: float | None = None
     context_pct: float | None = None
@@ -129,6 +130,7 @@ def parse_statusline(
         cc_version=payload.get("version"),
         had_limits=had_limits,
         device=device,
+        session_name=payload.get("session_name"),
         model_id=model.get("id"),
         cost_usd_total=_num(cost.get("total_cost_usd")),
         context_pct=_num(ctx.get("used_percentage")),
@@ -151,6 +153,7 @@ def store_sample(
         conn,
         s.session_id,
         s.ts,
+        name=s.session_name,
         device=s.device,
         cwd=s.cwd,
         project_dir=s.project_dir,

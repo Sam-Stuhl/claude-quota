@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS session (
   session_id    TEXT PRIMARY KEY,
   first_seen    INTEGER NOT NULL,
   last_seen     INTEGER NOT NULL,
+  name          TEXT,                       -- Claude Code's session_name
   device        TEXT,
   cwd           TEXT,
   project_dir   TEXT,

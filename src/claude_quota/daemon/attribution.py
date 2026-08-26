@@ -126,7 +126,7 @@ def compute(conn: sqlite3.Connection, now: int | None = None) -> dict:
     meta = {
         r["session_id"]: r
         for r in conn.execute(
-            "SELECT session_id, cwd, project_dir, git_worktree, color_idx, last_seen, device "
+            "SELECT session_id, name, cwd, project_dir, git_worktree, color_idx, last_seen, device "
             "FROM session"
         ).fetchall()
     }
@@ -138,7 +138,16 @@ def compute(conn: sqlite3.Connection, now: int | None = None) -> dict:
         sessions.append(
             {
                 "session_id": sid,
-                "label": session_label(
+                # Prefer Claude Code's session name; fall back to the project.
+                "label": (
+                    (m["name"] if m and m["name"] else None)
+                    or session_label(
+                        m["cwd"] if m else None,
+                        m["project_dir"] if m else None,
+                        m["git_worktree"] if m else None,
+                    )
+                ),
+                "project": session_label(
                     m["cwd"] if m else None,
                     m["project_dir"] if m else None,
                     m["git_worktree"] if m else None,
