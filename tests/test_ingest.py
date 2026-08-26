@@ -48,6 +48,30 @@ def test_parse_requires_session_id():
     assert ingest.parse_statusline({}, now=1000) is None
 
 
+def test_session_name_captured_and_used_as_label(conn):
+    from claude_quota.daemon import attribution
+
+    payload = {
+        "session_id": "s1",
+        "session_name": "Fix the auth bug",
+        "workspace": {"project_dir": "/x/atlas"},
+        "rate_limits": {"five_hour": {"used_percentage": 10.0, "resets_at": 42}},
+    }
+    parsed = ingest.parse_statusline(payload, now=500)
+    assert parsed.session_name == "Fix the auth bug"
+    ingest.store_sample(conn, parsed)
+    conn.execute(
+        "INSERT INTO usage_bucket (ts, session_id, model, query_source, agent_name, "
+        "skill_name, mcp_server, plugin_name, effort, cost_usd) "
+        "VALUES (500, 's1', 'm', '', '', '', '', '', '', 1.0)"
+    )
+    conn.commit()
+    out = attribution.compute(conn, now=500)
+    row = next(s for s in out["sessions"] if s["session_id"] == "s1")
+    assert row["label"] == "Fix the auth bug"   # session name, not project
+    assert row["project"] == "atlas"
+
+
 def test_store_sample_writes_rows(conn):
     payload = {
         "session_id": "s1",

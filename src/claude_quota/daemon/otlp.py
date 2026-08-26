@@ -101,10 +101,9 @@ def _session_id(attrs: dict) -> str | None:
 
 
 def _device(resource_attrs: dict) -> str | None:
-    d = _first(
-        resource_attrs, "device.name", "device", "host.name",
-        "service.instance.id", "host.arch",
-    )
+    # Only genuine device identifiers. Never fall back to host.arch (a CPU
+    # architecture like "arm64" is not a device) or the session instance id.
+    d = _first(resource_attrs, "device.name", "device", "host.name")
     return str(d) if d else None
 
 

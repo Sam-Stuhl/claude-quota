@@ -23,7 +23,7 @@ _SCHEMA_PG = (Path(__file__).parent / "schema_pg.sql").read_text()
 # we only store the integer so a session keeps its colour across reloads.
 PALETTE_SIZE = 12
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 class PgConn:
@@ -93,6 +93,9 @@ def _connect_pg() -> PgConn:
     raw = psycopg.connect(config.database_url(), autocommit=True, row_factory=dict_row)
     conn = PgConn(raw)
     conn.executescript(_SCHEMA_PG)
+    # Idempotent column adds so an existing Postgres database picks up new
+    # columns on redeploy (Postgres supports ADD COLUMN IF NOT EXISTS).
+    conn.execute("ALTER TABLE session ADD COLUMN IF NOT EXISTS name TEXT")
     return conn
 
 
@@ -126,8 +129,11 @@ def migrate(conn: sqlite3.Connection) -> None:
         if col not in qs:
             conn.execute(f"ALTER TABLE quota_sample ADD COLUMN {col} {decl}")
 
-    if "device" not in _columns(conn, "session"):
+    scols = _columns(conn, "session")
+    if "device" not in scols:
         conn.execute("ALTER TABLE session ADD COLUMN device TEXT")
+    if "name" not in scols:
+        conn.execute("ALTER TABLE session ADD COLUMN name TEXT")
 
     # usage_bucket gained plugin_name/effort in its primary key, so it must be
     # rebuilt rather than altered. Copy existing rows forward with empty values.
@@ -188,6 +194,7 @@ def upsert_session(
     session_id: str,
     ts: int,
     *,
+    name: str | None = None,
     device: str | None = None,
     cwd: str | None = None,
     project_dir: str | None = None,
@@ -206,13 +213,14 @@ def upsert_session(
     if existing is None:
         conn.execute(
             """INSERT INTO session
-               (session_id, first_seen, last_seen, device, cwd, project_dir,
+               (session_id, first_seen, last_seen, name, device, cwd, project_dir,
                 git_worktree, entrypoint, start_type, color_idx)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 session_id,
                 ts,
                 ts,
+                name,
                 device,
                 cwd,
                 project_dir,
@@ -229,6 +237,7 @@ def upsert_session(
         conn.execute(
             """UPDATE session SET
                  last_seen = ?,
+                 name = COALESCE(?, name),
                  device = COALESCE(?, device),
                  cwd = COALESCE(?, cwd),
                  project_dir = COALESCE(?, project_dir),
@@ -236,7 +245,7 @@ def upsert_session(
                  entrypoint = COALESCE(?, entrypoint),
                  start_type = COALESCE(?, start_type)
                WHERE session_id = ?""",
-            (last_seen, device, cwd, project_dir, git_worktree, entrypoint, start_type, session_id),
+            (last_seen, name, device, cwd, project_dir, git_worktree, entrypoint, start_type, session_id),
         )
 
 
