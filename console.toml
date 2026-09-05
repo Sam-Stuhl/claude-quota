@@ -1,0 +1,25 @@
+# console.toml for claude-quota
+# Lives at the repo root. The console reads this file from the repo at every
+# build, and it is validated before anything touches Docker.
+
+# Secrets the daemon needs at runtime, listed by NAME only. The values live in
+# the console (project page -> secrets), never in git. This line must stay
+# ABOVE the first [section] header.
+secrets = ["CLAUDE_QUOTA_TOKEN", "DATABASE_URL"]
+
+[app]
+name = "claude-quota"
+subdomain = "claude-quota"
+port = 7788
+
+[health]
+path = "/api/health"
+timeout = 60
+
+[resources]
+memory = "512m"
+cpus = 1.0
+
+[env]
+CLAUDE_QUOTA_HOST = "0.0.0.0"
+CLAUDE_QUOTA_DISABLE_OTLP = "1"
