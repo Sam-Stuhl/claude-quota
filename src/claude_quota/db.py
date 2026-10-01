@@ -33,30 +33,54 @@ class PgConn:
     write lands immediately and there is no aborted-transaction state to nurse.
     Rows come back dict-style (via psycopg's dict_row), matching sqlite3.Row's
     ``row["col"]`` access.
+
+    A hosted Postgres closes idle connections, and the daemon holds one for its
+    whole life. When a call fails because the connection is closed, it opens a
+    new one with ``reconnect`` and retries that call once. Autocommit means the
+    failed call wrote nothing, so the retry cannot double a write.
     """
 
-    def __init__(self, raw) -> None:
+    def __init__(self, raw, reconnect=None) -> None:
         self._raw = raw
+        self._reconnect = reconnect
 
     @staticmethod
     def _q(sql: str) -> str:
         return sql.replace("?", "%s")
 
+    def _run(self, fn):
+        import psycopg
+
+        try:
+            return fn(self._raw)
+        except psycopg.OperationalError:
+            if self._reconnect is None or not self._raw.closed:
+                raise
+            self._raw = self._reconnect()
+            return fn(self._raw)
+
     def execute(self, sql: str, params: tuple = ()):  # returns a cursor
-        return self._raw.execute(self._q(sql), tuple(params) or None)
+        return self._run(lambda raw: raw.execute(self._q(sql), tuple(params) or None))
 
     def executemany(self, sql: str, rows: Iterable[tuple]) -> None:
         rows = [tuple(r) for r in rows]
         if not rows:
             return
-        with self._raw.cursor() as cur:
-            cur.executemany(self._q(sql), rows)
+
+        def run(raw):
+            with raw.cursor() as cur:
+                cur.executemany(self._q(sql), rows)
+
+        self._run(run)
 
     def executescript(self, script: str) -> None:
-        with self._raw.cursor() as cur:
-            for stmt in script.split(";"):
-                if stmt.strip():
-                    cur.execute(stmt)
+        def run(raw):
+            with raw.cursor() as cur:
+                for stmt in script.split(";"):
+                    if stmt.strip():
+                        cur.execute(stmt)
+
+        self._run(run)
 
     def commit(self) -> None:  # autocommit is on; nothing to do
         pass
@@ -90,8 +114,10 @@ def _connect_pg() -> PgConn:
     import psycopg
     from psycopg.rows import dict_row
 
-    raw = psycopg.connect(config.database_url(), autocommit=True, row_factory=dict_row)
-    conn = PgConn(raw)
+    def open_raw():
+        return psycopg.connect(config.database_url(), autocommit=True, row_factory=dict_row)
+
+    conn = PgConn(open_raw(), reconnect=open_raw)
     conn.executescript(_SCHEMA_PG)
     # Idempotent column adds so an existing Postgres database picks up new
     # columns on redeploy (Postgres supports ADD COLUMN IF NOT EXISTS).
