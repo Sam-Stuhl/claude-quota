@@ -143,8 +143,55 @@ def parse_statusline(
     )
 
 
+def _window(windows: list, key: str) -> tuple[float | None, int | None]:
+    for w in windows:
+        if isinstance(w, dict) and w.get("id") == key:
+            reset = _num(w.get("resetsAt"))
+            # happy reports resets in epoch milliseconds; we store seconds.
+            return _num(w.get("utilization")), int(reset // 1000) if reset is not None else None
+    return None, None
+
+
+def parse_limits(payload: dict, now: int | None = None) -> ParsedSample | None:
+    """Normalize an atlas-deck daemon's post into a ParsedSample.
+
+    The body is ``{session_id, device, model, name?, cwd?, usageLimits}``,
+    where usageLimits is happy's agent-state shape: ``{capturedAt (ms),
+    windows: [{id: "five_hour" | "seven_day" | ..., utilization (0-100),
+    resetsAt (ms)}]}``. Unknown window ids are ignored.
+    """
+    now = now or int(time.time())
+    session_id = payload.get("session_id")
+    limits = payload.get("usageLimits")
+    if not session_id or not isinstance(session_id, str) or not isinstance(limits, dict):
+        return None
+    windows = limits.get("windows")
+    if not isinstance(windows, list):
+        return None
+    five_pct, five_reset = _window(windows, "five_hour")
+    seven_pct, seven_reset = _window(windows, "seven_day")
+    captured = _num(limits.get("capturedAt"))
+    return ParsedSample(
+        ts=int(captured // 1000) if captured else now,
+        session_id=session_id,
+        five_h_pct=five_pct,
+        five_h_reset=five_reset,
+        seven_d_pct=seven_pct,
+        seven_d_reset=seven_reset,
+        cc_version=payload.get("version"),
+        had_limits=five_pct is not None or seven_pct is not None,
+        device=payload.get("device"),
+        session_name=payload.get("name"),
+        model_id=payload.get("model"),
+        cwd=payload.get("cwd"),
+    )
+
+
 def store_sample(
-    conn: sqlite3.Connection, s: ParsedSample, raw: str | None = None
+    conn: sqlite3.Connection,
+    s: ParsedSample,
+    raw: str | None = None,
+    entrypoint: str = "statusline",
 ) -> None:
     """Persist a parsed sample, register its session, and archive the raw JSON."""
     from .. import db
@@ -158,7 +205,7 @@ def store_sample(
         cwd=s.cwd,
         project_dir=s.project_dir,
         git_worktree=s.git_worktree,
-        entrypoint="statusline",
+        entrypoint=entrypoint,
     )
     conn.execute(
         """INSERT INTO quota_sample

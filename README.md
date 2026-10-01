@@ -125,9 +125,9 @@ docker run -d -e CLAUDE_QUOTA_TOKEN=<secret> -v claude-quota-data:/data \
 ```
 
 Behind a reverse proxy the daemon serves everything on one origin (port 7788):
-the API, the web dashboard, `/ingest/statusline`, and OTLP at `/v1/metrics` +
-`/v1/logs`. Point it at `https://claude-quota.example.com`. The token protects
-the machine ingest endpoints (`/ingest/statusline` and `/v1/*`); protect the
+the API, the web dashboard, `/ingest/statusline`, `/ingest/limits`, and OTLP at
+`/v1/metrics` + `/v1/logs`. Point it at `https://claude-quota.example.com`. The
+token protects the machine ingest endpoints (`/ingest/*` and `/v1/*`); protect the
 human-facing dashboard (`/`, `/api/*`, `/events`) with your proxy's own access
 control.
 
