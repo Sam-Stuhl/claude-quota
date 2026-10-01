@@ -140,6 +140,24 @@ def create_app() -> FastAPI:
             pass
         return Response(status_code=204)
 
+    @app.post("/ingest/limits")
+    async def ingest_limits(request: Request):
+        # An atlas-deck daemon posts a session's usageLimits after each turn.
+        # Off any render path, so it is stored inline and a bad body is a 400.
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
+        try:
+            payload = await request.json()
+        except Exception:
+            return Response(status_code=400)
+        sample = ingest.parse_limits(payload) if isinstance(payload, dict) else None
+        if sample is None:
+            return Response(status_code=400)
+        s = state(request)
+        ingest.store_sample(s.conn, sample, entrypoint="atlas-deck")
+        await s.notify_change()
+        return Response(status_code=204)
+
     @app.get("/api/summary")
     async def api_summary(request: Request):
         return JSONResponse(summary.build(state(request).conn))

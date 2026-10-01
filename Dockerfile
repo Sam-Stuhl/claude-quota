@@ -5,11 +5,16 @@
 FROM python:3.12-slim
 
 WORKDIR /app
+# Dependencies first, keyed on pyproject.toml alone, so a source change reuses
+# this layer instead of reinstalling numpy, scipy and grpcio. Include the
+# Postgres backend: a container has no persistent volume, so it keeps its data
+# in an external database via DATABASE_URL.
 COPY pyproject.toml README.md ./
+RUN python -c "import tomllib; p = tomllib.load(open('pyproject.toml', 'rb'))['project']; \
+print('\n'.join(p['dependencies'] + p['optional-dependencies']['postgres']))" > /tmp/requirements.txt \
+ && pip install --no-cache-dir -r /tmp/requirements.txt
 COPY src ./src
-# Include the Postgres backend: a container has no persistent volume, so it
-# keeps its data in an external database via DATABASE_URL.
-RUN pip install --no-cache-dir ".[postgres]"
+RUN pip install --no-cache-dir --no-deps .
 
 ENV CLAUDE_QUOTA_HOST=0.0.0.0 \
     CLAUDE_QUOTA_DIR=/data
