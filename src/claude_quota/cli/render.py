@@ -224,8 +224,8 @@ def render_usage(data: dict) -> Group:
         for c in items:
             chg = "" if c.get("change") is None else f"{c['change'] * 100:+.0f}%"
             pts = "" if c.get("est_5h_points") is None else f"{c['est_5h_points']:.1f}"
-            row = [c["label"], f"{c['share'] * 100:.1f}%", f"${c['cost_usd']:.2f}", pts, str(c["requests"]), chg]
-            t.add_row(*([c["key"][:14]] if keyed else []) + row)
+            row = [Text(c["label"]), f"{c['share'] * 100:.1f}%", f"${c['cost_usd']:.2f}", pts, str(c["requests"]), chg]
+            t.add_row(*([Text(c["key"][:14])] if keyed else []) + row)
         return t
 
     if data.get("requests") is not None:

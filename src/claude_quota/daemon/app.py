@@ -164,6 +164,8 @@ def create_app() -> FastAPI:
     @app.post("/ingest/usage")
     async def ingest_usage(request: Request):
         # `claude-quota ship` posts transcript-derived usage here, in batches.
+        # The upserts run in a worker thread so a big batch never stalls SSE,
+        # the status line ingest or OTLP on the event loop.
         if not config.token_ok(request.headers.get("authorization")):
             return Response(status_code=401)
         try:
@@ -173,13 +175,13 @@ def create_app() -> FastAPI:
         if not isinstance(payload, dict):
             return Response(status_code=400)
         s = state(request)
-        counts = usage_ingest.store(s.conn, payload)
+        counts = await asyncio.to_thread(usage_ingest.store, s.conn, payload)
         if counts.get("requests"):
             await s.notify_change()
         return JSONResponse(counts)
 
     @app.get("/api/usage")
-    async def api_usage(
+    def api_usage(
         request: Request,
         window: str = Query("7d"),
         p: Annotated[list[str] | None, Query()] = None,

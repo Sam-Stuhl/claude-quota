@@ -129,6 +129,9 @@ def refit(conn: sqlite3.Connection, now: int | None = None) -> dict:
     Returns a small summary dict for logging/health.
     """
     now = now or int(time.time())
+    # Models are keyed without a context suffix ("[1m]") since transcripts
+    # joined the fit; drop any row left over from before.
+    conn.execute("DELETE FROM calibration WHERE model LIKE '%[%'")
     seed_prior(conn, now)
     models, A, b = build_observations(conn, now)
     if A.shape[0] < 2 or not models:

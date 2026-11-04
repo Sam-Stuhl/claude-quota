@@ -76,7 +76,7 @@ def _settings_check() -> dict:
         env.get("OTEL_EXPORTER_OTLP_ENDPOINT")
     )
     # Telemetry is optional once the shipper runs: transcripts carry attribution.
-    env_ok = env_ok or ship.state_path().exists()
+    env_ok = env_ok or _ship_check()["ok"]
     ok = sl_ok and env_ok
     missing = []
     if not sl_ok:

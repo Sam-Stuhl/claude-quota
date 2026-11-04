@@ -327,6 +327,10 @@ def read_incremental(
         chunk = f.read(max_bytes)
     end = chunk.rfind(b"\n")
     if end < 0:
+        if len(chunk) >= max_bytes:
+            # One line longer than a whole read: skip it rather than stick here.
+            carry.offset += len(chunk)
+            return Parsed(bad_lines=1)
         return Parsed()
     body = chunk[: end + 1]
     carry.offset += len(body)

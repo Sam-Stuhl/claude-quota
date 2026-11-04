@@ -129,7 +129,7 @@ broken down by model, MCP server, skill, subagent, device or effort instead.
 | Tasks you started | ATLAS folder | ATLAS sessions with `started_by = sam` |
 | Tasks agents started | ATLAS folder | ATLAS sessions started by the coordinator, the assistant or a tool |
 | Event-triggered | trigger | health-alert sessions and dispatched jobs |
-| Role threads | role | sessions in `~/agents/<role>` or `~/atlas/roles/<role>` |
+| Role threads | role | sessions in `~/agents/<role>` or `~/atlas/roles/<role>`, and other non-interactive sessions carrying ATLAS turn stamps (`~/gym`, `~/money`, the school study and advisor folders) |
 | Background helpers | helper | the fixed opening prompt of the memory gardener, portrait, job reviewer and quota probe |
 | Terminal sessions | repo | ATLAS's `outside` sessions, and any interactive `claude` |
 | Cowork | | transcripts under the Claude app's `local-agent-mode-sessions` |
@@ -137,6 +137,12 @@ broken down by model, MCP server, skill, subagent, device or effort instead.
 
 ATLAS's own records come from `~/atlas/atlas.db`, read-only, on the machine that
 hosts it. A row tagged `est` was placed by a heuristic rather than a record.
+
+Turn and session labels are the first 80 characters of a prompt, and `/api/usage`
+serves them like the rest of `/api/*`: without the ingest token. Put the dashboard
+behind your proxy's access control (as the remote section below says), or ship with
+`--no-labels`. `backfill` is now `ship --since-days N`: it fills this view, not the
+OTel-based session panels above it, which start from live telemetry.
 
 **What cannot be measured.** claude.ai chat, voice and the mobile app keep no local
 record and expose no per-conversation usage, so they appear only as one grey line:

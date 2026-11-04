@@ -17,18 +17,42 @@ _REQ_COLS = (
 _INT_COLS = {"ts", "tok_input", "tok_output", "tok_cache_r", "tok_cache_w"}
 
 
+_INT_MAX = 2**62  # inside BIGINT, so Postgres never rejects a batch over one value
+
+
 def _s(v: Any, n: int = 300) -> str | None:
     if v is None:
         return None
-    return str(v)[:n]
+    return str(v).replace("\x00", "")[:n]
 
 
 def _i(v: Any) -> int | None:
-    if isinstance(v, bool):
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
         return None
-    if isinstance(v, (int, float)):
-        return int(v)
-    return None
+    if v != v or abs(v) > _INT_MAX:  # NaN or out of range
+        return None
+    return int(v)
+
+
+def _write(conn, sql: str, rows: list[tuple]) -> int:
+    """Write a batch; if it fails, write row by row and drop the bad ones.
+
+    One malformed row must not reject the batch, or the shipper would re-send
+    the same lines and fail the same way every minute. Returns rows dropped.
+    """
+    if not rows:
+        return 0
+    try:
+        conn.executemany(sql, rows)
+        return 0
+    except Exception:
+        dropped = 0
+        for r in rows:
+            try:
+                conn.execute(sql, r)
+            except Exception:
+                dropped += 1
+        return dropped
 
 
 def _req_row(r: dict, device: str | None) -> tuple | None:
@@ -50,18 +74,21 @@ def _req_row(r: dict, device: str | None) -> tuple | None:
 
 def store(conn, body: dict) -> dict:
     device = _s(body.get("device"), 80)
-    counts = {}
+    counts: dict[str, int] = {}
+    dropped = 0
 
-    rows = [x for x in (_req_row(r, device) for r in body.get("requests") or []) if x]
-    if rows:
-        cols = ", ".join(_REQ_COLS)
-        qs = ", ".join("?" for _ in _REQ_COLS)
-        updates = ", ".join(f"{c} = excluded.{c}" for c in _REQ_COLS if c != "request_id")
-        conn.executemany(
-            f"INSERT INTO req_usage ({cols}) VALUES ({qs}) "
-            f"ON CONFLICT(request_id) DO UPDATE SET {updates}",
-            rows,
-        )
+    raw = body.get("requests") or []
+    rows = [x for x in (_req_row(r, device) for r in raw) if x]
+    dropped += len(raw) - len(rows)
+    cols = ", ".join(_REQ_COLS)
+    qs = ", ".join("?" for _ in _REQ_COLS)
+    updates = ", ".join(f"{c} = excluded.{c}" for c in _REQ_COLS if c != "request_id")
+    dropped += _write(
+        conn,
+        f"INSERT INTO req_usage ({cols}) VALUES ({qs}) "
+        f"ON CONFLICT(request_id) DO UPDATE SET {updates}",
+        rows,
+    )
     counts["requests"] = len(rows)
 
     convs = []
@@ -76,26 +103,26 @@ def store(conn, body: dict) -> dict:
                 _i(c.get("first_ts")), _i(c.get("last_ts")),
             )
         )
-    if convs:
-        conn.executemany(
-            """INSERT INTO conv (session_id, device, source, cwd, entrypoint, git_branch,
-                                 cc_version, title, first_prompt, first_ts, last_ts)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?)
-               ON CONFLICT(session_id) DO UPDATE SET
-                 device = COALESCE(conv.device, excluded.device),
-                 source = COALESCE(conv.source, excluded.source),
-                 cwd = COALESCE(conv.cwd, excluded.cwd),
-                 entrypoint = COALESCE(conv.entrypoint, excluded.entrypoint),
-                 git_branch = COALESCE(excluded.git_branch, conv.git_branch),
-                 cc_version = COALESCE(excluded.cc_version, conv.cc_version),
-                 title = COALESCE(excluded.title, conv.title),
-                 first_prompt = COALESCE(conv.first_prompt, excluded.first_prompt),
-                 first_ts = CASE WHEN conv.first_ts IS NULL OR excluded.first_ts < conv.first_ts
-                                 THEN excluded.first_ts ELSE conv.first_ts END,
-                 last_ts = CASE WHEN conv.last_ts IS NULL OR excluded.last_ts > conv.last_ts
-                                THEN excluded.last_ts ELSE conv.last_ts END""",
-            convs,
-        )
+    dropped += _write(
+        conn,
+        """INSERT INTO conv (session_id, device, source, cwd, entrypoint, git_branch,
+                             cc_version, title, first_prompt, first_ts, last_ts)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?)
+           ON CONFLICT(session_id) DO UPDATE SET
+             device = COALESCE(conv.device, excluded.device),
+             source = COALESCE(conv.source, excluded.source),
+             cwd = COALESCE(conv.cwd, excluded.cwd),
+             entrypoint = COALESCE(conv.entrypoint, excluded.entrypoint),
+             git_branch = COALESCE(excluded.git_branch, conv.git_branch),
+             cc_version = COALESCE(excluded.cc_version, conv.cc_version),
+             title = COALESCE(excluded.title, conv.title),
+             first_prompt = COALESCE(conv.first_prompt, excluded.first_prompt),
+             first_ts = CASE WHEN conv.first_ts IS NULL OR excluded.first_ts < conv.first_ts
+                             THEN excluded.first_ts ELSE conv.first_ts END,
+             last_ts = CASE WHEN conv.last_ts IS NULL OR excluded.last_ts > conv.last_ts
+                            THEN excluded.last_ts ELSE conv.last_ts END""",
+        convs,
+    )
     counts["conversations"] = len(convs)
 
     turns = [
@@ -105,17 +132,17 @@ def store(conn, body: dict) -> dict:
         for t in body.get("turns") or []
         if isinstance(t, dict) and t.get("prompt_id") and t.get("session_id")
     ]
-    if turns:
-        conn.executemany(
-            """INSERT INTO turn (prompt_id, session_id, agent_id, ts, origin, door, routine, label)
-               VALUES (?,?,?,?,?,?,?,?)
-               ON CONFLICT(prompt_id) DO UPDATE SET
-                 label = COALESCE(turn.label, excluded.label),
-                 origin = COALESCE(turn.origin, excluded.origin),
-                 door = COALESCE(turn.door, excluded.door),
-                 routine = COALESCE(turn.routine, excluded.routine)""",
-            turns,
-        )
+    dropped += _write(
+        conn,
+        """INSERT INTO turn (prompt_id, session_id, agent_id, ts, origin, door, routine, label)
+           VALUES (?,?,?,?,?,?,?,?)
+           ON CONFLICT(prompt_id) DO UPDATE SET
+             label = COALESCE(turn.label, excluded.label),
+             origin = COALESCE(turn.origin, excluded.origin),
+             door = COALESCE(turn.door, excluded.door),
+             routine = COALESCE(turn.routine, excluded.routine)""",
+        turns,
+    )
     counts["turns"] = len(turns)
 
     subs = [
@@ -124,15 +151,15 @@ def store(conn, body: dict) -> dict:
         for a in body.get("subagents") or []
         if isinstance(a, dict) and a.get("agent_id") and a.get("session_id")
     ]
-    if subs:
-        conn.executemany(
-            """INSERT INTO subagent (agent_id, session_id, agent_type, description, model)
-               VALUES (?,?,?,?,?)
-               ON CONFLICT(agent_id) DO UPDATE SET
-                 agent_type = excluded.agent_type, description = excluded.description,
-                 model = excluded.model""",
-            subs,
-        )
+    dropped += _write(
+        conn,
+        """INSERT INTO subagent (agent_id, session_id, agent_type, description, model)
+           VALUES (?,?,?,?,?)
+           ON CONFLICT(agent_id) DO UPDATE SET
+             agent_type = excluded.agent_type, description = excluded.description,
+             model = excluded.model""",
+        subs,
+    )
     counts["subagents"] = len(subs)
 
     atl = [
@@ -143,21 +170,22 @@ def store(conn, body: dict) -> dict:
         for a in body.get("atlas_sessions") or []
         if isinstance(a, dict) and a.get("claude_session_id")
     ]
-    if atl:
-        conn.executemany(
-            """INSERT INTO atlas_session (claude_session_id, atlas_id, number, kind, title,
-                 started_by, folder, repo, profile, pr_url, series_key, created_ts)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-               ON CONFLICT(claude_session_id) DO UPDATE SET
-                 atlas_id = excluded.atlas_id, number = excluded.number,
-                 kind = excluded.kind, title = excluded.title,
-                 started_by = excluded.started_by, folder = excluded.folder,
-                 repo = excluded.repo, profile = excluded.profile,
-                 pr_url = excluded.pr_url, series_key = excluded.series_key,
-                 created_ts = excluded.created_ts""",
-            atl,
-        )
+    dropped += _write(
+        conn,
+        """INSERT INTO atlas_session (claude_session_id, atlas_id, number, kind, title,
+             started_by, folder, repo, profile, pr_url, series_key, created_ts)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+           ON CONFLICT(claude_session_id) DO UPDATE SET
+             atlas_id = excluded.atlas_id, number = excluded.number,
+             kind = excluded.kind, title = excluded.title,
+             started_by = excluded.started_by, folder = excluded.folder,
+             repo = excluded.repo, profile = excluded.profile,
+             pr_url = excluded.pr_url, series_key = excluded.series_key,
+             created_ts = excluded.created_ts""",
+        atl,
+    )
     counts["atlas_sessions"] = len(atl)
 
+    counts["dropped"] = dropped
     conn.commit()
     return counts

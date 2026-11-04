@@ -12,7 +12,9 @@ The order of evidence, strongest first:
 4. The opening prompt of ATLAS's background helpers, which never vary (memory
    gardener, portrait, job reviewer, quota probe).
 5. The working folder: ``~/atlas/assistant`` is the assistant thread, and
-   ``~/agents/<role>`` or ``~/atlas/roles/<role>`` is a role thread.
+   ``~/agents/<role>`` or ``~/atlas/roles/<role>`` is a role thread. So is any
+   other non-interactive session whose turns carry ATLAS stamps (``~/gym``,
+   ``~/money``, the school study and advisor folders), whatever ATLAS filed it as.
 6. The launcher: an interactive ``claude`` (entrypoint ``cli``) is a terminal
    session. What is left is uncategorized, shown with its folder, never hidden.
 """
@@ -76,6 +78,10 @@ class Place:
     group: str
     item: str  # session id
     estimated: bool = False  # True when only a heuristic placed it
+    # ATLAS stamps only the turns it sends into its own threads, so a stamp is
+    # trusted in the assistant thread and in non-interactive sessions nothing
+    # else has claimed (role threads, which ATLAS records as "outside").
+    stampable: bool = False
 
 
 def _day(ts: int | None) -> str:
@@ -129,9 +135,9 @@ def session_place(conv: dict | None, atlas: dict | None, sid: str) -> Place:
         by = (atlas.get("started_by") or "").lower()
         folder = atlas.get("folder") or atlas.get("repo") or repo_name(cwd)
         if kind == "outside":
-            return Place("terminal", repo_name(cwd), sid)
+            return Place("terminal", repo_name(cwd), sid, stampable=conv.get("entrypoint") != "cli")
         if kind == "job":
-            cat = "event" if (atlas.get("profile") == "ops" or by in _STARTED_BY) else "tasks_agent"
+            cat = _STARTED_BY.get(by) or ("event" if atlas.get("profile") == "ops" else "tasks_agent")
             return Place(cat, by or "job", sid)
         cat = _STARTED_BY.get(by, "tasks_agent")
         if cat == "scheduled":
@@ -152,20 +158,24 @@ def session_place(conv: dict | None, atlas: dict | None, sid: str) -> Place:
         return Place("roles", role, sid)
 
     if _is_assistant(cwd):
-        return Place("atlas_chat", _day(conv.get("first_ts")), sid, estimated=True)
+        return Place("atlas_chat", _day(conv.get("first_ts")), sid, estimated=True, stampable=True)
 
     if conv.get("entrypoint") == "cli":
         return Place("terminal", repo_name(cwd), sid)
 
-    return Place("other", _home_rel(cwd), sid, estimated=True)
+    return Place("other", _home_rel(cwd), sid, estimated=True, stampable=True)
 
 
 def request_place(base: Place, door: str | None, routine: str | None, ts: int | None, model: str | None) -> Place:
     """Refine a session's place with the turn's own ATLAS stamp."""
-    if door:
+    # A task that merely quotes a stamp (a log excerpt, a session reading
+    # transcripts) stays put: only stampable sessions follow their stamps.
+    if door and base.stampable and base.category != "atlas_chat":
+        # A stamped thread outside the assistant's own folder is a role thread,
+        # named for its folder (gym, trainer, money, study, ...).
+        return Place("roles", os.path.basename(base.group.rstrip("/")) or base.group, base.item)
+    if door and base.category == "atlas_chat":
         cat = _DOOR.get(door, "atlas_chat")
-        if base.category == "roles":
-            return base  # a role thread's turns stay with the role
         if cat == "scheduled":
             return Place(cat, routine or "routine", base.item)
         return Place(cat, _day(ts), base.item)

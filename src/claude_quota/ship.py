@@ -91,19 +91,26 @@ def collect_transcripts(state: dict, since_days: float, with_labels: bool) -> tr
     horizon = time.time() - since_days * 86400
     total = transcripts.Parsed()
     failed = 0
-    for path in _files(horizon):
+    seen_paths = _files(horizon)
+    for path in seen_paths:
         key = str(path)
         fs = files_state.get(key)
         carry = transcripts.Carry.from_json(fs)
         try:
             parsed = transcripts.read_incremental(path, carry, with_labels=with_labels)
+            quiet = path.stat().st_mtime < time.time() - 3600
         except OSError:
             failed += 1
             continue
+        if quiet:
+            carry.query_sources = {}  # a quiet file needs no api-request memory
         files_state[key] = carry.to_json()
         total.merge(parsed)
-    # Forget files that no longer exist so the state does not grow forever.
-    for key in [k for k in files_state if not Path(k).exists()]:
+    # Forget files outside the horizon (or gone) so the state stays small. One
+    # that comes back to life is re-read from the start; the upserts make that
+    # harmless.
+    live = {str(p) for p in seen_paths}
+    for key in [k for k in files_state if k not in live]:
         del files_state[key]
     state["last_scan"] = time.time()
     state["failed_files"] = failed
@@ -127,7 +134,7 @@ def collect_atlas(state: dict) -> dict:
             ) if c in cols]
             rows = conn.execute(
                 f"SELECT {', '.join(want)} FROM sessions WHERE claude_session_id IS NOT NULL "
-                "AND updated_at > ? ORDER BY updated_at",
+                "AND updated_at >= ? ORDER BY updated_at",
                 (since,),
             ).fetchall()
             newest = since
@@ -137,15 +144,21 @@ def collect_atlas(state: dict) -> dict:
                 out["atlas_sessions"].append(_atlas_row(d))
             jcols = {r["name"] for r in conn.execute("PRAGMA table_info(jobs)")}
             if {"session_id", "title"} <= jcols:
-                jsince = state.get("atlas_jobs_since") or ""
+                # Jobs get their session id after they start, so a cursor on
+                # created_at could step past one. The table is small: send the
+                # rows that changed since the last run, keyed by content.
+                seen = set(state.get("atlas_jobs_seen") or [])
+                now_seen = set()
                 jrows = conn.execute(
                     "SELECT id, session_id, title, profile, started_by, created_at, folder FROM jobs "
-                    "WHERE session_id IS NOT NULL AND created_at > ? ORDER BY created_at",
-                    (jsince,),
+                    "WHERE session_id IS NOT NULL"
                 ).fetchall()
                 for r in jrows:
                     d = dict(r)
-                    jsince = max(jsince, d.get("created_at") or "")
+                    key = f"{d['id']}:{d['session_id']}"
+                    now_seen.add(key)
+                    if key in seen:
+                        continue
                     out["atlas_sessions"].append(
                         {
                             "claude_session_id": d["session_id"],
@@ -162,7 +175,7 @@ def collect_atlas(state: dict) -> dict:
                             "created_ts": transcripts._ts(d.get("created_at")),
                         }
                     )
-                state["atlas_jobs_since"] = jsince
+                state["atlas_jobs_seen"] = sorted(now_seen)
             conn.close()
             state["atlas_since"] = newest
         except sqlite3.Error:
@@ -243,11 +256,12 @@ def run(
         post(
             {
                 "device": device,
-                "conversations": convs,
                 "subagents": list(parsed.subagents.values()),
                 "atlas_sessions": atlas["atlas_sessions"],
             }
         )
+        for chunk in _chunks(convs, BATCH):
+            post({"device": device, "conversations": chunk})
         for chunk in _chunks(list(parsed.turns.values()), BATCH):
             post({"device": device, "turns": chunk})
         for chunk in _chunks(list(parsed.requests.values()), BATCH):

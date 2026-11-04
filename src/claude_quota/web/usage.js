@@ -70,7 +70,7 @@
   }
   function row(c, i, d, max, opts) {
     const total = c.tok_input + c.tok_output + c.tok_cache_read + c.tok_cache_write;
-    const sub = opts.sub ? `<span class="usub">${opts.sub}</span>` : "";
+    const sub = opts.sub ? `<span class="usub">${esc(opts.sub)}</span>` : "";
     const est = c.estimated ? `<span class="utag" title="placed by a heuristic, not ATLAS's own record">est</span>` : "";
     return `<div class="arow body urow${opts.click ? " click" : ""}" style="grid-template-columns:${COLS}" data-i="${i}">
       <span class="aname"><i class="sw" style="background:${opts.grey ? "var(--grey)" : color(i)}"></i><span class="ulabel" title="${esc(c.label)}">${esc(c.label)}${sub}</span>${est}</span>
@@ -119,7 +119,7 @@
     if (it.folder) bits.push(esc(it.folder));
     else if (it.cwd) bits.push(`<span class="mono">${esc(it.cwd.replace(/^\/Users\/[^/]+/, "~"))}</span>`);
     if (it.session_first_ts) bits.push(`${when(it.session_first_ts)} to ${when(it.session_last_ts)}`);
-    if (it.pr_url) bits.push(`<a href="${esc(it.pr_url)}" target="_blank" rel="noopener">PR</a>`);
+    if (it.pr_url && /^https?:\/\//.test(it.pr_url)) bits.push(`<a href="${esc(it.pr_url)}" target="_blank" rel="noopener">PR</a>`);
     bits.push(`<span class="mono dim">${esc(it.session_id.slice(0, 8))}</span>`);
     return `<div class="umeta">${bits.join(" · ")}</div>`;
   }
@@ -151,7 +151,7 @@
         + `</div>`;
       d._turns = turns;
     } else {
-      const level = S.by ? PIVOTS.find((p) => p[0] === S.by)[1] : ["category", "group", "session"][S.path.length] || "item";
+      const level = S.by ? (PIVOTS.find((p) => p[0] === S.by) || [S.by, S.by])[1] : ["category", "group", "session"][S.path.length] || "item";
       const click = !S.by;
       body = compBar(d.children) + `<div id="u-kids">${table(level, d.children, d, {
         click,

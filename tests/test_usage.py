@@ -128,6 +128,32 @@ def test_session_place(conv, atlas, expect):
     assert (p.category, p.group) == expect
 
 
+def test_quoted_stamp_does_not_move_a_task():
+    base = classify.session_place({"cwd": "/Users/sam/repos/x"},
+                                  {"kind": "session", "started_by": "sam", "folder": "P"}, "s")
+    assert classify.request_place(base, "schedule", "Hourly watch", NOW, None) == base
+
+
+def test_stamped_outside_session_is_a_role_thread():
+    base = classify.session_place({"cwd": "/Users/sam/gym", "entrypoint": "sdk-cli"},
+                                  {"kind": "outside", "started_by": "terminal"}, "s")
+    assert base.category == "terminal"
+    p = classify.request_place(base, "web", None, NOW, None)
+    assert (p.category, p.group) == ("roles", "gym")
+    other = classify.session_place({"cwd": "/Volumes/tank/school/study", "entrypoint": "sdk-cli"}, None, "s")
+    assert classify.request_place(other, "schedule", "x", NOW, None).group == "study"
+    typed = classify.session_place({"cwd": "/Users/sam/x", "entrypoint": "cli"},
+                                   {"kind": "outside"}, "s")
+    assert classify.request_place(typed, "web", None, NOW, None) == typed
+
+
+def test_jobs_follow_who_started_them():
+    assert classify.session_place({}, {"kind": "job", "started_by": "sam"}, "s").category == "tasks_sam"
+    assert classify.session_place({}, {"kind": "job", "started_by": "job"}, "s").category == "event"
+    assert classify.session_place({}, {"kind": "job", "started_by": "coordinator"}, "s").category \
+        == "tasks_agent"
+
+
 def test_turn_stamp_overrides_assistant_thread():
     base = classify.session_place({"cwd": "/Users/sam/atlas/assistant", "first_ts": NOW}, None, "s")
     assert base.category == "atlas_chat" and base.estimated
@@ -166,6 +192,30 @@ def _body():
         "atlas_sessions": [{"claude_session_id": "task", "number": 7, "kind": "session",
                             "title": "Fix X", "started_by": "sam", "folder": "Projects/x"}],
     }
+
+
+def test_ingest_drops_bad_rows_not_the_batch(conn):
+    body = _body()
+    body["requests"].append({"request_id": "nul", "ts": NOW, "session_id": "task\x00", "cost_usd": 1})
+    body["requests"].append({"request_id": "huge", "ts": 1e30, "session_id": "task"})
+    body["conversations"].append({"session_id": "c2", "cwd": "/a\x00b"})
+    counts = usage_ingest.store(conn, body)
+    assert counts["requests"] == 6 and counts["dropped"] == 1
+    row = conn.execute("SELECT cwd FROM conv WHERE session_id = 'c2'").fetchone()
+    assert row["cwd"] == "/ab"
+
+
+def test_subagent_cost_rolls_into_its_turn(conn):
+    body = _body()
+    body["requests"].append({"request_id": "sub1", "ts": NOW - 90, "session_id": "task",
+                             "agent_id": "ag", "prompt_id": "psub", "model": "claude-haiku-5-5",
+                             "cost_usd": 0.25})
+    usage_ingest.store(conn, body)
+    item = usage_tree.build(conn, "7d", ["tasks_sam", "Projects/x", "task"], now=NOW)
+    turns = item["sections"]["turns"]
+    assert [t["key"] for t in turns] == ["pt"] and turns[0]["cost_usd"] == pytest.approx(3.25)
+    turn = usage_tree.build(conn, "7d", ["tasks_sam", "Projects/x", "task", "pt"], now=NOW)
+    assert {r["request_id"] for r in turn["requests"]} == {"a0", "a1", "a2", "sub1"}
 
 
 def test_ingest_is_idempotent(conn):
@@ -251,7 +301,8 @@ def test_ship_run_posts_and_resumes(tmp_path, monkeypatch):
     assert any(b.get("atlas_sessions") for b in posted)
     posted.clear()
     r2 = ship.run(server="http://x", device="mini", post=posted.append)
-    assert r2["requests"] == 0 and r2["atlas_sessions"] == 0
+    # Nothing new; the session cursor is inclusive, so only its boundary row repeats.
+    assert r2["requests"] == 0 and r2["atlas_sessions"] <= 1
 
     def boom(body):
         raise RuntimeError("down")

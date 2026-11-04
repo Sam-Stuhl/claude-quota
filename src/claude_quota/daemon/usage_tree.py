@@ -17,6 +17,7 @@ calibration is trusted, and is labelled as an estimate.
 
 from __future__ import annotations
 
+import bisect
 import time
 from collections import defaultdict
 
@@ -169,8 +170,12 @@ def quota_measured(conn, start: int, end: int) -> dict:
     return out
 
 
-def _residual(conn, rows: list[dict], start: int, end: int, rates: dict, calibrated: bool) -> dict:
-    m = quota_measured(conn, start, end)
+def _covered(ts: int, starts: list[int], spans: list[tuple[int, int]]) -> bool:
+    i = bisect.bisect_right(starts, ts) - 1
+    return i >= 0 and spans[i][0] <= ts <= spans[i][1]
+
+
+def _residual(rows: list[dict], m: dict, rates: dict, calibrated: bool) -> dict:
     node = {
         "key": classify.RESIDUAL_KEY,
         "label": classify.RESIDUAL_LABEL,
@@ -187,10 +192,11 @@ def _residual(conn, rows: list[dict], start: int, end: int, rates: dict, calibra
     if not calibrated:
         node["note"] = "calibration not trusted yet"
         return node
+    spans = sorted(m["covered"])
+    starts = [a for a, _ in spans]
     local = 0.0
     for r in rows:
-        ts = r["ts"]
-        if any(a <= ts <= b for a, b in m["covered"]):
+        if _covered(r["ts"], starts, spans):
             local += float(r["cost_usd"] or 0.0) * calibration.rate_for(rates, r["model"] or "")
     node["est_5h_points"] = round(max(0.0, m["five_h_points"] - local), 2)
     return node
@@ -252,9 +258,11 @@ def build(conn, window: str = "7d", path: list[str] | None = None, by: str | Non
     }
     # How much of the weekly limit one point of the 5-hour limit was worth over
     # this window, from the two measured rises; multiply est_5h_points by it.
-    m = quota_measured(conn, start, end)
+    measured = quota_measured(conn, start, end)
     resp["week_per_5h_point"] = (
-        round(m["seven_d_points"] / m["five_h_points"], 4) if m["five_h_points"] > 0 else None
+        round(measured["seven_d_points"] / measured["five_h_points"], 4)
+        if measured["five_h_points"] > 0
+        else None
     )
     total_cost = node_acc["cost_usd"]
     resp["node"] = _out("/".join(path) or "all", resp["breadcrumbs"][-1]["label"], node_acc,
@@ -267,7 +275,8 @@ def build(conn, window: str = "7d", path: list[str] | None = None, by: str | Non
         return resp
 
     if turn_id:
-        reqs = [r for r, _ in mine if r["prompt_id"] == turn_id]
+        reqs = [r for r, _ in mine if r["prompt_id"] == turn_id and not r["agent_id"]]
+        reqs += [r for r, _ in mine if r["agent_id"] and _agent_turn(conn, mine, r["agent_id"]) == turn_id]
         reqs.sort(key=lambda r: r["ts"])
         resp["requests"] = [
             {k: r[k] for k in ("request_id", "ts", "model", "query_source", "agent_type", "skill",
@@ -297,7 +306,7 @@ def build(conn, window: str = "7d", path: list[str] | None = None, by: str | Non
         if len(path) == 0:
             order = {k: i for i, (k, _) in enumerate(classify.CATEGORIES)}
             children.sort(key=lambda c: (-c["cost_usd"], order.get(c["key"], 99)))
-            resp["residual"] = _residual(conn, rows, start, end, rates, calibrated)
+            resp["residual"] = _residual(rows, measured, rates, calibrated)
         resp["children"] = children
         return resp
 
@@ -307,14 +316,32 @@ def build(conn, window: str = "7d", path: list[str] | None = None, by: str | Non
     turns = _lookup(conn, "turn", "prompt_id", {r["prompt_id"] for r, _ in mine if r["prompt_id"]})
     subs = _lookup(conn, "subagent", "agent_id", {r["agent_id"] for r, _ in mine if r["agent_id"]})
 
+    # A subagent's requests belong to the main-thread turn that was running
+    # when it started, so turn shares add up to the whole session.
+    main_turns = sorted(
+        (t["ts"], pid) for pid, t in turns.items() if not t.get("agent_id") and t.get("ts")
+    )
+    mt_ts = [ts for ts, _ in main_turns]
+    agent_start: dict[str, int] = {}
+    for r, _p in mine:
+        if r["agent_id"]:
+            agent_start[r["agent_id"]] = min(agent_start.get(r["agent_id"], r["ts"]), r["ts"])
+    agent_turn = {}
+    for aid, ts in agent_start.items():
+        i = bisect.bisect_right(mt_ts, ts) - 1
+        agent_turn[aid] = main_turns[i][1] if i >= 0 else "(no turn)"
+
     def turn_key(r, p):
-        return None if r["agent_id"] else (r["prompt_id"] or "(no turn)")
+        if r["agent_id"]:
+            return agent_turn.get(r["agent_id"], "(no turn)")
+        return r["prompt_id"] or "(no turn)"
 
     def turn_label(k):
         t = turns.get(k) or {}
         return t.get("label") or ("(turn)" if k != "(no turn)" else "(before the first prompt)")
 
-    turn_children = _group(mine, prev_mine, turn_key, turn_label, total_cost, calibrated, rate, "turn")
+    turn_children = _group(mine, prev_mine, turn_key, turn_label, total_cost, calibrated, rate,
+                           "turn", limit=5000)
     for c in turn_children:
         t = turns.get(c["key"]) or {}
         c["ts"] = t.get("ts") or c["first_ts"]
@@ -338,7 +365,8 @@ def build(conn, window: str = "7d", path: list[str] | None = None, by: str | Non
     return resp
 
 
-def _group(mine, prev_mine, keyfn, labelfn, parent_cost, calibrated, rate, kind) -> list[dict]:
+def _group(mine, prev_mine, keyfn, labelfn, parent_cost, calibrated, rate, kind,
+           limit: int = MAX_CHILDREN) -> list[dict]:
     accs: dict[str, dict] = {}
     for r, p in mine:
         k = keyfn(r, p)
@@ -353,7 +381,21 @@ def _group(mine, prev_mine, keyfn, labelfn, parent_cost, calibrated, rate, kind)
         _add(prevs.setdefault(k, _acc()), r, rate(r))
     out = [_out(k, labelfn(k), a, parent_cost, prevs.get(k), calibrated, kind) for k, a in accs.items()]
     out.sort(key=lambda c: -c["cost_usd"])
-    return out[:MAX_CHILDREN]
+    return out[:limit]
+
+
+def _agent_turn(conn, mine, agent_id: str) -> str | None:
+    """The main-thread turn that was running when a subagent started."""
+    sid = next((r["session_id"] for r, _ in mine if r["agent_id"] == agent_id), None)
+    start = min((r["ts"] for r, _ in mine if r["agent_id"] == agent_id), default=None)
+    if sid is None or start is None:
+        return None
+    row = conn.execute(
+        """SELECT prompt_id FROM turn WHERE session_id = ? AND agent_id IS NULL
+             AND ts IS NOT NULL AND ts <= ? ORDER BY ts DESC LIMIT 1""",
+        (sid, start),
+    ).fetchone()
+    return row["prompt_id"] if row else None
 
 
 def _item_meta(placer: _Placer, sid: str) -> dict:
