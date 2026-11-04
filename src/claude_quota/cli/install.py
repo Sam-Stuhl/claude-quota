@@ -3,7 +3,7 @@
 Idempotent. Backs up settings.json before touching it. If a status line is
 already configured, the wrapper chains to it so the user's line still renders;
 otherwise it renders a minimal built-in line. Never blocks the terminal: the
-POST to the daemon is fire-and-forget with a hard 400ms timeout, and the script
+POST to the daemon is fire-and-forget with a hard 5s timeout (it runs in the background, so a slow server never delays a render), and the script
 always exits 0 even when the daemon is down.
 
 Supports a local daemon (default) or a remote/multi-device server via
@@ -130,9 +130,9 @@ def build_wrapper(
 # {MANAGED_MARKER}; do not edit by hand. Rewritten by `claude-quota install`.
 input=$(cat)
 
-# Fire-and-forget post to the daemon. Hard 400ms cap, output discarded, never
+# Fire-and-forget post to the daemon. Hard 5s cap, output discarded, never
 # blocks, never prints an error, always leaves the status line responsive.
-printf '%s' "$input" | curl -m 0.4 -s -X POST {shlex.quote(url)} \\
+printf '%s' "$input" | curl -m 5 -s -X POST {shlex.quote(url)} \\
   {auth}--data-binary @- >/dev/null 2>&1 &
 
 ORIGINAL_CMD={shlex.quote(original)}

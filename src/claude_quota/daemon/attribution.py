@@ -13,7 +13,7 @@ import sqlite3
 import time
 
 from .. import config
-from . import calibration
+from . import calibration, limits as limits_mod
 
 FIVE_HOURS = 5 * 3600
 
@@ -26,21 +26,23 @@ def session_label(cwd: str | None, project_dir: str | None, git_worktree: str | 
     return name or "unknown"
 
 
-def latest_limits(conn: sqlite3.Connection) -> dict:
-    row = conn.execute(
-        """SELECT ts, five_h_pct, five_h_reset, seven_d_pct, seven_d_reset
-           FROM quota_sample
-           WHERE had_limits = 1
-             AND ts = (SELECT MAX(ts) FROM quota_sample WHERE had_limits = 1)"""
-    ).fetchone()
-    if not row:
+def latest_limits(conn: sqlite3.Connection, now: int | None = None) -> dict:
+    """The newest limits reading, with windows that have since reset dropped."""
+    now = now or int(time.time())
+    r = limits_mod.read(conn, now)
+    if not r.get("known"):
         return {}
     return {
-        "ts": int(row["ts"]),
-        "five_h_pct": row["five_h_pct"],
-        "five_h_reset": row["five_h_reset"],
-        "seven_d_pct": row["seven_d_pct"],
-        "seven_d_reset": row["seven_d_reset"],
+        "ts": r["ts"],
+        "source": r["source"],
+        # An expired 5h reading keeps its reset time out of the window maths:
+        # that window is over, and the next one has not been measured yet.
+        "five_h_pct": r["five_h_pct"],
+        "five_h_reset": None if r["five_expired"] else r["five_h_reset"],
+        "seven_d_pct": r["seven_d_pct"],
+        "seven_d_reset": None if r["seven_expired"] else r["seven_d_reset"],
+        "five_expired": r["five_expired"],
+        "seven_expired": r["seven_expired"],
     }
 
 
@@ -54,7 +56,8 @@ def degraded(conn: sqlite3.Connection, now: int) -> tuple[bool, str | None]:
         return True, "no rate_limits ever received"
     if now - int(last) > config.DEGRADED_AFTER_SECONDS:
         mins = (now - int(last)) // 60
-        return True, f"rate_limits absent for {mins}m"
+        ago = f"{mins // 60}h {mins % 60}m" if mins >= 120 else f"{mins}m"
+        return True, f"no limits reading for {ago}"
     return False, None
 
 
@@ -89,7 +92,7 @@ def _session_costs(conn: sqlite3.Connection, window_start: int) -> dict[str, dic
 
 def compute(conn: sqlite3.Connection, now: int | None = None) -> dict:
     now = now or int(time.time())
-    limits = latest_limits(conn)
+    limits = latest_limits(conn, now)
     is_degraded, reason = degraded(conn, now)
     # Trust fitted per-model rates only once calibration is actually good;
     # before that, a half-converged NNLS fit produces misleading shares, so

@@ -43,6 +43,10 @@ class ParsedSample:
     cwd: str | None = None
     project_dir: str | None = None
     git_worktree: str | None = None
+    # Which feed measured the limits: "statusline", "quota-meter", "atlas-deck".
+    # Feeds can disagree by a few points, so a series is only ever fitted from
+    # one source at a time (see daemon/limits.py).
+    source: str = "statusline"
 
 
 def parse_reset(value: Any) -> int | None:
@@ -184,6 +188,7 @@ def parse_limits(payload: dict, now: int | None = None) -> ParsedSample | None:
         session_name=payload.get("name"),
         model_id=payload.get("model"),
         cwd=payload.get("cwd"),
+        source=str(payload.get("source") or "atlas-deck")[:40],
     )
 
 
@@ -211,13 +216,13 @@ def store_sample(
         """INSERT INTO quota_sample
            (ts, session_id, device, five_h_pct, five_h_reset, seven_d_pct,
             seven_d_reset, cc_version, had_limits, model_id, cost_usd_total,
-            context_pct, lines_added, lines_removed, exceeds_200k)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            context_pct, lines_added, lines_removed, exceeds_200k, source)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             s.ts, s.session_id, s.device, s.five_h_pct, s.five_h_reset,
             s.seven_d_pct, s.seven_d_reset, s.cc_version, 1 if s.had_limits else 0,
             s.model_id, s.cost_usd_total, s.context_pct, s.lines_added,
-            s.lines_removed, s.exceeds_200k,
+            s.lines_removed, s.exceeds_200k, s.source,
         ),
     )
     if raw is not None:

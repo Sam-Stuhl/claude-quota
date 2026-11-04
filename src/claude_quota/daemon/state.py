@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import asyncio
 import sqlite3
+import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 
@@ -56,13 +58,54 @@ class OtlpLiveness:
         self.log_messages += records
 
 
+class TTLCache:
+    """Compute-once-per-interval cache with single flight.
+
+    Every dashboard client (and every SSE wake) asks for the same few answers.
+    Computing each one once per ``ttl`` seconds, on one thread at a time, keeps
+    a page open in three tabs from costing three times the database.
+    """
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._items: dict[object, tuple[float, object]] = {}
+        self._key_locks: dict[object, threading.Lock] = {}
+
+    def get(self, key: object, ttl: float, fn: Callable[[], object]) -> object:
+        now = time.monotonic()
+        hit = self._items.get(key)
+        if hit and now - hit[0] < ttl:
+            return hit[1]
+        with self._lock:
+            klock = self._key_locks.setdefault(key, threading.Lock())
+        with klock:
+            hit = self._items.get(key)
+            if hit and time.monotonic() - hit[0] < ttl:
+                return hit[1]
+            value = fn()
+            self._items[key] = (time.monotonic(), value)
+            return value
+
+
 @dataclass
 class AppState:
     conn: sqlite3.Connection
+    # Reads run on their own connection, one query at a time (psycopg and
+    # sqlite3 connections are not meant for interleaved cursors).
+    read_conn: sqlite3.Connection | None = None
+    read_lock: threading.Lock = field(default_factory=threading.Lock)
+    cache: TTLCache = field(default_factory=TTLCache)
     ingest_queue: asyncio.Queue = field(default_factory=asyncio.Queue)
     broadcaster: Broadcaster = field(default_factory=Broadcaster)
     otlp: OtlpLiveness = field(default_factory=OtlpLiveness)
     started_at: float = field(default_factory=time.time)
+
+    def read(self, key: object, ttl: float, build: Callable[[sqlite3.Connection], object]):
+        """A cached read: ``build(conn)`` on the reader connection, at most once per ttl."""
+        def run():
+            with self.read_lock:
+                return build(self.read_conn or self.conn)
+        return self.cache.get(key, ttl, run)
 
     async def notify_change(self) -> None:
         await self.broadcaster.publish()

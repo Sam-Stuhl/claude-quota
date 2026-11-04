@@ -6,6 +6,7 @@
   <title>claude-quota</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%233b5bdb'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
@@ -15,48 +16,27 @@
       <div class="hdr-l">
         <span class="mark"></span>
         <span class="brand">claude-quota</span>
-        <span class="pill mono" id="window-pill">window …</span>
       </div>
       <div class="feeds" id="feeds"></div>
     </header>
 
-    <div class="pane slicer" id="slicer"></div>
+    <section class="grid glance" id="glance">
+      <div class="pane gcard" id="g-five"></div>
+      <div class="pane gcard" id="g-week"></div>
+      <div class="pane gcard wide" id="g-proj"></div>
+    </section>
 
-    <div class="grid kpi" id="kpi"></div>
+    <section class="pane" id="where"></section>
 
-    <div class="grid proj-comp">
-      <div class="pane" id="projection-panel"></div>
-      <div class="pane" id="composition-panel"></div>
-    </div>
-
-    <div class="pane" id="attribution-panel"></div>
-
-    <div class="pane" id="usage-panel"></div>
-
-    <div class="pane explore-head">
-      <span class="eyebrow">explore</span>
-      <span class="rule"></span>
-      <span class="hint" id="explore-hint">slicers above apply · click a row to focus</span>
-    </div>
-
-    <div class="grid explore-a">
-      <div class="pane" id="recent-windows"></div>
-      <div class="pane" id="by-device"></div>
-    </div>
-
-    <div class="grid explore-b">
-      <div class="pane" id="spend-map"></div>
-      <div class="pane" id="by-model"></div>
-      <div class="pane" id="calibration"></div>
-    </div>
+    <section class="pane" id="usage-panel"></section>
 
     <footer class="pane foot">
-      <span class="mono" id="foot-l">updated …</span>
+      <span class="mono" id="foot-l">loading</span>
       <span class="mono" id="foot-r"></span>
     </footer>
 
   </div>
-  <script src="/app.js"></script>
+  <script src="/overview.js"></script>
   <script src="/usage.js"></script>
 </body>
 </html>

@@ -96,6 +96,28 @@ def connect(path: Path | None = None):
     return _connect_sqlite(path)
 
 
+def connect_reader(path: Path | None = None):
+    """A second connection for API reads, so they never queue behind ingest.
+
+    The daemon writes on its own connection (the ingest queue, shipper batches).
+    Reads on that same connection waited for a bulk upsert to finish, which made
+    every page load take as long as the slowest write in flight.
+    """
+    if config.is_postgres():
+        import psycopg
+        from psycopg.rows import dict_row
+
+        def open_raw():
+            return psycopg.connect(config.database_url(), autocommit=True, row_factory=dict_row)
+
+        return PgConn(open_raw(), reconnect=open_raw)
+    p = path or config.db_path()
+    conn = sqlite3.connect(str(p), check_same_thread=False, timeout=5.0)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA query_only=ON")
+    return conn
+
+
 def _connect_sqlite(path: Path | None) -> sqlite3.Connection:
     p = path or config.db_path()
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -106,6 +128,8 @@ def _connect_sqlite(path: Path | None) -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys=ON")
     conn.executescript(_SCHEMA)
     migrate(conn)
+    if "source" not in _columns(conn, "quota_sample"):
+        conn.execute("ALTER TABLE quota_sample ADD COLUMN source TEXT")
     conn.commit()
     return conn
 
@@ -122,6 +146,7 @@ def _connect_pg() -> PgConn:
     # Idempotent column adds so an existing Postgres database picks up new
     # columns on redeploy (Postgres supports ADD COLUMN IF NOT EXISTS).
     conn.execute("ALTER TABLE session ADD COLUMN IF NOT EXISTS name TEXT")
+    conn.execute("ALTER TABLE quota_sample ADD COLUMN IF NOT EXISTS source TEXT")
     return conn
 
 

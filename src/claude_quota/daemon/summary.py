@@ -11,15 +11,20 @@ import sqlite3
 import time
 
 from .. import config
-from . import attribution, calibration, projection
+from . import attribution, calibration, limits, projection
 
 
 def _series(conn: sqlite3.Connection, start: int, now: int, max_points: int = 150) -> list[list]:
+    cur = limits.read(conn, now)
+    if not cur.get("known"):
+        return []
+    clause, params = limits.source_clause(cur["source"])
     rows = conn.execute(
-        """SELECT ts, MAX(five_h_pct) AS pct FROM quota_sample
-           WHERE had_limits = 1 AND five_h_pct IS NOT NULL AND ts >= ? AND ts <= ?
-           GROUP BY ts ORDER BY ts""",
-        (start, now),
+        f"""SELECT ts, MAX(five_h_pct) AS pct FROM quota_sample
+            WHERE had_limits = 1 AND five_h_pct IS NOT NULL AND ts >= ? AND ts <= ?
+              AND {clause}
+            GROUP BY ts ORDER BY ts""",
+        (start, now, *params),
     ).fetchall()
     pts = [[int(r["ts"]), round(float(r["pct"]), 2)] for r in rows]
     if len(pts) > max_points:
