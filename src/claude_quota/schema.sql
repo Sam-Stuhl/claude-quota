@@ -91,3 +91,83 @@ CREATE TABLE IF NOT EXISTS event_log (
   ts INTEGER NOT NULL, session_id TEXT, kind TEXT NOT NULL, detail TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_event_ts ON event_log(ts);
+
+-- Attribution, from transcripts shipped by `claude-quota ship` (one row per
+-- API request). This is the record of where usage went. The OTel buckets above
+-- stay the live, 10-second view.
+CREATE TABLE IF NOT EXISTS req_usage (
+  request_id    TEXT PRIMARY KEY,
+  ts            INTEGER NOT NULL,
+  device        TEXT,
+  session_id    TEXT NOT NULL,
+  agent_id      TEXT,                       -- set for subagent requests
+  prompt_id     TEXT,                       -- the turn this request belongs to
+  model         TEXT,
+  query_source  TEXT,
+  agent_type    TEXT,
+  skill         TEXT,
+  mcp_server    TEXT,
+  mcp_tool      TEXT,
+  effort        TEXT,
+  speed         TEXT,
+  tok_input     INTEGER NOT NULL DEFAULT 0,
+  tok_output    INTEGER NOT NULL DEFAULT 0,
+  tok_cache_r   INTEGER NOT NULL DEFAULT 0,
+  tok_cache_w   INTEGER NOT NULL DEFAULT 0,
+  cost_usd      REAL NOT NULL DEFAULT 0     -- list price, see pricing.py
+);
+CREATE INDEX IF NOT EXISTS idx_req_ts ON req_usage(ts);
+CREATE INDEX IF NOT EXISTS idx_req_session ON req_usage(session_id);
+
+-- One row per Claude session seen in transcripts.
+CREATE TABLE IF NOT EXISTS conv (
+  session_id    TEXT PRIMARY KEY,
+  device        TEXT,
+  source        TEXT,                       -- code | cowork
+  cwd           TEXT,
+  entrypoint    TEXT,
+  git_branch    TEXT,
+  cc_version    TEXT,
+  title         TEXT,
+  first_prompt  TEXT,
+  first_ts      INTEGER,
+  last_ts       INTEGER
+);
+
+-- One row per prompt (turn), with a short label.
+CREATE TABLE IF NOT EXISTS turn (
+  prompt_id     TEXT PRIMARY KEY,
+  session_id    TEXT NOT NULL,
+  agent_id      TEXT,
+  ts            INTEGER,
+  origin        TEXT,                       -- typed | sdk | queued | system
+  door          TEXT,                       -- ATLAS turn stamp: schedule | web | voice | telegram | deck
+  routine       TEXT,                       -- a scheduled turn's routine name
+  label         TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_turn_session ON turn(session_id);
+
+CREATE TABLE IF NOT EXISTS subagent (
+  agent_id      TEXT PRIMARY KEY,
+  session_id    TEXT NOT NULL,
+  agent_type    TEXT,
+  description   TEXT,
+  model         TEXT
+);
+
+-- What ATLAS knows about a Claude session: its own session or job record.
+CREATE TABLE IF NOT EXISTS atlas_session (
+  claude_session_id TEXT PRIMARY KEY,
+  atlas_id      TEXT,
+  number        INTEGER,
+  kind          TEXT,
+  title         TEXT,
+  started_by    TEXT,
+  folder        TEXT,
+  repo          TEXT,
+  profile       TEXT,
+  pr_url        TEXT,
+  series_key    TEXT,
+  created_ts    INTEGER
+);
+

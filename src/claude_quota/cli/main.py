@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json as jsonlib
 import time
+from typing import Annotated
 
 import typer
 from rich.console import Group
@@ -114,7 +115,7 @@ def history(
 
 @app.command()
 def cost(
-    by: str = typer.Option("model", "--by", help="model | agent | mcp | skill"),
+    by: str = typer.Option("model", "--by", help="model | agent | mcp | skill | plugin | effort | device"),
     window: str = typer.Option("5h", "--window", help="5h | 7d | today"),
     json: bool = typer.Option(False, "--json"),
 ) -> None:
@@ -125,6 +126,51 @@ def cost(
         _emit_json(data)
         return
     con.print(render.render_cost(data))
+
+
+@app.command()
+def usage(
+    path: Annotated[
+        list[str] | None, typer.Argument(help="Drill down: category, group, session id, turn id.")
+    ] = None,
+    window: str = typer.Option("7d", "--window", help="5h | today | 24h | 7d | 30d"),
+    by: str = typer.Option(None, "--by", help="Pivot: model | mcp | skill | subagent | device | effort"),
+    json: bool = typer.Option(False, "--json"),
+) -> None:
+    """Where usage went: categories first, then groups, sessions, turns, requests."""
+    _require_daemon()
+    data = client.usage(window=window, path=path or [], by=by)
+    if json:
+        _emit_json(data)
+        return
+    con.print(render.render_usage(data))
+
+
+@app.command()
+def ship(
+    since_days: float = typer.Option(30, "--since-days", help="How far back a never-seen transcript may be."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Parse and count, post nothing."),
+    no_labels: bool = typer.Option(False, "--no-labels", help="Send no prompt text at all."),
+    quiet: bool = typer.Option(False, "--quiet", help="Print only on failure (for launchd)."),
+    json: bool = typer.Option(False, "--json"),
+) -> None:
+    """Send this machine's transcript usage to the daemon (incremental)."""
+    from .. import ship as ship_mod
+
+    result = ship_mod.run(since_days=since_days, dry_run=dry_run, with_labels=False if no_labels else None)
+    if json:
+        _emit_json(result)
+    elif result.get("error"):
+        con.print(f"[red]ship failed[/red]: {result['error']}")
+    elif not quiet:
+        con.print(
+            f"shipped {result['requests']} requests, {result['turns']} turns, "
+            f"{result['conversations']} sessions, {result['atlas_sessions']} ATLAS records"
+            + (" (dry run)" if dry_run else "")
+            + (f"; {result['bad_lines']} unreadable lines" if result["bad_lines"] else "")
+        )
+    if result.get("error"):
+        raise typer.Exit(1)
 
 
 @app.command()
@@ -152,12 +198,25 @@ def install(
         None, "--server", help="Remote server URL (e.g. https://claude-quota.example.com). Omit for local."
     ),
     token: str = typer.Option(None, "--token", help="Shared secret for a remote server."),
+    token_file: str = typer.Option(
+        None, "--token-file", help="Read the secret from a file (/dev/stdin for a pipe), keeping it out of argv."
+    ),
     device: str = typer.Option(None, "--device", help="Device name (default: hostname)."),
+    no_settings: bool = typer.Option(
+        False, "--no-settings", help="Leave settings.json alone (when another tool manages it)."
+    ),
+    ship: bool = typer.Option(False, "--ship", help="Also load a launchd agent that ships transcripts every minute."),
     json: bool = typer.Option(False, "--json"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Show actions, change nothing."),
 ) -> None:
     """Write the statusline wrapper and patch settings.json (idempotent)."""
-    result = install_mod.install(server=server, token=token, device=device, dry_run=dry_run)
+    if token_file:
+        with open(token_file) as f:
+            token = f.read().strip() or None
+    result = install_mod.install(
+        server=server, token=token, device=device, dry_run=dry_run,
+        patch_settings=not no_settings, ship=ship,
+    )
     if json:
         _emit_json(result)
         return
@@ -185,17 +244,8 @@ def backfill(
     days: int = typer.Option(30, "--days"),
     json: bool = typer.Option(False, "--json"),
 ) -> None:
-    """Import history from Claude Code transcripts (one-shot, best-effort)."""
-    from .. import backfill as backfill_mod
-
-    result = backfill_mod.run(days=days)
-    if json:
-        _emit_json(result)
-        return
-    con.print(
-        f"[bold]backfill[/bold]: imported {result['records']} usage records from "
-        f"{result['files_ok']} files ({result['files_failed']} skipped)."
-    )
+    """Ship up to N days of transcript history (same as `ship --since-days N`)."""
+    ship(since_days=days, dry_run=False, no_labels=False, quiet=False, json=json)
 
 
 @daemon_app.command("start")

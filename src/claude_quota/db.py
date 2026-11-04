@@ -204,6 +204,8 @@ def apply_retention(conn: sqlite3.Connection, now: int | None = None) -> None:
     conn.execute("DELETE FROM quota_sample WHERE ts < ?", (cutoff,))
     conn.execute("DELETE FROM usage_bucket WHERE ts < ?", (cutoff,))
     conn.execute("DELETE FROM event_log WHERE ts < ?", (cutoff,))
+    conn.execute("DELETE FROM req_usage WHERE ts < ?", (cutoff,))
+    conn.execute("DELETE FROM turn WHERE ts < ?", (cutoff,))
     raw_cutoff = now - config.RAW_RETENTION_DAYS * 86400
     conn.execute("DELETE FROM raw_statusline WHERE ts < ?", (raw_cutoff,))
     conn.commit()

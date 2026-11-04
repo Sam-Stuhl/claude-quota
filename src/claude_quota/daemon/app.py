@@ -13,6 +13,7 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Annotated
 
 import uvicorn
 from fastapi import FastAPI, Query, Request
@@ -30,6 +31,8 @@ from . import (
     otlp,
     sessions,
     summary,
+    usage_ingest,
+    usage_tree,
 )
 from .state import AppState
 
@@ -157,6 +160,36 @@ def create_app() -> FastAPI:
         ingest.store_sample(s.conn, sample, entrypoint="atlas-deck")
         await s.notify_change()
         return Response(status_code=204)
+
+    @app.post("/ingest/usage")
+    async def ingest_usage(request: Request):
+        # `claude-quota ship` posts transcript-derived usage here, in batches.
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
+        try:
+            payload = await request.json()
+        except Exception:
+            return Response(status_code=400)
+        if not isinstance(payload, dict):
+            return Response(status_code=400)
+        s = state(request)
+        counts = usage_ingest.store(s.conn, payload)
+        if counts.get("requests"):
+            await s.notify_change()
+        return JSONResponse(counts)
+
+    @app.get("/api/usage")
+    async def api_usage(
+        request: Request,
+        window: str = Query("7d"),
+        p: Annotated[list[str] | None, Query()] = None,
+        by: str = Query(""),
+    ):
+        # The path is repeated ?p= segments, since groups (ATLAS folders) can
+        # themselves contain slashes.
+        return JSONResponse(
+            usage_tree.build(state(request).conn, window=window, path=p or [], by=by or None)
+        )
 
     @app.get("/api/summary")
     async def api_summary(request: Request):

@@ -14,14 +14,61 @@ name so a shared server can separate machines.
 from __future__ import annotations
 
 import json
+import os
+import plistlib
 import shlex
 import socket
+import subprocess
+import sys
 import time
 from pathlib import Path
 
 from .. import config
 
 MANAGED_MARKER = "claude-quota statusline wrapper (managed)"
+SHIP_LABEL = "dev.claude-quota.ship"
+
+
+def ship_plist_path() -> Path:
+    return Path.home() / "Library" / "LaunchAgents" / f"{SHIP_LABEL}.plist"
+
+
+def build_ship_plist(interval: int = 60) -> bytes:
+    """A launchd agent that runs `claude-quota ship` once a minute.
+
+    It runs this same install's entry point, so the agent always matches the
+    version that installed it.
+    """
+    exe = Path(sys.executable).parent / "claude-quota"
+    log = str(config.runtime_dir() / "ship.log")
+    return plistlib.dumps(
+        {
+            "Label": SHIP_LABEL,
+            "ProgramArguments": [str(exe), "ship", "--quiet"],
+            "StartInterval": interval,
+            "RunAtLoad": True,
+            "StandardOutPath": log,
+            "StandardErrorPath": log,
+            "ProcessType": "Background",
+            "LowPriorityIO": True,
+        }
+    )
+
+
+def install_ship_agent(dry_run: bool = False) -> str:
+    path = ship_plist_path()
+    if dry_run:
+        return f"would write launchd agent {path}"
+    config.ensure_runtime_dir()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(build_ship_plist())
+    # Reload so a changed plist takes effect; bootout fails harmlessly when absent.
+    domain = f"gui/{os.getuid()}"
+    subprocess.run(["launchctl", "bootout", f"{domain}/{SHIP_LABEL}"], capture_output=True)
+    r = subprocess.run(["launchctl", "bootstrap", domain, str(path)], capture_output=True, text=True)
+    if r.returncode != 0:
+        return f"wrote {path}, but launchctl bootstrap failed: {r.stderr.strip()}"
+    return f"loaded launchd agent {SHIP_LABEL} (ships every 60s)"
 
 
 def _ingest_endpoint(server: str | None) -> str:
@@ -121,6 +168,8 @@ def install(
     token: str | None = None,
     device: str | None = None,
     dry_run: bool = False,
+    patch_settings: bool = True,
+    ship: bool = False,
 ) -> dict:
     actions: list[str] = []
     device = device or socket.gethostname().split(".")[0]
@@ -144,13 +193,44 @@ def install(
         + (f", chaining to {existing_cmd}" if existing_cmd else "")
     )
 
-    if settings_path.exists() and not dry_run:
+    if not patch_settings:
+        actions.append("left settings.json alone (--no-settings)")
+    if settings_path.exists() and not dry_run and patch_settings:
         backup = settings_path.with_suffix(
             settings_path.suffix + f".bak-{int(time.time())}"
         )
         backup.write_text(settings_path.read_text())
         actions.append(f"backed up settings.json to {backup.name}")
 
+    if patch_settings:
+        _patch_settings(settings, otel_env, server, wrapper_path, actions)
+        if not dry_run:
+            settings_path.write_text(json.dumps(settings, indent=2) + "\n")
+    if not dry_run:
+        config.save_config({"server": server, "token": token, "device": device})
+    if ship:
+        actions.append(install_ship_agent(dry_run))
+
+    note = (
+        f"Restart Claude Code sessions to pick up telemetry. Viewing at {server}"
+        if server
+        else "Restart Claude Code sessions to pick up telemetry, then `claude-quota daemon start`."
+    )
+    return {
+        "dry_run": dry_run,
+        "mode": "remote" if server else "local",
+        "server": server,
+        "device": device,
+        "wrapper_path": str(wrapper_path),
+        "settings_path": str(settings_path),
+        "chained_command": existing_cmd,
+        "actions": actions,
+        "note": note,
+    }
+
+
+def _patch_settings(settings: dict, otel_env: dict, server: str | None, wrapper_path: Path,
+                    actions: list[str]) -> None:
     settings.setdefault("env", {})
     # Drop any stale keys from a previous mode (e.g. switching local<->remote).
     for k in ("OTEL_EXPORTER_OTLP_HEADERS",):
@@ -169,26 +249,3 @@ def install(
         actions.append("pointed statusLine at the wrapper")
     else:
         actions.append("statusLine already points at the wrapper")
-
-    if not dry_run:
-        settings_path.write_text(json.dumps(settings, indent=2) + "\n")
-        config.save_config(
-            {"server": server, "token": token, "device": device}
-        )
-
-    note = (
-        f"Restart Claude Code sessions to pick up telemetry. Viewing at {server}"
-        if server
-        else "Restart Claude Code sessions to pick up telemetry, then `claude-quota daemon start`."
-    )
-    return {
-        "dry_run": dry_run,
-        "mode": "remote" if server else "local",
-        "server": server,
-        "device": device,
-        "wrapper_path": str(wrapper_path),
-        "settings_path": str(settings_path),
-        "chained_command": existing_cmd,
-        "actions": actions,
-        "note": note,
-    }
