@@ -197,6 +197,11 @@ printf '%s' "$CLAUDE_QUOTA_TOKEN" | uv run claude-quota install \
   --device <name> --no-settings --ship
 ```
 
+The launchd agent runs the same `claude-quota` that ran `install`. On macOS a
+launchd job cannot read `~/Desktop` (privacy rules), so if the checkout lives
+there, run `uv tool install ~/Desktop/.../claude-quota` and install with
+`~/.local/bin/claude-quota install ...` so the agent points outside it.
+
 Clients don't run a local daemon: the wrapper posts the status line to the
 server, the shipper posts transcript usage to `/ingest/usage`, and telemetry
 (if configured) exports there over OTLP/HTTP. Each device is tagged so the
