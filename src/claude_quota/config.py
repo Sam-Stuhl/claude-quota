@@ -148,8 +148,12 @@ def load_config() -> dict:
 
 
 def save_config(data: dict) -> None:
+    """Write the client config. It can hold the server token, so owner-only."""
     ensure_runtime_dir()
-    config_file().write_text(json.dumps(data, indent=2) + "\n")
+    p = config_file()
+    p.touch(mode=0o600, exist_ok=True)
+    p.chmod(0o600)
+    p.write_text(json.dumps(data, indent=2) + "\n")
 
 
 def client_base_url() -> str:
