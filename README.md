@@ -28,7 +28,7 @@ claude-quota watches those windows over time. It reads the true utilization perc
 - **Not a proxy.** It never sits between Claude Code and the API.
 - **No cloud, no auth, no multi-user.** Single operator, LAN or Tailscale only.
 - **It reports, it never enforces.** It will not block or kill a session.
-- **The status line is the only source of quota truth.** Everything else (telemetry, transcripts) is attribution or backfill, and is calibrated against that truth rather than trusted on its own.
+- **The status line is the only source of quota truth.** Everything else (telemetry, transcripts) is attribution, and is calibrated against that truth rather than trusted on its own.
 
 ## Architecture
 
@@ -57,7 +57,7 @@ One process. The OTLP receiver is embedded in the daemon rather than run as a se
 |---|---|
 | **statusLine hook** | The only source of quota truth. A fire-and-forget wrapper posts each render's JSON to the daemon. It never blocks your terminal and exits cleanly even when the daemon is down. |
 | **OpenTelemetry** | The only source of attribution. Per-session, per-model cost and token metrics rank who is consuming the window. |
-| **Transcripts** | Backfill only, quarantined to a single module. A one-shot importer seeds history so the trends view is not empty on day one. |
+| **Transcripts** | The record of where usage went. `claude-quota ship` runs on each machine (a launchd agent, once a minute), reads what was appended to Claude Code's transcripts, and posts one row per API request. It covers what OTel misses: SDK runs, ATLAS jobs, Cowork, and machines without telemetry. Parsing lives in one module, `transcripts.py`. |
 
 ## Stack
 
@@ -92,10 +92,12 @@ claude-quota now                # one-shot ~6-line summary, for SSH and scripts
 claude-quota sessions           # session leaderboard, sorted by share
 claude-quota history [--days N] # per-window peaks and cap hits
 claude-quota cost [--by model|agent|mcp|skill] [--window 5h|7d|today]
+claude-quota usage [PATH...] [--window 7d] [--by model|mcp|skill|subagent|device|effort]
+claude-quota ship [--since-days N] [--dry-run] [--no-labels]
 claude-quota watch --alert 85   # exit 0 when a threshold is crossed
 claude-quota install            # write the statusline wrapper + patch settings.json
-claude-quota backfill [--days N]
-claude-quota doctor             # verify telemetry, statusline, and rate_limits
+claude-quota backfill [--days N] # same as ship --since-days N
+claude-quota doctor             # verify the shipper, telemetry, statusline, and rate_limits
 claude-quota daemon [start|stop|status|logs]
 ```
 
@@ -108,6 +110,41 @@ claude-quota daemon [start|stop|status|logs]
 7d  ######+.............  31%   on pace
     atlas 34% . banking-dash 21% . planner 5% . bsi-intake 2% . other 0%
 ```
+
+## Where it went
+
+The "Where it went" panel (and `claude-quota usage`) answers which kind of use is
+spending the quota, then lets you narrow it down. Every API request is placed at
+category / group / session, and below a session come its turns (labelled with the
+first 80 characters of what started them) and each turn's requests. Every level
+shows list-price cost, share, estimated quota points, request and token counts,
+and the change from the previous window of the same length. Any level can be
+broken down by model, MCP server, skill, subagent, device or effort instead.
+
+| Category | Group | How it is recognised |
+|---|---|---|
+| ATLAS chat | day | assistant-thread turns stamped `via web`, `telegram` or `deck` |
+| ATLAS voice | day | turns stamped `via voice` |
+| Scheduled runs | routine | turns stamped `via schedule` (the routine is their first sentence), sessions ATLAS started for a routine |
+| Tasks you started | ATLAS folder | ATLAS sessions with `started_by = sam` |
+| Tasks agents started | ATLAS folder | ATLAS sessions started by the coordinator, the assistant or a tool |
+| Event-triggered | trigger | health-alert sessions and dispatched jobs |
+| Role threads | role | sessions in `~/agents/<role>` or `~/atlas/roles/<role>` |
+| Background helpers | helper | the fixed opening prompt of the memory gardener, portrait, job reviewer and quota probe |
+| Terminal sessions | repo | ATLAS's `outside` sessions, and any interactive `claude` |
+| Cowork | | transcripts under the Claude app's `local-agent-mode-sessions` |
+| Uncategorized | folder | anything else, shown, never hidden |
+
+ATLAS's own records come from `~/atlas/atlas.db`, read-only, on the machine that
+hosts it. A row tagged `est` was placed by a heuristic rather than a record.
+
+**What cannot be measured.** claude.ai chat, voice and the mobile app keep no local
+record and expose no per-conversation usage, so they appear only as one grey line:
+the quota the status line measured minus what every shipped request explains. That
+needs status line samples in the window (some Claude Code session open) and trusted
+calibration, and it also absorbs any machine that is not shipping. Costs are list
+price (`pricing.py`); the subscription's real per-token weights are not published,
+so quota points come from calibration and are estimates.
 
 ## Remote / multi-device (optional)
 
@@ -125,7 +162,7 @@ docker run -d -e CLAUDE_QUOTA_TOKEN=<secret> -v claude-quota-data:/data \
 ```
 
 Behind a reverse proxy the daemon serves everything on one origin (port 7788):
-the API, the web dashboard, `/ingest/statusline`, `/ingest/limits`, and OTLP at
+the API, the web dashboard, `/ingest/statusline`, `/ingest/limits`, `/ingest/usage`, and OTLP at
 `/v1/metrics` + `/v1/logs`. Point it at `https://claude-quota.example.com`. The
 token protects the machine ingest endpoints (`/ingest/*` and `/v1/*`); protect the
 human-facing dashboard (`/`, `/api/*`, `/events`) with your proxy's own access
@@ -143,8 +180,20 @@ uv run claude-quota install --server https://claude-quota.example.com \
   --token <secret> --device <name>
 ```
 
+Add `--ship` to also load the launchd agent that ships transcripts, and pass the
+secret with `--token-file /dev/stdin` to keep it out of shell history. Where
+another tool manages `settings.json` (and already points `statusLine` at
+`~/.claude/claude-quota-statusline.sh`), add `--no-settings`:
+
+```bash
+printf '%s' "$CLAUDE_QUOTA_TOKEN" | uv run claude-quota install \
+  --server https://claude-quota.example.com --token-file /dev/stdin \
+  --device <name> --no-settings --ship
+```
+
 Clients don't run a local daemon: the wrapper posts the status line to the
-server, and telemetry exports there over OTLP/HTTP. Each device is tagged so the
+server, the shipper posts transcript usage to `/ingest/usage`, and telemetry
+(if configured) exports there over OTLP/HTTP. Each device is tagged so the
 dashboard can separate them. A nice side effect: with all your machines
 reporting, more of your account-wide usage becomes locally attributed, so the
 grey `unattributed` slice shrinks.
@@ -158,7 +207,8 @@ All six milestones from the [spec](SPEC.md) are implemented:
 - [x] **Attribution.** OTLP receiver (gRPC + HTTP), usage buckets, session leaderboard, `claude-quota sessions`.
 - [x] **Calibration and projection.** The non-negative least-squares fit, burn rate, cutoff verdict, confidence range.
 - [x] **Web.** SSE, the time-axis rail, the full page.
-- [x] **History.** Closed-window history, the backfill importer, trends, `claude-quota watch`.
+- [x] **History.** Closed-window history, trends, `claude-quota watch`.
+- [x] **Where it went.** The transcript shipper, ATLAS-aware categories, the drill-down panel and `claude-quota usage`.
 
 What remains is validation against real windows over time, and the visual polish pass once a canonical design reference exists.
 
