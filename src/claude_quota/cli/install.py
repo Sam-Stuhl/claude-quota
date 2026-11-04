@@ -187,7 +187,7 @@ def install(
     if not dry_run:
         claude_dir.mkdir(parents=True, exist_ok=True)
         wrapper_path.write_text(wrapper)
-        wrapper_path.chmod(0o755)
+        wrapper_path.chmod(0o700)  # it carries the token when one is set
     actions.append(
         f"wrote statusline wrapper -> {endpoint} (device={device})"
         + (f", chaining to {existing_cmd}" if existing_cmd else "")
