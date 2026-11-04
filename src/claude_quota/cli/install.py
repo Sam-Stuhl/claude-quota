@@ -65,7 +65,13 @@ def install_ship_agent(dry_run: bool = False) -> str:
     # Reload so a changed plist takes effect; bootout fails harmlessly when absent.
     domain = f"gui/{os.getuid()}"
     subprocess.run(["launchctl", "bootout", f"{domain}/{SHIP_LABEL}"], capture_output=True)
-    r = subprocess.run(["launchctl", "bootstrap", domain, str(path)], capture_output=True, text=True)
+    # bootout returns before launchd has finished tearing the old job down, so
+    # an immediate bootstrap can fail with "Input/output error". Retry briefly.
+    for _ in range(10):
+        r = subprocess.run(["launchctl", "bootstrap", domain, str(path)], capture_output=True, text=True)
+        if r.returncode == 0:
+            break
+        time.sleep(0.5)
     if r.returncode != 0:
         return f"wrote {path}, but launchctl bootstrap failed: {r.stderr.strip()}"
     return f"loaded launchd agent {SHIP_LABEL} (ships every 60s)"
