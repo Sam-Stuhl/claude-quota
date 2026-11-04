@@ -8,6 +8,8 @@ from claude_quota.cli import install
 @pytest.fixture
 def claude_home(tmp_path, monkeypatch):
     monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path))
+    # install() also saves the client config; keep it off the real ~/.claude-quota.
+    monkeypatch.setenv("CLAUDE_QUOTA_DIR", str(tmp_path / "cq"))
     return tmp_path
 
 
