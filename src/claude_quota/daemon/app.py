@@ -29,6 +29,7 @@ from . import (
     history,
     ingest,
     otlp,
+    overview,
     sessions,
     summary,
     usage_ingest,
@@ -50,7 +51,7 @@ async def _calibration_loop(state: AppState) -> None:
     await asyncio.sleep(30)
     while True:
         try:
-            calibration.refit(state.conn)
+            await asyncio.to_thread(calibration.refit, state.conn)
         except Exception:
             log.exception("calibration refit failed")
         await asyncio.sleep(CALIBRATION_INTERVAL)
@@ -59,7 +60,7 @@ async def _calibration_loop(state: AppState) -> None:
 async def _maintenance_loop(state: AppState) -> None:
     while True:
         try:
-            history.close_windows(state.conn)
+            await asyncio.to_thread(history.close_windows, state.conn)
         except Exception:
             log.exception("window close-out failed")
         await asyncio.sleep(MAINTENANCE_INTERVAL)
@@ -77,7 +78,7 @@ async def lifespan(app: FastAPI):
     config.ensure_runtime_dir()
     conn = db.connect()
     db.apply_retention(conn)
-    state = AppState(conn=conn)
+    state = AppState(conn=conn, read_conn=db.connect_reader())
     app.state.qstate = state
 
     tasks = [
@@ -120,6 +121,8 @@ async def lifespan(app: FastAPI):
         if http_server is not None:
             http_server.should_exit = True
         conn.close()
+        if state.read_conn is not None:
+            state.read_conn.close()
 
 
 def create_app() -> FastAPI:
@@ -180,6 +183,9 @@ def create_app() -> FastAPI:
             await s.notify_change()
         return JSONResponse(counts)
 
+    # Reads are plain `def` handlers, so they run in the thread pool and never
+    # block the event loop that serves ingest. Each answer is cached for a few
+    # seconds (one compute shared by every client) on a separate connection.
     @app.get("/api/usage")
     def api_usage(
         request: Request,
@@ -189,34 +195,42 @@ def create_app() -> FastAPI:
     ):
         # The path is repeated ?p= segments, since groups (ATLAS folders) can
         # themselves contain slashes.
-        return JSONResponse(
-            usage_tree.build(state(request).conn, window=window, path=p or [], by=by or None)
-        )
+        path = tuple(p or [])
+        return JSONResponse(state(request).read(
+            ("usage", window, path, by), 10,
+            lambda c: usage_tree.build(c, window=window, path=list(path), by=by or None)))
+
+    @app.get("/api/overview")
+    def api_overview(request: Request, window: str = Query("5h")):
+        return JSONResponse(state(request).read(
+            ("overview", window), 5, lambda c: overview.build(c, window=window)))
 
     @app.get("/api/summary")
-    async def api_summary(request: Request):
-        return JSONResponse(summary.build(state(request).conn))
+    def api_summary(request: Request):
+        return JSONResponse(state(request).read(("summary",), 5, summary.build))
 
     @app.get("/api/sessions")
-    async def api_sessions(request: Request):
-        return JSONResponse(sessions.build(state(request).conn))
+    def api_sessions(request: Request):
+        return JSONResponse(state(request).read(("sessions",), 5, sessions.build))
 
     @app.get("/api/breakdown")
-    async def api_breakdown(
+    def api_breakdown(
         request: Request,
         by: str = Query("model"),
         window: str = Query("5h"),
     ):
-        return JSONResponse(breakdown.build(state(request).conn, by=by, window=window))
+        return JSONResponse(state(request).read(
+            ("breakdown", by, window), 10, lambda c: breakdown.build(c, by=by, window=window)))
 
     @app.get("/api/history")
-    async def api_history(request: Request, days: int = Query(14)):
-        return JSONResponse(history.build(state(request).conn, days=days))
+    def api_history(request: Request, days: int = Query(14)):
+        return JSONResponse(state(request).read(
+            ("history", days), 30, lambda c: history.build(c, days=days)))
 
     @app.get("/api/health")
-    async def api_health(request: Request):
+    def api_health(request: Request):
         s = state(request)
-        return JSONResponse(health.build(s.conn, s))
+        return JSONResponse(s.read(("health",), 5, lambda c: health.build(c, s)))
 
     @app.get("/events")
     async def sse(request: Request):

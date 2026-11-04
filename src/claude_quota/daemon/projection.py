@@ -12,6 +12,8 @@ import math
 import sqlite3
 import time
 
+from . import limits
+
 # The regression window. Twenty minutes, per the spec.
 BURN_WINDOW_SECONDS = 20 * 60
 MIN_SAMPLES = 4
@@ -22,13 +24,18 @@ MIN_SPAN_SECONDS = 10 * 60
 MAX_REL_STDERR = 0.6
 
 
-def _series(conn: sqlite3.Connection, since: int) -> list[tuple[int, float]]:
-    rows = conn.execute(
-        """SELECT ts, MAX(five_h_pct) AS pct FROM quota_sample
-           WHERE had_limits = 1 AND five_h_pct IS NOT NULL AND ts >= ?
-           GROUP BY ts ORDER BY ts""",
-        (since,),
-    ).fetchall()
+def _series(conn: sqlite3.Connection, since: int, source: str,
+            reset: int | None) -> list[tuple[int, float]]:
+    # One source, one window: mixing feeds or crossing a reset would fit a
+    # slope through a step that is not usage.
+    clause, params = limits.source_clause(source)
+    sql = f"""SELECT ts, MAX(five_h_pct) AS pct FROM quota_sample
+              WHERE had_limits = 1 AND five_h_pct IS NOT NULL AND ts >= ? AND {clause}"""
+    args: list = [since, *params]
+    if reset is not None:
+        sql += " AND five_h_reset = ?"
+        args.append(reset)
+    rows = conn.execute(sql + " GROUP BY ts ORDER BY ts", tuple(args)).fetchall()
     return [(int(r["ts"]), float(r["pct"])) for r in rows]
 
 
@@ -66,17 +73,11 @@ def project(conn: sqlite3.Connection, now: int | None = None) -> dict:
     """Compute the projection, or an explained suppression."""
     now = now or int(time.time())
     since = now - BURN_WINDOW_SECONDS
-    points = _series(conn, since)
-
-    latest = conn.execute(
-        """SELECT MAX(five_h_pct) AS pct, MAX(five_h_reset) AS reset
-           FROM quota_sample
-           WHERE had_limits = 1 AND five_h_pct IS NOT NULL
-             AND ts = (SELECT MAX(ts) FROM quota_sample
-                       WHERE had_limits = 1 AND five_h_pct IS NOT NULL)"""
-    ).fetchone()
-    current_pct = float(latest["pct"]) if latest and latest["pct"] is not None else None
-    reset = latest["reset"] if latest else None
+    cur = limits.read(conn, now)
+    current_pct = cur.get("five_h_pct") if cur.get("known") else None
+    reset = cur.get("five_h_reset") if current_pct is not None else None
+    source = cur.get("source", "statusline")
+    points = _series(conn, since, source, reset) if current_pct is not None else []
 
     base = {
         "available": False,
@@ -93,6 +94,16 @@ def project(conn: sqlite3.Connection, now: int | None = None) -> dict:
         "suppressed_reason": None,
     }
 
+    if current_pct is None:
+        base["suppressed_reason"] = (
+            "the last 5-hour window has reset, waiting for a new reading"
+            if cur.get("five_expired")
+            else "no limits reading"
+        )
+        return base
+    if cur.get("stale"):
+        base["suppressed_reason"] = f"last reading is {int(cur['age_s'] // 60)}m old"
+        return base
     if len(points) < MIN_SAMPLES:
         base["suppressed_reason"] = "collecting data"
         return base

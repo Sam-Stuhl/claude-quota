@@ -14,6 +14,11 @@ Sources:
 * ``~/Library/Application Support/Claude/local-agent-mode-sessions``: Cowork.
 * ``~/atlas/atlas.db`` (read-only): what each ATLAS session and job is, who or
   what started it, and its folder, joined to transcripts by session id.
+* ``~/.claude/plugins/store/quota-meter_*.json``: the quota-meter mod's own
+  samples of the 5-hour and 7-day percentages. Claude Code only runs the status
+  line command when no mod owns the status line, so with the mod installed the
+  status line feed goes silent while this file keeps the readings. They are
+  posted to ``/ingest/limits`` as source ``quota-meter``.
 """
 
 from __future__ import annotations
@@ -23,6 +28,7 @@ import os
 import socket
 import sqlite3
 import time
+from datetime import datetime
 from pathlib import Path
 
 import httpx
@@ -117,6 +123,61 @@ def collect_transcripts(state: dict, since_days: float, with_labels: bool) -> tr
     return total
 
 
+QM_MAX_PER_RUN = 40
+QM_MAX_AGE_S = 6 * 3600
+
+
+def quota_meter_dir() -> Path:
+    return Path(os.environ.get("CLAUDE_QUOTA_QM_DIR") or _home() / ".claude" / "plugins" / "store")
+
+
+def _qm_ms(v) -> float | None:
+    if isinstance(v, (int, float)):
+        return float(v)
+    if isinstance(v, str):
+        try:
+            return datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp() * 1000
+        except ValueError:
+            return None
+    return None
+
+
+def collect_limits(state: dict, now: float | None = None) -> list[dict]:
+    """New quota-meter readings, as ``/ingest/limits`` bodies, oldest first.
+
+    The mod writes one file per install; the one with the newest sample wins
+    and anything older than six hours is ignored (a window that old is over).
+    """
+    now = now or time.time()
+    best: dict | None = None
+    for f in sorted(quota_meter_dir().glob("quota-meter_*.json")):
+        try:
+            samples = json.loads(f.read_text()).get("samples") or {}
+        except (OSError, ValueError):
+            continue
+        five = samples.get("five_hour") or []
+        if five and (best is None or five[-1].get("atMs", 0) > best["five"][-1].get("atMs", 0)):
+            best = {"five": five, "seven": samples.get("seven_day") or []}
+    if best is None:
+        return []
+    last = float(state.get("qm_last_ms") or 0)
+    seven = {x.get("atMs"): x for x in best["seven"]}
+    bodies = []
+    for x in best["five"]:
+        at = x.get("atMs")
+        if not isinstance(at, (int, float)) or at <= last or now - at / 1000 > QM_MAX_AGE_S:
+            continue
+        windows = [{"id": "five_hour", "utilization": x.get("percentUsed"),
+                    "resetsAt": _qm_ms(x.get("resetsAt"))}]
+        sd = seven.get(at) or (best["seven"][-1] if best["seven"] else None)
+        if sd:
+            windows.append({"id": "seven_day", "utilization": sd.get("percentUsed"),
+                            "resetsAt": _qm_ms(sd.get("resetsAt"))})
+        bodies.append({"session_id": "quota-meter", "source": "quota-meter",
+                       "usageLimits": {"capturedAt": at, "windows": windows}})
+    return bodies[-QM_MAX_PER_RUN:]
+
+
 def collect_atlas(state: dict) -> dict:
     """ATLAS sessions and jobs changed since the last run."""
     out: dict = {"atlas_sessions": []}
@@ -206,6 +267,12 @@ def _post(server: str, token: str | None, body: dict) -> None:
     r.raise_for_status()
 
 
+def _post_limits(server: str, token: str | None, body: dict) -> None:
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
+    r = httpx.post(server.rstrip("/") + "/ingest/limits", json=body, headers=headers, timeout=20)
+    r.raise_for_status()
+
+
 def _chunks(items: list, n: int):
     for i in range(0, len(items), n):
         yield items[i : i + n]
@@ -220,6 +287,7 @@ def run(
     token: str | None = None,
     device: str | None = None,
     post=None,
+    post_limits=None,
 ) -> dict:
     """One ship pass. ``post`` is injectable for tests."""
     with_labels = labels_enabled() if with_labels is None else with_labels
@@ -231,6 +299,21 @@ def run(
 
     state = _load_state()
     snapshot = json.dumps(state)
+    # Limits first: they are tiny and they are what moves the projection, so a
+    # slow or failing usage batch must never hold them back.
+    qm = [] if dry_run else collect_limits(state)
+    if qm:
+        post_limits = post_limits or (lambda body: _post_limits(server, token, body))
+        sent = 0
+        try:
+            for body in qm:
+                body["device"] = device
+                post_limits(body)
+                state["qm_last_ms"] = body["usageLimits"]["capturedAt"]
+                sent += 1
+        except Exception as e:
+            state["limits_error"] = str(e)[:200]
+        snapshot = json.dumps(state)
     parsed = collect_transcripts(state, since_days, with_labels)
     atlas = collect_atlas(state)
 

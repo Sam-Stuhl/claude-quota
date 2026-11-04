@@ -15,19 +15,22 @@ from .state import AppState
 
 async def event_stream(state: AppState):
     last_seen = 0
+
+    def frame() -> str:
+        # Built in a worker thread from the shared cache, so a burst of OTLP
+        # messages (each one wakes every subscriber) costs one compute, not
+        # one per subscriber, and never blocks the event loop.
+        payload = {
+            "summary": state.read(("summary",), 5, summary.build),
+            "sessions": state.read(("sessions",), 5, sessions.build),
+        }
+        return f"data: {json.dumps(payload)}\n\n"
+
     # Send an initial frame immediately so a fresh client is not blank.
-    payload = {
-        "summary": summary.build(state.conn),
-        "sessions": sessions.build(state.conn),
-    }
-    yield f"data: {json.dumps(payload)}\n\n"
+    yield await asyncio.to_thread(frame)
 
     while True:
         last_seen = await state.broadcaster.wait(last_seen)
-        payload = {
-            "summary": summary.build(state.conn),
-            "sessions": sessions.build(state.conn),
-        }
-        yield f"data: {json.dumps(payload)}\n\n"
-        # Cap the push rate; coalesce any changes that arrive in this second.
-        await asyncio.sleep(1.0)
+        yield await asyncio.to_thread(frame)
+        # Cap the push rate; coalesce any changes that arrive in this window.
+        await asyncio.sleep(5.0)

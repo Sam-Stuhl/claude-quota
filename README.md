@@ -111,7 +111,25 @@ claude-quota daemon [start|stop|status|logs]
     atlas 34% . banking-dash 21% . planner 5% . bsi-intake 2% . other 0%
 ```
 
-## Where it went
+## At a glance and where it went
+
+The page opens on three cards (5-hour window, week, projection) and a ranked
+"Where it went" list for the 5-hour window, 24 hours, the week (since its reset)
+or 30 days, cut by kind of work, project, model, session or host (`/api/overview`).
+Kinds come from ATLAS's own filing of each session (its folder and repo) plus the
+working directory: school, ATLAS development, roles, background routines, the
+assistant, interactive terminals, other projects. Anything `classify` cannot place
+is listed as unclassified with its biggest folders, never dropped. The old drill-down
+below it is the "Explore" panel.
+
+**Limits feeds.** The percentages come from whichever feed reported last: the
+status line, the quota-meter mod (read by `ship` from its store file and posted to
+`/ingest/limits`, because Claude Code does not run the status line command while a
+mod owns the status line), or atlas-deck. A projection is only ever fitted from one
+source and one window. A reading dies with its window: once the reset time has
+passed, the dashboard says so instead of serving the old number.
+
+## Where it went (drill-down)
 
 The "Where it went" panel (and `claude-quota usage`) answers which kind of use is
 spending the quota, then lets you narrow it down. Every API request is placed at

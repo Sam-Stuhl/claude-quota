@@ -159,7 +159,7 @@
       })}</div>` + (S.path.length === 0 && !S.by ? residualNote(d.residual, d) : "");
     }
 
-    panel.innerHTML = `<div class="phead"><div class="phead-l"><span class="ptitle">Where it went</span><div class="toggle" id="u-win">${win}</div></div>
+    panel.innerHTML = `<div class="phead"><div class="phead-l"><span class="ptitle">Explore: sessions, turns, tools</span><div class="toggle" id="u-win">${win}</div></div>
         <span class="pnote mono">${money(n.cost_usd)} list price · ${n.requests} requests${chg}${cal}</span></div>
       <div class="ubar"><div class="ucrumbs">${crumbs}</div>${d.requests || d.sections ? "" : `<div class="ubreak"><span class="pnote">break down by</span><div class="toggle" id="u-by">${piv}</div></div>`}</div>
       ${body}`;
@@ -189,7 +189,7 @@
     try {
       render(await load());
     } catch (e) {
-      $u("usage-panel").innerHTML = `<div class="phead"><span class="ptitle">Where it went</span></div><span class="pnote">could not load usage (${esc(e.message)}). Is a shipper running? See <span class="mono">claude-quota doctor</span>.</span>`;
+      $u("usage-panel").innerHTML = `<div class="phead"><span class="ptitle">Explore: sessions, turns, tools</span></div><span class="pnote">could not load usage (${esc(e.message)}). Is a shipper running? See <span class="mono">claude-quota doctor</span>.</span>`;
     }
   }
 
