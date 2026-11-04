@@ -125,11 +125,15 @@ Note: `OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE` defaults to `delta`. D
 
 Do **not** enable `OTEL_LOG_USER_PROMPTS`, `OTEL_LOG_TOOL_CONTENT`, or `OTEL_LOG_RAW_API_BODIES`. None of them serve this dashboard and they write conversation content to disk.
 
-### 3.3 Transcripts: backfill only, quarantined
+### 3.3 Transcripts: where usage went
 
-One-shot importer: `claude-quota backfill [--days 30]` reads `~/.claude/projects/*/*.jsonl` and populates history so the trends view is not empty on day one.
+`claude-quota ship` runs on every machine that runs Claude, once a minute (launchd agent `dev.claude-quota.ship`, installed by `install --ship`). It reads what was appended to `~/.claude/projects/**/*.jsonl` and to Cowork's transcripts since its last run (byte offsets in `~/.claude-quota/ship-state.json`), and on the machine that hosts ATLAS it reads `~/atlas/atlas.db` read-only for what each ATLAS session and job is. It posts to `POST /ingest/usage`: one row per API request (deduplicated by `requestId`), plus sessions, turns, subagents and ATLAS records. Every write is an upsert, so a failed post is simply retried next run.
 
-The docs state plainly that this format is internal to Claude Code and changes between versions. So: **the importer lives in exactly one module** (`claude-quota/backfill.py`), the daemon never imports it, and a parse failure prints a warning and skips the file. Nothing else in the codebase may read a transcript. When a release breaks it, the cost is one broken script.
+This was backfill-only at first. It became the attribution record because OTel has to be configured on every launch path (ATLAS jobs, SDK runs, Cowork) and in practice is configured on none of them, while every one of them writes a transcript. OTel stays the live 10-second view where it exists; calibration takes, per model, the larger of the two costs over an interval so they are never added.
+
+The format is internal to Claude Code and changes between versions, so: **parsing lives in exactly one module** (`transcripts.py`), every line is parsed defensively, an unreadable line is counted (shown by `doctor`) and skipped, and nothing else reads a transcript.
+
+Only metadata and token counts leave the machine, plus an 80 character label per turn and per session so the dashboard can show what each one was. `--no-labels` or `CLAUDE_QUOTA_LABELS=0` sends no text at all.
 
 ---
 
@@ -264,8 +268,10 @@ claude-quota history [--days N] # per-window peaks, cap hits
 claude-quota cost [--by model|agent|mcp|skill] [--window 5h|7d|today]
 claude-quota watch --alert 85   # exit 0 when threshold crossed; for shell/notification hooks
 claude-quota install            # writes statusline wrapper + patches settings.json, idempotent
-claude-quota backfill [--days N]
-claude-quota doctor             # verify OTel is arriving, statusline is posting, rate_limits present
+claude-quota usage [PATH...] [--window 7d] [--by model|mcp|skill|subagent|device|effort]
+claude-quota ship [--since-days N]  # incremental transcript shipper (launchd runs it every minute)
+claude-quota backfill [--days N]    # alias for ship --since-days N
+claude-quota doctor             # verify the shipper, OTel, statusline posting, rate_limits present
 claude-quota daemon [start|stop|status|logs]
 ```
 
@@ -289,6 +295,9 @@ Install `ccq` as a shorthand alias for the same entry point. `claude-quota now` 
 
 ```
 POST /ingest/statusline      body: raw statusline JSON, returns 204 immediately
+POST /ingest/usage           body: {device, requests, conversations, turns, subagents, atlas_sessions}; upserts
+GET  /api/usage?window=5h|today|24h|7d|30d&p=<segment>...&by=<pivot>
+                             drill-down: categories, groups, sessions, then turns, then requests
 GET  /api/summary            current 5h + 7d, projection, verdict, degraded flag
 GET  /api/sessions           live sessions with share, cost, burn, last_active
 GET  /api/breakdown?by=model|agent|mcp|skill&window=5h|7d
@@ -340,7 +349,7 @@ Deliberately different here: it is transcript-driven and estimates the limit; cl
 | Clock skew between reset and local time | Trust `resets_at` from the payload, never compute reset locally |
 | Session ends without notice | Mark idle after 5 min of no activity, drop from live list after 30 min, keep its usage in the window total |
 | Two windows overlap | Windows are account-level and defined by `resets_at`; key on it, do not infer from session start |
-| Backfill parse error | Warn, skip file, continue |
+| Transcript parse error | Count the line, skip it, continue; `doctor` reports the count |
 
 ---
 
@@ -351,7 +360,8 @@ Deliberately different here: it is transcript-driven and estimates the limit; cl
 3. **Attribution.** OTLP receiver, `usage_bucket`, session leaderboard, `claude-quota sessions`.
 4. **Calibration + projection.** The NNLS fit, burn rate, cutoff verdict, confidence range.
 5. **Web.** SSE, the rail, the full page per the preview.
-6. **History.** `window_history`, backfill importer, trends panel, `claude-quota watch`.
+6. **History.** `window_history`, trends panel, `claude-quota watch`.
+7. **Where it went.** Transcript shipper, `req_usage` and friends, ATLAS-aware categories (`classify.py`), `/api/usage` drill-down, the web panel and `claude-quota usage`. See the README for the categories and what cannot be measured.
 
 Milestone 2 is genuinely shippable. Do not build past it without running it for a day first: the calibration design depends on assumptions about the two streams that real data will either confirm or wreck.
 

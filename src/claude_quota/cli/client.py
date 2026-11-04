@@ -48,6 +48,19 @@ def breakdown(by: str = "model", window: str = "5h") -> dict:
     return _get("/api/breakdown", {"by": by, "window": window})
 
 
+def usage(window: str = "7d", path: list[str] | None = None, by: str | None = None) -> dict:
+    params: list[tuple[str, str]] = [("window", window)] + [("p", p) for p in path or []]
+    if by:
+        params.append(("by", by))
+    url = f"{config.client_base_url()}/api/usage"
+    try:
+        resp = httpx.get(url, params=params, headers=_headers(), timeout=10.0)
+        resp.raise_for_status()
+        return resp.json()
+    except httpx.HTTPError as e:
+        raise DaemonError(str(e)) from e
+
+
 def history(days: int = 14) -> dict:
     return _get("/api/history", {"days": days})
 

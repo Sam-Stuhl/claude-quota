@@ -5,6 +5,7 @@ from claude_quota import config, db
 _TABLES = (
     "quota_sample", "raw_statusline", "usage_bucket", "session",
     "calibration", "window_history", "event_log",
+    "req_usage", "conv", "turn", "subagent", "atlas_session",
 )
 
 

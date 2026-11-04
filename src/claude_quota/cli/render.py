@@ -203,6 +203,57 @@ def render_cost(data: dict) -> Table:
     return t
 
 
+def render_usage(data: dict) -> Group:
+    crumbs = " / ".join(c["label"][:50] for c in data.get("breadcrumbs", []))
+    node = data["node"]
+    head = Text()
+    head.append(crumbs, style="bold")
+    head.append(f"   {data['window']} · ${node['cost_usd']:.2f} list price · {node['requests']} requests", style="dim")
+    parts: list = [head]
+
+    def table(title: str, items: list[dict], keyed: bool) -> Table:
+        t = Table(title=title, title_justify="left")
+        if keyed:
+            t.add_column("key", style="dim", overflow="fold", max_width=14)
+        t.add_column("name", overflow="ellipsis", max_width=60, no_wrap=True)
+        t.add_column("share", justify="right")
+        t.add_column("cost", justify="right")
+        t.add_column("5h pts", justify="right")
+        t.add_column("reqs", justify="right")
+        t.add_column("vs prev", justify="right")
+        for c in items:
+            chg = "" if c.get("change") is None else f"{c['change'] * 100:+.0f}%"
+            pts = "" if c.get("est_5h_points") is None else f"{c['est_5h_points']:.1f}"
+            row = [Text(c["label"]), f"{c['share'] * 100:.1f}%", f"${c['cost_usd']:.2f}", pts, str(c["requests"]), chg]
+            t.add_row(*([Text(c["key"][:14])] if keyed else []) + row)
+        return t
+
+    if data.get("requests") is not None:
+        t = Table(title="requests", title_justify="left")
+        for col in ("time", "model", "source", "in", "out", "cache r", "cache w", "cost"):
+            t.add_column(col, justify="right" if col not in ("model", "source") else "left")
+        for r in data["requests"]:
+            t.add_row(fmt_time(r["ts"]), (r["model"] or "").replace("claude-", ""),
+                      r.get("agent_type") or r.get("mcp_server") or "main",
+                      f"{r['tok_input']:,}", f"{r['tok_output']:,}", f"{r['tok_cache_r']:,}",
+                      f"{r['tok_cache_w']:,}", f"${r['cost_usd']:.3f}")
+        parts.append(t)
+    elif data.get("sections"):
+        for name, items in data["sections"].items():
+            if items:
+                parts.append(table(name, items[:25], keyed=(name == "turns")))
+    else:
+        parts.append(table(data.get("by") or "children", data.get("children", [])[:40],
+                           keyed=len(data.get("path", [])) >= 2))
+        res = data.get("residual")
+        if res:
+            if res.get("est_5h_points") is not None:
+                parts.append(Text(f"{res['label']}: about {res['est_5h_points']:.1f} pts (estimated)", style="dim"))
+            else:
+                parts.append(Text(f"{res['label']}: not measurable here ({res.get('note')})", style="dim"))
+    return Group(*parts)
+
+
 def render_doctor(result: dict) -> Group:
     lines: list[Text] = []
     for c in result["checks"]:

@@ -35,12 +35,23 @@ def account_series(conn: sqlite3.Connection, since: int) -> list[tuple[int, floa
 
 
 def _cost_by_model(conn: sqlite3.Connection, t0: int, t1: int) -> dict[str, float]:
-    rows = conn.execute(
-        """SELECT model, SUM(cost_usd) AS c FROM usage_bucket
-           WHERE ts > ? AND ts <= ? GROUP BY model""",
-        (t0, t1),
-    ).fetchall()
-    return {r["model"]: float(r["c"] or 0.0) for r in rows}
+    """Local cost per model in (t0, t1], from OTel and shipped transcripts.
+
+    Both streams describe the same requests, so they are never added: each
+    model takes the larger of the two, which fills a gap in either (a machine
+    without telemetry, a transcript not shipped yet) without double counting.
+    """
+    out: dict[str, float] = {}
+    for table in ("usage_bucket", "req_usage"):
+        rows = conn.execute(
+            f"""SELECT model, SUM(cost_usd) AS c FROM {table}
+                WHERE ts > ? AND ts <= ? AND model IS NOT NULL GROUP BY model""",
+            (t0, t1),
+        ).fetchall()
+        for r in rows:
+            m = r["model"].split("[", 1)[0]
+            out[m] = max(out.get(m, 0.0), float(r["c"] or 0.0))
+    return out
 
 
 def build_observations(
@@ -90,12 +101,15 @@ def build_observations(
 def seed_prior(conn: sqlite3.Connection, now: int | None = None) -> None:
     """Cold start: a flat prior of 1.0 pct_per_usd for every model seen."""
     now = now or int(time.time())
-    models = [
-        r["model"]
-        for r in conn.execute(
-            "SELECT DISTINCT model FROM usage_bucket WHERE model != ''"
-        ).fetchall()
-    ]
+    models = sorted(
+        {
+            r["model"].split("[", 1)[0]
+            for table in ("usage_bucket", "req_usage")
+            for r in conn.execute(
+                f"SELECT DISTINCT model FROM {table} WHERE model IS NOT NULL AND model != ''"
+            ).fetchall()
+        }
+    )
     for m in models:
         exists = conn.execute(
             "SELECT 1 FROM calibration WHERE model = ?", (m,)
@@ -115,6 +129,9 @@ def refit(conn: sqlite3.Connection, now: int | None = None) -> dict:
     Returns a small summary dict for logging/health.
     """
     now = now or int(time.time())
+    # Models are keyed without a context suffix ("[1m]") since transcripts
+    # joined the fit; drop any row left over from before.
+    conn.execute("DELETE FROM calibration WHERE model LIKE '%[%'")
     seed_prior(conn, now)
     models, A, b = build_observations(conn, now)
     if A.shape[0] < 2 or not models:
@@ -151,7 +168,7 @@ def get_rates(conn: sqlite3.Connection) -> dict[str, float]:
 
 
 def rate_for(rates: dict[str, float], model: str) -> float:
-    return rates.get(model, 1.0)
+    return rates.get(model, rates.get((model or "").split("[", 1)[0], 1.0))
 
 
 def is_calibrated(conn: sqlite3.Connection) -> bool:
