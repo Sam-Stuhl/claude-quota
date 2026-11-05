@@ -128,6 +128,17 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(title="claude-quota", lifespan=lifespan)
 
+    @app.middleware("http")
+    async def revalidate(request: Request, call_next):
+        # Cloudflare caches .js and .css for hours when the origin says nothing,
+        # which left browsers on a stale index.html and app.js after a deploy.
+        # no-cache still allows a cheap conditional request (the ETag), but never
+        # a copy served without asking the origin.
+        resp = await call_next(request)
+        if request.method == "GET" and "cache-control" not in resp.headers:
+            resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
     def state(request: Request) -> AppState:
         return request.app.state.qstate
 
