@@ -47,3 +47,8 @@ def test_other_endpoints(client):
     assert client.get("/api/sessions").status_code == 200
     assert client.get("/api/breakdown", params={"by": "model", "window": "5h"}).status_code == 200
     assert client.get("/api/history", params={"days": 7}).status_code == 200
+
+
+def test_static_and_api_always_revalidate(client):
+    for path in ("/", "/api/health"):
+        assert client.get(path).headers["cache-control"] == "no-cache"
