@@ -5,7 +5,7 @@
 # Secrets the daemon needs at runtime, listed by NAME only. The values live in
 # the console (project page -> secrets), never in git. This line must stay
 # ABOVE the first [section] header.
-secrets = ["CLAUDE_QUOTA_TOKEN", "DATABASE_URL"]
+secrets = ["CLAUDE_QUOTA_TOKEN"]
 
 [app]
 name = "claude-quota"
@@ -19,6 +19,18 @@ timeout = 60
 [resources]
 memory = "512m"
 cpus = 1.0
+
+# SQLite at /data/quota.db (CLAUDE_QUOTA_DIR=/data in the image), on the NAS
+# root: the tank disk attached to the mini, mounted into Colima over virtiofs,
+# not SMB. Replaced Neon on 2026-11-05 after the Neon project hit its quota.
+[[volumes]]
+name = "data"
+target = "/data"
+storage = "nas"
+
+# Required with [[volumes]]: swap would run two daemons on one SQLite file.
+[deploy]
+strategy = "recreate"
 
 [env]
 CLAUDE_QUOTA_HOST = "0.0.0.0"

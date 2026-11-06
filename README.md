@@ -195,7 +195,9 @@ control.
 **Storage.** By default the daemon writes SQLite to `/data` (mount a volume).
 If your host has no persistent volume, set `DATABASE_URL` to a Postgres instance
 instead and it stores everything there (build the image with the `postgres`
-extra, which the bundled `Dockerfile` already does).
+extra, which the bundled `Dockerfile` already does). The console deployment
+(`console.toml`) uses SQLite on a `storage = "nas"` volume at `/data`; it ran on
+Neon Postgres until that project hit its quota on 2026-11-05.
 
 **On each device** that runs Claude Code:
 
