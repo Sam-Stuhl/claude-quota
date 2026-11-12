@@ -23,6 +23,7 @@ from fastapi.staticfiles import StaticFiles
 from .. import config, db
 from . import (
     breakdown,
+    budget,
     calibration,
     events,
     health,
@@ -215,6 +216,49 @@ def create_app() -> FastAPI:
     def api_overview(request: Request, window: str = Query("5h")):
         return JSONResponse(state(request).read(
             ("overview", window), 5, lambda c: overview.build(c, window=window)))
+
+    # The weekly budget. /api/budget is the dashboard's (behind the proxy's
+    # access control, like the rest of /api); /ingest/budget is the same answer
+    # for machines (ATLAS, the CLI on another host), behind the ingest token,
+    # because /ingest/* is the token-authenticated path a proxy lets through.
+    def _budget(request: Request) -> JSONResponse:
+        return JSONResponse(state(request).read(("budget",), 20, budget.build))
+
+    async def _budget_plan(request: Request) -> JSONResponse:
+        try:
+            change = await request.json()
+        except Exception:
+            return JSONResponse({"error": "body must be JSON"}, status_code=400)
+        if not isinstance(change, dict):
+            return JSONResponse({"error": "body must be a JSON object"}, status_code=400)
+        s = state(request)
+        try:
+            await asyncio.to_thread(budget.save_plan, s.conn, change)
+        except budget.PlanError as e:
+            return JSONResponse({"error": str(e)}, status_code=400)
+        s.cache.drop("budget")
+        await s.notify_change()
+        return _budget(request)
+
+    @app.get("/api/budget")
+    def api_budget(request: Request):
+        return _budget(request)
+
+    @app.put("/api/budget/plan")
+    async def api_budget_plan(request: Request):
+        return await _budget_plan(request)
+
+    @app.get("/ingest/budget")
+    def ingest_budget(request: Request):
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
+        return _budget(request)
+
+    @app.put("/ingest/budget/plan")
+    async def ingest_budget_plan(request: Request):
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
+        return await _budget_plan(request)
 
     @app.get("/api/summary")
     def api_summary(request: Request):

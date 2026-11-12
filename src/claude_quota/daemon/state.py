@@ -86,6 +86,12 @@ class TTLCache:
             self._items[key] = (time.monotonic(), value)
             return value
 
+    def drop(self, prefix: str) -> None:
+        """Forget every cached answer whose key starts with ``prefix`` (after a write)."""
+        for key in list(self._items):
+            if isinstance(key, tuple) and key and key[0] == prefix:
+                self._items.pop(key, None)
+
 
 @dataclass
 class AppState:

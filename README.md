@@ -94,6 +94,7 @@ claude-quota history [--days N] # per-window peaks and cap hits
 claude-quota cost [--by model|agent|mcp|skill] [--window 5h|7d|today]
 claude-quota usage [PATH...] [--window 7d] [--by model|mcp|skill|subagent|device|effort]
 claude-quota ship [--since-days N] [--dry-run] [--no-labels]
+claude-quota budget [key=value ...]   # today's share of the week, what is left; change the plan
 claude-quota watch --alert 85   # exit 0 when a threshold is crossed
 claude-quota install            # write the statusline wrapper + patch settings.json
 claude-quota backfill [--days N] # same as ship --since-days N
@@ -128,6 +129,45 @@ status line, the quota-meter mod (read by `ship` from its store file and posted 
 mod owns the status line), or atlas-deck. A projection is only ever fitted from one
 source and one window. A reading dies with its window: once the reset time has
 passed, the dashboard says so instead of serving the old number.
+
+## Weekly budget
+
+The 7-day limit split across the days of the week, so a heavy Monday cannot
+quietly spend Thursday. The week is the account's own window (it resets at a
+fixed time, Wednesday 01:00 for Sam's), cut into seven days that start at that
+clock time. Each day has a type, and each type a weight:
+
+| Type | Default weight | Which days |
+|---|---|---|
+| Work day | 1.55 | Lumasoft shift days, from Cedar when `CEDAR_API_KEY` is set (else Mon and Thu) |
+| School day | 1.0 | other weekdays |
+| Light day | 0.45 | Saturday and Sunday |
+
+The weights are measured, not guessed: from Sep 28 to Nov 10 (both machines
+shipping) a work day averaged $182 of list-price use, a school day $118 and a
+weekend day $53. A 10% reserve is never planned. **Today's budget rebalances**:
+it is what is left of the planned 90%, split over today and the days still to
+come by weight, so underspending grows the days ahead and overspending shrinks
+them (never below zero). "Ahead of plan" compares the week's use with the fixed
+plan through the end of today.
+
+How the measured weekly percentage splits across days comes from shipped cost
+times the week's own percent per dollar (0.083 to 0.095 %/$ through the week of
+Nov 4), so the days always add up to the measured total. With no live reading
+yet this week, last week's ratio estimates it and the answer says so.
+
+Background work (scheduled runs, role check-ins, ATLAS helpers, event-triggered
+jobs, tasks agents started) gets 25% of each day's budget, about its 30-day
+share. `background.level` is what ATLAS reads before starting one: `hold` when
+the week is into the reserve, today's budget is spent, background used its
+share, the 5-hour window is past 70%, or a Lumasoft shift is under way; `warn`
+when today is 80% spent or the week is ahead.
+
+- Dashboard: the "Weekly budget" panel (today's left, the seven days, Adjust plan).
+- `claude-quota budget` prints it; `claude-quota budget work=1.6 sat=light 2026-11-27=light reserve=15 bg=20 guard=60 cedar=off` changes the plan (`=auto` clears a day).
+- `GET /api/budget` and `PUT /api/budget/plan` for the dashboard; `GET /ingest/budget`
+  and `PUT /ingest/budget/plan` are the same behind the ingest token, for ATLAS and a
+  CLI on another machine (a proxy's login lets `/ingest/*` through).
 
 ## Where it went (drill-down)
 
@@ -240,6 +280,7 @@ All six milestones from the [spec](SPEC.md) are implemented:
 - [x] **Web.** SSE, the time-axis rail, the full page.
 - [x] **History.** Closed-window history, trends, `claude-quota watch`.
 - [x] **Where it went.** The transcript shipper, ATLAS-aware categories, the drill-down panel and `claude-quota usage`.
+- [x] **Weekly budget.** Per-day shares of the 7-day limit, rebalancing, background gate for ATLAS, `claude-quota budget`.
 
 What remains is validation against real windows over time, and the visual polish pass once a canonical design reference exists.
 
