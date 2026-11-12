@@ -329,3 +329,46 @@ code { font-family:var(--mono); }
 .shell, .shell > * { min-width:0; max-width:100%; }
 #usage-panel { overflow-x:auto; }
 #usage-panel .arow { min-width:640px; }
+
+/* ---- Weekly budget --------------------------------------------------------- */
+.bud-top { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.9fr); gap:22px; align-items:start; }
+.bud-today .big { font-size:40px; font-weight:600; letter-spacing:-.03em; line-height:1; margin:6px 0 2px; }
+.bud-today .big small { font-size:15px; color:var(--ink3); font-weight:500; letter-spacing:0; }
+.bud-today.over .big { color:var(--short); }
+.bud-today.near .big { color:var(--warn); }
+.bud-warn { margin-top:8px; display:flex; flex-direction:column; gap:4px; }
+.bud-warn div { font-size:12px; border-left:2px solid var(--warn); background:var(--warnsoft); padding:4px 8px; border-radius:3px; }
+.bud-warn div.bad { border-color:var(--short); background:var(--shortsoft); }
+.bud-days { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; }
+.bday { border:1px solid var(--line); border-radius:6px; padding:7px 8px 8px; display:flex; flex-direction:column; gap:4px; min-width:0; }
+.bday.today { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+.bday .dh { display:flex; justify-content:space-between; font-size:11px; color:var(--ink2); }
+.bday .dh b { color:var(--ink); }
+.bday .dt { font-size:10.5px; color:var(--ink3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bday .col { position:relative; height:64px; background:var(--greysoft); border-radius:4px; overflow:hidden; }
+.bday .col .u { position:absolute; left:0; right:0; bottom:0; background:var(--accent); }
+.bday .col .bg { position:absolute; left:0; right:0; bottom:0; background:var(--s2); opacity:.85; }
+.bday .col .u.over { background:var(--short); }
+.bday .col .ln { position:absolute; left:0; right:0; height:0; border-top:2px dashed var(--ink3); }
+.bday.future .col { background:repeating-linear-gradient(135deg,var(--greysoft) 0 5px,transparent 5px 9px); }
+.bday .dv { font-family:var(--mono); font-size:11px; color:var(--ink2); }
+.bday .dv.bad { color:var(--short); }
+.bud-legend { display:flex; gap:14px; font-size:11px; color:var(--ink3); margin-top:8px; flex-wrap:wrap; }
+.bud-legend i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
+.bud-edit { margin-top:12px; border-top:1px solid var(--line); padding-top:10px; display:none; }
+.bud-edit.open { display:block; }
+.bud-edit .row { display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:8px; font-size:12px; }
+.bud-edit label { display:inline-flex; align-items:center; gap:6px; color:var(--ink2); }
+.bud-edit input[type=number] { width:64px; font:inherit; font-family:var(--mono); padding:2px 5px; border:1px solid var(--line2); border-radius:4px; background:var(--panel2); color:var(--ink); }
+.bud-edit select { font:inherit; padding:2px 4px; border:1px solid var(--line2); border-radius:4px; background:var(--panel2); color:var(--ink); }
+.bud-btn { font:inherit; font-size:11.5px; border:1px solid var(--line2); background:var(--panel2); color:var(--ink2); border-radius:5px; padding:3px 10px; cursor:pointer; }
+.bud-btn.primary { background:var(--accent); border-color:var(--accent); color:var(--onaccent); font-weight:600; }
+.bud-msg { font-size:11.5px; color:var(--ink3); }
+.bud-msg.bad { color:var(--short); }
+@media (max-width: 860px) {
+  .bud-top { grid-template-columns:1fr; }
+  .bud-days { grid-template-columns:repeat(7,minmax(38px,1fr)); overflow-x:auto; }
+  .bday .dt, .bday .dh span { display:none; }
+  .bday { padding:6px 5px; }
+  .bday .dv { font-size:10px; word-break:break-all; }
+}

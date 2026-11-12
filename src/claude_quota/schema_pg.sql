@@ -166,3 +166,11 @@ CREATE TABLE IF NOT EXISTS atlas_session (
   created_ts    BIGINT
 );
 
+
+-- Small named settings Sam changes from the dashboard or the CLI, as JSON
+-- (the weekly budget plan, key 'budget_plan').
+CREATE TABLE IF NOT EXISTS setting (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at BIGINT NOT NULL
+);

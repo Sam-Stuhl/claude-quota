@@ -67,3 +67,24 @@ def history(days: int = 14) -> dict:
 
 def health() -> dict:
     return _get("/api/health")
+
+
+def budget() -> dict:
+    # /ingest/budget, not /api/budget: the token route, so it also works
+    # against a remote daemon whose /api/* sits behind the proxy's login.
+    return _get("/ingest/budget", timeout=15.0)
+
+
+def set_budget(change: dict) -> dict:
+    url = f"{config.client_base_url()}/ingest/budget/plan"
+    try:
+        resp = httpx.put(url, json=change, headers=_headers(), timeout=15.0)
+    except httpx.HTTPError as e:
+        raise DaemonError(str(e)) from e
+    if resp.status_code == 400:
+        raise DaemonError(resp.json().get("error", "invalid plan"))
+    try:
+        resp.raise_for_status()
+    except httpx.HTTPError as e:
+        raise DaemonError(str(e)) from e
+    return resp.json()

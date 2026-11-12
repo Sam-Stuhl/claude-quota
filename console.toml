@@ -5,7 +5,9 @@
 # Secrets the daemon needs at runtime, listed by NAME only. The values live in
 # the console (project page -> secrets), never in git. This line must stay
 # ABOVE the first [section] header.
-secrets = ["CLAUDE_QUOTA_TOKEN"]
+# CEDAR_API_KEY is optional: with it the weekly budget reads Lumasoft shifts
+# from Cedar to decide which days are work days.
+secrets = ["CLAUDE_QUOTA_TOKEN", "CEDAR_API_KEY"]
 
 [app]
 name = "claude-quota"

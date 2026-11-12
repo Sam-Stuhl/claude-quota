@@ -267,3 +267,40 @@ def render_doctor(result: dict) -> Group:
         if not c["ok"] and c.get("fix"):
             lines.append(Text(f"    fix: {c['fix']}", style="dim"))
     return Group(*lines)
+
+
+def render_budget(b: dict) -> Group:
+    """Today's budget, the week's days and any warnings."""
+    if not b.get("known"):
+        return Group(Text(f"budget unknown: {b.get('reason', '')}", style="yellow"))
+    t, w = b["today"], b["week"]
+    style = {"over": "red", "near": "yellow"}.get(t["status"], "green")
+    head = Text("today ", style="bold")
+    head.append(f"{t['label'].lower()}  ", style="dim")
+    used = t["used_pct"] / t["budget_pct"] * 100 if t["budget_pct"] else 100.0
+    head.append(bar(used), style=style)
+    left = t["left_pct"]
+    head.append(f"  {t['used_pct']:.1f}% of {t['budget_pct']:.1f}%  ")
+    head.append(f"{left:.1f}% left" if left >= 0 else f"{-left:.1f}% over", style=style)
+    pace = (f"{w['ahead_by']:.1f} pts ahead of plan" if w["ahead_by"] > 0.5 else
+            f"{-w['ahead_by']:.1f} pts under plan" if w["ahead_by"] < -0.5 else "on plan")
+    week = Text(f"week  {w['used_pct']:.0f}% used, {pace} (plan {w['plan_through_today_pct']:.0f}% by tonight, "
+                f"{w['reserve_pct']:.0f}% reserve){'  estimated' if b.get('estimated') else ''}", style="dim")
+    table = Table(box=None, pad_edge=False, show_header=True, header_style="dim")
+    for col in ("day", "type", "plan", "budget", "used", "bg"):
+        table.add_column(col, justify="left" if col in ("day", "type") else "right")
+    pct = lambda v: "" if v is None else f"{v:.1f}%"  # noqa: E731
+    for d in b["days"]:
+        mark = "> " if d["state"] == "today" else "  "
+        src = {"cedar": " (Cedar)", "override": " (set)"}.get(d["type_source"], "")
+        over = d["used_pct"] is not None and d["used_pct"] > ((d["budget_pct"] if d["state"] == "today" else d["plan_pct"]) or 0) + 0.05
+        table.add_row(f"{mark}{d['dow']} {d['date'][5:]}", d["type"] + src, pct(d["plan_pct"]),
+                      pct(d["budget_pct"]), Text(pct(d["used_pct"]), style="red" if over else ""),
+                      pct(d["background_pct"]))
+    parts = [head, week, table]
+    bgl = b["background"]
+    if bgl["level"] == "hold":
+        parts.append(Text("background held: " + "; ".join(bgl["hold"]), style="yellow"))
+    for line in b.get("warnings", []):
+        parts.append(Text(line, style="red" if "Over" in line or "reserve" in line else "yellow"))
+    return Group(*parts)

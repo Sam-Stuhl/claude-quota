@@ -147,6 +147,54 @@ def usage(
 
 
 @app.command()
+def budget(
+    changes: Annotated[
+        list[str] | None,
+        typer.Argument(help="Plan changes: work=1.6 school=1 light=0.4 reserve=10 bg=25 guard=70 "
+                            "mon=work sat=light 2026-11-27=light (or =auto) cedar=off"),
+    ] = None,
+    json: bool = typer.Option(False, "--json"),
+) -> None:
+    """Today's share of the weekly limit, what is left, and the week's plan. With arguments, change the plan."""
+    try:
+        data = client.set_budget(_plan_change(changes)) if changes else client.budget()
+    except (client.DaemonError, ValueError) as e:
+        con.print(f"[red]{e}[/red]")
+        raise typer.Exit(1) from e
+    if json:
+        _emit_json(data)
+        return
+    con.print(render.render_budget(data))
+
+
+def _plan_change(args: list[str]) -> dict:
+    out: dict = {}
+    days = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+    for a in args:
+        if "=" not in a:
+            raise ValueError(f"expected key=value, got {a!r}")
+        k, v = a.split("=", 1)
+        k = k.strip().lower()
+        if k in ("work", "school", "light"):
+            out.setdefault("weights", {})[k] = float(v)
+        elif k[:3] in days and not k[0].isdigit():
+            out.setdefault("week", {})[k[:3]] = v
+        elif k[:1].isdigit():
+            out.setdefault("overrides", {})[k] = v
+        elif k == "reserve":
+            out["reserve_pct"] = float(v)
+        elif k in ("bg", "background"):
+            out["background_share"] = float(v)
+        elif k in ("guard", "five_h_guard"):
+            out["five_h_guard"] = float(v)
+        elif k == "cedar":
+            out["use_cedar"] = v.lower() in ("on", "true", "yes", "1")
+        else:
+            raise ValueError(f"unknown plan key {k!r}")
+    return out
+
+
+@app.command()
 def ship(
     since_days: float = typer.Option(30, "--since-days", help="How far back a never-seen transcript may be."),
     dry_run: bool = typer.Option(False, "--dry-run", help="Parse and count, post nothing."),
