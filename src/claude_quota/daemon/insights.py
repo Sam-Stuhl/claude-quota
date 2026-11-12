@@ -37,7 +37,11 @@ TOP_PROJECTS = 12
 
 
 def _ratios(conn, resets: list[int], cur: dict, current_reset: int) -> dict[int, float]:
-    """%/$ for each week window (keyed by its reset)."""
+    """%/$ for each week window (keyed by its reset).
+
+    Resets are found by stepping back whole weeks from the current one, so a
+    week on the other side of a daylight saving change is an hour off the reset
+    its readings carry: match readings within two hours."""
     out: dict[int, float] = {}
     for reset in resets:
         cost = conn.execute(
@@ -47,7 +51,8 @@ def _ratios(conn, resets: list[int], cur: dict, current_reset: int) -> dict[int,
             pct = float(cur["seven_d_pct"])
         else:
             row = conn.execute(
-                "SELECT MAX(seven_d_pct) AS p FROM quota_sample WHERE seven_d_reset = ?", (reset,)
+                "SELECT MAX(seven_d_pct) AS p FROM quota_sample WHERE seven_d_reset BETWEEN ? AND ?",
+                (reset - 2 * HOUR, reset + 2 * HOUR),
             ).fetchone()
             pct = float(row["p"]) if row and row["p"] is not None else None
         if pct is not None and cost >= 5:
