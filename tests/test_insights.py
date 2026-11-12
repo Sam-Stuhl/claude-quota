@@ -54,6 +54,18 @@ def test_points_follow_each_weeks_own_ratio(conn):
     assert b["ranges"]["week"]["total"] == pytest.approx(20.0)
 
 
+def test_a_week_across_daylight_saving_is_still_measured(conn):
+    # Readings carry the real reset (01:00 local); stepping back whole weeks
+    # from this week lands an hour off it on the other side of a DST change.
+    spend(conn, at(-10), 500.0)
+    reading(conn, at(-9), 60.0, reset=START - budget.WEEK + 3600)
+    reading(conn, at(1), 5.0)
+    spend(conn, at(1), 25.0)
+    b = insights.build(conn, now=at(1, 16), days=14)
+    week = [w for w in b["weeks"] if w["reset"] == START - budget.WEEK][0]
+    assert week["measured"] and week["total"] == pytest.approx(60.0)
+
+
 def test_today_hours_burn_and_sessions(conn):
     spend(conn, at(0, 2), 10.0, sid="bg", cwd="/Users/sam/atlas", started_by="routine")
     spend(conn, at(0, 14), 30.0)
