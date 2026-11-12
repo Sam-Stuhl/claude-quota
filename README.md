@@ -169,6 +169,20 @@ when today is 80% spent or the week is ahead.
   and `PUT /ingest/budget/plan` are the same behind the ingest token, for ATLAS and a
   CLI on another machine (a proxy's login lets `/ingest/*` through).
 
+## Usage for ATLAS (`/ingest/insights`)
+
+ATLAS's Usage page (in the ATLAS app, where Sam actually looks) is drawn from
+`GET /ingest/insights?days=28`, behind the ingest token because session labels
+are prompt text. Everything is in points of the weekly limit, not dollars:
+each request's cost times its own week's percent per dollar (that week's
+measured peak over its shipped cost, else the newest known ratio), so this
+week's days add up to the measured weekly percentage. Days start at the reset's
+clock time, like the budget's. It serves today hour by hour by kind of work
+(with the running total, the last hour's burn and when today's budget runs out
+at that pace), each of the last N days by kind with background split out, each
+week's total, and today, this week and 30 days ranked by kind, project, model
+and session (with ATLAS's session number and id, for links).
+
 ## Where it went (drill-down)
 
 The "Where it went" panel (and `claude-quota usage`) answers which kind of use is

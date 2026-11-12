@@ -25,6 +25,7 @@ from . import (
     breakdown,
     budget,
     calibration,
+    insights,
     events,
     health,
     history,
@@ -237,6 +238,7 @@ def create_app() -> FastAPI:
         except budget.PlanError as e:
             return JSONResponse({"error": str(e)}, status_code=400)
         s.cache.drop("budget")
+        s.cache.drop("insights")
         await s.notify_change()
         return _budget(request)
 
@@ -259,6 +261,15 @@ def create_app() -> FastAPI:
         if not config.token_ok(request.headers.get("authorization")):
             return Response(status_code=401)
         return await _budget_plan(request)
+
+    # Real usage in points of the week, for ATLAS's Usage page (insights.py).
+    # Token route only: session labels are prompt text.
+    @app.get("/ingest/insights")
+    def ingest_insights(request: Request, days: int = Query(28)):
+        if not config.token_ok(request.headers.get("authorization")):
+            return Response(status_code=401)
+        return JSONResponse(state(request).read(
+            ("insights", days), 30, lambda c: insights.build(c, days=days)))
 
     @app.get("/api/summary")
     def api_summary(request: Request):
