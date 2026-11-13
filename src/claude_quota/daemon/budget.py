@@ -13,12 +13,27 @@ shipping): a work day averaged $182 of list-price use, a school day $118 and a
 weekend day $53, so work 1.55, school 1.0, light 0.45. A reserve (10% by
 default) is never planned, so a bad day has somewhere to land.
 
-**Today's budget rebalances.** It is what is left of the planned part of the
-week, split over today and the days still to come by their weights. Underspend
-yesterday and today grows; overspend and the rest of the week shrinks, never
-below zero. The fixed plan (each day's share from the start of the week) is
-kept beside it, so "ahead of pace" means the week has used more than the plan
-allowed through the end of today.
+**Today's budget is dynamic.** It is what is left of the planned part of the
+week (``allocatable - used before today``) split over today and the days still
+to come by their weights, so a day not fully used raises the allowance for the
+rest of the week and an overspent day lowers it. It is fixed for the day: what
+today spends does not move today's own number, only tomorrow's. Two bounds keep
+it sane: a floor (``daily_floor`` of the day's fixed plan share, never more than
+what is left) so a bad day cannot starve the rest to nothing, and a cap
+(``daily_cap`` times the fixed plan share) so one underspent stretch cannot let a
+single day eat everything. The last day of the week has no cap: it gets all that
+is left of the plan, the reserve still untouched. The week resets with the 7-day
+window, and the first day of the new week starts from the full allocatable share
+again. The fixed plan (each day's share from the start of the week) is kept
+beside it, so "ahead of pace" means the week has used more than the plan allowed
+through the end of today.
+
+**What the daily number holds, and what it never does.** It holds background work
+(``background``), which also covers agents' session requests and Start cards.
+It never blocks the main ATLAS chat: ``chat`` is advice on how to run it, a tier
+cap that degrades the model (``sonnet``, then ``haiku``) at the weekly and 5-hour
+guards, and at most a ``sonnet`` cap when only the daily number is passed. The
+chat is always ``available``.
 
 **Where the numbers come from.** The week's percentage is the measured 7-day
 reading (the only truth). How it splits across days comes from shipped
@@ -63,6 +78,9 @@ DEFAULT_PLAN: dict = {
     "reserve_pct": 10.0,
     "background_share": 0.25,
     "five_h_guard": 70.0,
+    "five_h_hard": 90.0,
+    "daily_floor": 0.4,
+    "daily_cap": 2.0,
     "near_at": 0.8,
     "use_cedar": True,
     "overrides": {},
@@ -137,6 +155,12 @@ def merge_plan(plan: dict, change: dict) -> dict:
             out[k] = x / 100 if x > 1 else x
         elif k == "five_h_guard":
             out[k] = _num(v, 0, 100, "5-hour guard")
+        elif k == "five_h_hard":
+            out[k] = _num(v, 0, 100, "5-hour hard guard")
+        elif k == "daily_floor":
+            out[k] = _num(v, 0, 1, "daily floor")
+        elif k == "daily_cap":
+            out[k] = _num(v, 1, 10, "daily cap")
         elif k == "near_at":
             out[k] = _num(v, 0.1, 1, "near threshold")
         elif k == "use_cedar":
@@ -246,6 +270,55 @@ def _day_type(d: date, plan: dict, by_day: set[date] | None, last_shift: date | 
     return base, "pattern"
 
 
+def daily_limit(alloc: float, used_before: float, weights: list[float], t: int,
+                plan: dict) -> tuple[float, str | None, float, float, float | None]:
+    """Day ``t``'s limit in points of the week, from what is left of ``alloc``.
+
+    Returns (limit, bound, fixed plan share, floor, cap); ``bound`` is "floor",
+    "cap" or None, and ``cap`` is None on the last day.
+    """
+    total_w = sum(weights) or 1.0
+    w_rest = sum(weights[t:]) or 1.0
+    remaining = max(0.0, alloc - used_before)
+    share = alloc * weights[t] / total_w
+    raw = remaining * weights[t] / w_rest
+    if t >= len(weights) - 1:  # last day: all that is left of the plan
+        return remaining, None, share, 0.0, None
+    floor = min(remaining, share * float(plan["daily_floor"]))
+    cap = max(floor, share * float(plan["daily_cap"]))
+    if raw < floor:
+        return floor, "floor", share, floor, cap
+    if raw > cap:
+        return cap, "cap", share, floor, cap
+    return raw, None, share, floor, cap
+
+
+def chat_advice(five: float | None, week_state: str, today_status: str, plan: dict) -> dict:
+    """How ATLAS's main chat should run. It is never blocked: a tier cap
+    degrades the model at the weekly and 5-hour guards, and the daily number
+    alone only asks for a cheaper one (``sonnet``)."""
+    guard, hard = float(plan["five_h_guard"]), float(plan["five_h_hard"])
+    cap, level, reasons = None, "ok", []
+    daily = False
+    if week_state == "out":
+        cap, level = "haiku", "throttle"
+        reasons.append("the weekly limit is used up")
+    elif week_state == "reserve":
+        cap, level = "sonnet", "degrade"
+        reasons.append("the week is into the reserve")
+    if five is not None and five >= hard:
+        cap, level = "haiku", "throttle"
+        reasons.append(f"the 5-hour window is at {five:.0f}% (hard guard {hard:.0f}%)")
+    elif five is not None and five >= guard:
+        if cap is None:
+            cap, level = "sonnet", "degrade"
+        reasons.append(f"the 5-hour window is at {five:.0f}% (guard {guard:.0f}%)")
+    if today_status == "over" and cap is None:
+        cap, level, daily = "sonnet", "degrade", True
+        reasons.append("today's budget is passed (the chat is not held for it)")
+    return {"available": True, "level": level, "tier_cap": cap, "daily_only": daily, "reasons": reasons}
+
+
 def build(conn, now: int | None = None, shifts: list | None | bool = False) -> dict:
     """The week's plan, today's budget, and whether background work may start.
 
@@ -302,8 +375,9 @@ def build(conn, now: int | None = None, shifts: list | None | bool = False) -> d
     alloc = 100.0 - reserve
 
     used_before = sum(used[:t])
-    w_rest = sum(x["weight"] for x in days[t:]) or 1.0
-    today_budget = max(0.0, alloc - used_before) * days[t]["weight"] / w_rest
+    days_left = 7 - t
+    today_budget, bound, today_plan, floor, cap = daily_limit(
+        alloc, used_before, [x["weight"] for x in days], t, plan)
     today_used = used[t]
     left_after_today = max(0.0, alloc - used_before - max(today_used, today_budget))
     w_future = sum(x["weight"] for x in days[t + 1:]) or 1.0
@@ -400,9 +474,13 @@ def build(conn, now: int | None = None, shifts: list | None | bool = False) -> d
             "used_pct": round(today_used, 1), "left_pct": round(left, 1),
             "background_pct": round(bg_used[t], 1), "background_allow_pct": round(bg_allow, 1),
             "status": today_status, "ends_at": today["ends_at"],
+            "plan_pct": round(today_plan, 1), "floor_pct": round(floor, 1),
+            "cap_pct": round(cap, 1) if cap is not None else None, "bound": bound,
+            "days_left": days_left, "remaining_pct": round(max(0.0, alloc - used_before), 1),
         },
         "days": days,
         "background": {"level": level, "hold": hold, "warn": warn},
+        "chat": chat_advice(five, week_state, today_status, plan),
         "five_h_pct": five,
         "on_shift": ({"until": on_shift.end} if on_shift else None),
         "cedar": {"configured": cedar.configured(), "used": by_day is not None, "error": cedar_error},

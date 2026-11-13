@@ -179,3 +179,144 @@ def test_day_type_falls_back_to_pattern_past_cedars_horizon():
     plan = budget.merge_plan(budget.DEFAULT_PLAN, {})
     mon = date(2027, 1, 4)
     assert budget._day_type(mon, plan, {date(2026, 12, 10)}, date(2026, 12, 10)) == ("work", "pattern")
+
+
+# ---- the dynamic daily limit -------------------------------------------------
+
+def day_budget(conn, day, hour=9):
+    return budget.build(conn, now=at(day, hour), shifts=None)
+
+
+def test_fresh_week_starts_at_the_fixed_plan_share(conn):
+    reading(conn, at(0, 2), 0.0)
+    b = day_budget(conn, 0)
+    assert b["today"]["budget_pct"] == pytest.approx(b["today"]["plan_pct"], abs=0.1)
+    assert b["today"]["bound"] is None and b["today"]["days_left"] == 7
+
+
+def test_underspent_days_raise_the_rest_of_the_week(conn):
+    reading(conn, at(0, 2), 0.0)
+    fixed = day_budget(conn, 2)["today"]["plan_pct"]
+    # Wed and Thu barely used (3% total): Friday gets more than its fixed share.
+    spend(conn, at(0), 10.0)
+    spend(conn, at(1), 10.0)
+    reading(conn, at(1, 22), 3.0)
+    b = day_budget(conn, 2)
+    assert b["today"]["budget_pct"] > fixed
+    # The days from Friday on split what is left of the 90% plan exactly.
+    left = 90.0 - 3.0
+    assert b["today"]["remaining_pct"] == pytest.approx(left, abs=0.1)
+
+
+def test_the_cap_stops_one_day_eating_everything(conn):
+    reading(conn, at(0, 2), 0.0)
+    spend(conn, at(0), 1.0)
+    reading(conn, at(0, 22), 0.1)
+    # Thursday after a near-empty Wednesday, with the whole week left: bounded.
+    spend(conn, at(1), 1.0)
+    reading(conn, at(1, 22), 0.2)
+    b = day_budget(conn, 2)
+    t = b["today"]
+    raw = (90.0 - 0.2) * 1.0 / sum(d["weight"] for d in b["days"][2:])
+    assert t["budget_pct"] <= t["cap_pct"] + 0.05
+    assert t["budget_pct"] == pytest.approx(min(raw, t["cap_pct"]), abs=0.1)
+    # Force the cap: Wed to Fri all light, Sat is a light day with much to spare.
+    budget.save_plan(conn, {"daily_cap": 1.2})
+    capped = day_budget(conn, 2)["today"]
+    assert capped["bound"] == "cap" and capped["budget_pct"] == pytest.approx(capped["cap_pct"], abs=0.1)
+    # What the cap did not give today flows to the days after it.
+    rest = sum(d["budget_pct"] for d in day_budget(conn, 2)["days"][3:])
+    assert rest > 0.0
+
+
+def test_an_overspent_day_lowers_the_next_but_the_floor_holds(conn):
+    reading(conn, at(0, 2), 0.0)
+    fixed = day_budget(conn, 1)["today"]["plan_pct"]
+    spend(conn, at(0), 600.0)
+    reading(conn, at(0, 22), 85.0)  # 85% on day one: almost everything gone
+    b = day_budget(conn, 1)
+    t = b["today"]
+    assert t["budget_pct"] < fixed
+    assert t["budget_pct"] == pytest.approx(5.0, abs=0.1)  # only 5% left of the 90%
+    assert t["floor_pct"] <= t["remaining_pct"]
+    # Over the whole plan: nothing is left, the floor never invents budget.
+    reading(conn, at(1, 4), 95.0)  # all of it was spent on day one
+    z = day_budget(conn, 1, 4)["today"]
+    assert z["remaining_pct"] == 0.0 and z["budget_pct"] == 0.0
+
+
+def test_floor_applies_when_the_split_would_starve_a_day(conn):
+    reading(conn, at(0, 2), 0.0)
+    spend(conn, at(0), 600.0)
+    reading(conn, at(0, 22), 70.0)  # 20% left over six days
+    t = day_budget(conn, 1)["today"]
+    assert t["bound"] == "floor"
+    assert t["budget_pct"] == pytest.approx(t["floor_pct"], abs=0.1)
+    assert t["floor_pct"] == pytest.approx(0.4 * t["plan_pct"], abs=0.1)
+
+
+def test_last_day_gets_everything_left_and_no_cap(conn):
+    reading(conn, at(0, 2), 0.0)
+    spend(conn, at(0), 400.0)
+    reading(conn, at(5, 22), 20.0)  # a week of very light use
+    b = day_budget(conn, 6)
+    t = b["today"]
+    assert t["days_left"] == 1 and t["bound"] is None and t["cap_pct"] is None
+    assert t["budget_pct"] == pytest.approx(70.0, abs=0.1)
+
+
+def test_the_weekly_reset_starts_a_fresh_allocation(conn):
+    reading(conn, at(0, 2), 0.0)
+    spend(conn, at(0), 600.0)
+    reading(conn, at(6, 20), 85.0)
+    # After the reset the next week's first reading carries the new reset time.
+    new_reset = RESET + budget.WEEK
+    after = RESET + 3600 * 3
+    conn.execute(
+        "INSERT INTO quota_sample (ts, session_id, five_h_pct, five_h_reset, seven_d_pct, seven_d_reset, "
+        "had_limits, source) VALUES (?, 's', 5, ?, 1.0, ?, 1, 'statusline')",
+        (after, after + 3600, new_reset),
+    )
+    conn.commit()
+    b = budget.build(conn, now=after, shifts=None)
+    assert b["week"]["reset"] == new_reset
+    assert b["today"]["days_left"] == 7
+    assert b["today"]["remaining_pct"] == pytest.approx(90.0, abs=0.1)
+
+
+def test_over_the_daily_limit_never_blocks_the_chat(conn):
+    spend(conn, at(0, 10), 200.0)
+    reading(conn, at(0, 20), 20.0)
+    b = budget.build(conn, now=at(0, 20), shifts=None)
+    assert b["today"]["status"] == "over"
+    assert b["background"]["level"] == "hold"  # routines, new sessions, Start cards wait
+    chat = b["chat"]
+    assert chat["available"] is True and chat["daily_only"] is True
+    assert chat["level"] == "degrade" and chat["tier_cap"] == "sonnet"
+
+
+def test_the_chat_is_throttled_only_at_the_weekly_and_five_hour_guards(conn):
+    reading(conn, at(0, 2), 0.0, five=10.0)
+    assert day_budget(conn, 0)["chat"] == {"available": True, "level": "ok", "tier_cap": None,
+                                           "daily_only": False, "reasons": []}
+    reading(conn, at(0, 9), 1.0, five=75.0)
+    c = day_budget(conn, 0, 9)["chat"]
+    assert c["level"] == "degrade" and c["tier_cap"] == "sonnet" and not c["daily_only"]
+    reading(conn, at(0, 11), 1.0, five=93.0)
+    c = day_budget(conn, 0, 11)["chat"]
+    assert c["level"] == "throttle" and c["tier_cap"] == "haiku" and c["available"]
+    reading(conn, at(1, 9), 95.0, five=10.0)  # into the weekly reserve
+    assert day_budget(conn, 1, 9)["chat"]["tier_cap"] == "sonnet"
+    reading(conn, at(1, 11), 100.0, five=10.0)
+    c = day_budget(conn, 1, 11)["chat"]
+    assert c["tier_cap"] == "haiku" and c["available"] is True
+
+
+def test_the_insights_projection_uses_the_same_dynamic_number(conn):
+    from claude_quota.daemon import insights
+
+    reading(conn, at(0, 2), 0.0)
+    spend(conn, at(0), 10.0)
+    reading(conn, at(1, 9), 1.0)
+    now = at(1, 10)
+    assert insights.build(conn, now=now)["today"]["budget_pct"] == budget.build(conn, now=now, shifts=None)["today"]["budget_pct"]
