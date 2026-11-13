@@ -145,11 +145,21 @@ clock time. Each day has a type, and each type a weight:
 
 The weights are measured, not guessed: from Sep 28 to Nov 10 (both machines
 shipping) a work day averaged $182 of list-price use, a school day $118 and a
-weekend day $53. A 10% reserve is never planned. **Today's budget rebalances**:
-it is what is left of the planned 90%, split over today and the days still to
-come by weight, so underspending grows the days ahead and overspending shrinks
-them (never below zero). "Ahead of plan" compares the week's use with the fixed
-plan through the end of today.
+weekend day $53. A 10% reserve is never planned.
+
+**Today's limit is dynamic.** It is what is left of the planned 90% (minus
+everything used before today) split over today and the days still to come by
+weight, so a day not fully used raises the allowance for the rest of the week
+and an overspent day lowers it. It is fixed for the day: today's spend moves
+tomorrow's number, not today's. Two bounds keep it sane: a **floor** (40% of the
+day's fixed plan share, never more than what is left, `daily_floor`) and a
+**cap** (2x the fixed share, `daily_cap`) so one underspent stretch cannot let a
+single day eat everything; the surplus flows to the days after it. The **last
+day** has no cap: it gets all that is left of the plan. The week **resets** with
+the 7-day window and starts again from the full 90%. "Ahead of plan" compares the
+week's use with the fixed plan through the end of today. The ATLAS hub guard, the
+dashboard, the usage popup and the insights projection all read this one number
+(`today.budget_pct`).
 
 How the measured weekly percentage splits across days comes from shipped cost
 times the week's own percent per dollar (0.083 to 0.095 %/$ through the week of
@@ -159,9 +169,17 @@ yet this week, last week's ratio estimates it and the answer says so.
 Background work (scheduled runs, role check-ins, ATLAS helpers, event-triggered
 jobs, tasks agents started) gets 25% of each day's budget, about its 30-day
 share. `background.level` is what ATLAS reads before starting one: `hold` when
-the week is into the reserve, today's budget is spent, background used its
+the week is into the reserve, today's limit is spent, background used its
 share, the 5-hour window is past 70%, or a Lumasoft shift is under way; `warn`
-when today is 80% spent or the week is ahead.
+when today is 80% spent or the week is ahead. The daily limit holds background
+routines, agents' new sessions and Start cards, and nothing else.
+
+**The main ATLAS chat is never blocked by the daily limit.** `chat` in the same
+answer is advice, not a gate: `available` is always true and `tier_cap` says how
+cheap a model to run it on. Past the daily limit alone the cap is `sonnet`
+(`daily_only: true`); the weekly reserve or the 5-hour guard (70%) caps at
+`sonnet`; the 5-hour hard guard (90%, `five_h_hard`) or a used-up week caps at
+`haiku` (`level: throttle`). Otherwise `tier_cap` is null.
 
 - Dashboard: the "Weekly budget" panel (today's left, the seven days, Adjust plan).
 - `claude-quota budget` prints it; `claude-quota budget work=1.6 sat=light 2026-11-27=light reserve=15 bg=20 guard=60 cedar=off` changes the plan (`=auto` clears a day).

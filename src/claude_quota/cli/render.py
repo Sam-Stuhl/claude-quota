@@ -297,7 +297,12 @@ def render_budget(b: dict) -> Group:
         table.add_row(f"{mark}{d['dow']} {d['date'][5:]}", d["type"] + src, pct(d["plan_pct"]),
                       pct(d["budget_pct"]), Text(pct(d["used_pct"]), style="red" if over else ""),
                       pct(d["background_pct"]))
-    parts = [head, week, table]
+    bound = {"cap": ", capped", "floor": ", at the floor"}.get(t.get("bound"), "")
+    limit = Text(f"limit  {t['remaining_pct']:.1f}% of the plan left over {t['days_left']} day(s){bound}", style="dim")
+    parts = [head, week, limit, table]
+    chat = b.get("chat") or {}
+    if chat.get("level") not in (None, "ok"):
+        parts.append(Text(f"chat {chat['level']} (cap {chat['tier_cap']}): " + "; ".join(chat["reasons"]), style="yellow"))
     bgl = b["background"]
     if bgl["level"] == "hold":
         parts.append(Text("background held: " + "; ".join(bgl["hold"]), style="yellow"))

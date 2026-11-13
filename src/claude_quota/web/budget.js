@@ -27,13 +27,18 @@
     const gate = d.background.level === "hold"
       ? `<div class="gnote bad">ATLAS is holding background work: ${esc(d.background.hold.join("; "))}.</div>`
       : d.background.level === "warn" ? `<div class="gnote">ATLAS warns before background work: ${esc(d.background.warn.join("; "))}.</div>` : "";
+    const bound = t.bound === "cap" ? ` · capped at ${p1(t.cap_pct)} so one day cannot eat the week`
+      : t.bound === "floor" ? ` · held at the ${p1(t.floor_pct)} floor` : "";
+    const chat = d.chat && d.chat.level !== "ok"
+      ? `<div class="gnote">ATLAS chat stays on, ${d.chat.level === "throttle" ? "on the cheapest model" : "on a cheaper model"}: ${esc(d.chat.reasons.join("; "))}.</div>` : "";
     return `<div class="bud-today ${t.status}">
       <div class="eyebrow">Today · ${esc(t.label)} · ${esc(t.dow)} until ${clock(t.ends_at)}</div>
       <div class="big">${big}</div>
       <div class="gauge ${cls}"><i style="width:${bar.toFixed(1)}%"></i></div>
       <div class="gnote"><b>${p1(t.used_pct)}</b> of today's <b>${p1(t.budget_pct)}</b> used · ${bg}</div>
+      <div class="gnote">Today's limit is ${p1(t.remaining_pct)} left of the plan over ${t.days_left} day${t.days_left === 1 ? "" : "s"}${bound}</div>
       <div class="gnote">Week <b>${p1(w.used_pct)}</b> used, ${pace} (${p1(w.plan_through_today_pct)} planned by tonight, ${w.reserve_pct}% held in reserve)${d.estimated ? " · estimated, no live reading this week" : ""}</div>
-      ${gate}<div class="bud-warn">${warns}</div></div>`;
+      ${gate}${chat}<div class="bud-warn">${warns}</div></div>`;
   }
 
   function dayCols(d) {
